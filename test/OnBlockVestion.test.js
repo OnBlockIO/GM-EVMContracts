@@ -363,4 +363,12 @@ contract("OnBlockVesting", async accounts => {
             await timeHelper.revertToSnapShot(snapshot['result']);
         }
     });
+
+    it("should return all active vaults", async () => {
+        const obv = await OnBlockVesting.deployed();
+        const gm = await GhostMarket.deployed();
+
+        const vaults = await obv.getActiveVaults.call();
+        assert.equal(vaults.length, 1)
+    });
 });

@@ -55,7 +55,7 @@ contract OnBlockVesting is Ownable {
     }
 
     struct Vault {
-        // the lock entity id
+        // the vault id
         uint256 id;
 
         // The token to be locked
@@ -63,13 +63,13 @@ contract OnBlockVesting is Ownable {
 
         // A mapping of all beneficiaries
         mapping(address => Beneficiary) beneficiaries;
-
-        // Admin
-        address admin;
     }
 
     // Mapping to hold all vaults
     mapping(IERC20 => Vault) private vaults;
+
+    // Array to track all active token vaults
+    IERC20[] private activeVaults;
 
     // Globals
     uint256 private ID_COUNTER;
@@ -89,7 +89,6 @@ contract OnBlockVesting is Ownable {
         FEE_SUM = 0;
     }
 
-
     /*
      * fallback and receive functions to disable
      * direct transfers to the contract
@@ -101,6 +100,10 @@ contract OnBlockVesting is Ownable {
 
     receive() external payable {
         revert();
+    }
+
+    function getActiveVaults() public view returns (IERC20[] memory) {
+        return activeVaults;
     }
 
     function getVaultFee() public view returns (uint256) {
@@ -125,13 +128,15 @@ contract OnBlockVesting is Ownable {
     function createVault(IERC20 token_) public payable returns (uint256) {
         require(vaults[token_].id == 0, "Vault exists already");
         require(msg.value >= VAULT_FEE, "No fee attached");
+
         FEE_SUM += msg.value;
 
-        // create new Vault
+        // Create new Vault
         Vault storage entity = vaults[token_];
         entity.id = getID();
         entity.token = token_;
-        entity.admin = msg.sender;
+
+        activeVaults.push(token_);
 
         emit VaultCreated(entity.id, token_, msg.value);
         return entity.id;
@@ -151,7 +156,7 @@ contract OnBlockVesting is Ownable {
         uint256 allowance = token_.allowance(msg.sender, address(this));
         require(allowance >= amount_, "Token allowance check failed");
 
-        require(token_.transferFrom(msg.sender, address(this), amount_), "Transfer failed!");
+        token_.safeTransferFrom(msg.sender, address(this), amount_);
 
         uint256 endTime = startTime_ .add(duration_);
 
