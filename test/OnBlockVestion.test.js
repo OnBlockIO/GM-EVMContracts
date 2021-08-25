@@ -14,10 +14,13 @@ const {
 const TEN_SECONDS_FROM_NOW = Date.now() / 1000 + 10 | 0
 
 contract("OnBlockVesting", async accounts => {
-    it("should match owner", async () => {
+    it("should have 4 voters", async () => {
         const obv = await OnBlockVesting.deployed();
-        const owner = await obv.owner.call();
-        assert.equal(owner, accounts[0]);
+
+        for (let i=0; i < 4; i++) {
+            const success = await obv.isVoter.call(accounts[i]);
+            assert.isTrue(success);
+        }
     });
 
     it("should match vault fee", async () => {
@@ -33,24 +36,97 @@ contract("OnBlockVesting", async accounts => {
         assert.equal(fee, '2000000000');
     });
 
-    it("should fail, because not the owner", async () => {
+    it("should fail, because fee to high", async () => {
         const obv = await OnBlockVesting.deployed();
         await expectRevert(obv.setVaultFee(new BN('2000000000'), { from: accounts[2] }),
-        "Ownable: caller is not the owner -- Reason given: Ownable: caller is not the owner"
+        "Vault fee is too high -- Reason given:  Vault fee is too high."
         );
         const fee = await obv.getVaultFee.call();
         assert.equal(fee, '2000000000');
     });
 
-    it("should transfer ownership", async () => {
+    it("should create new withdraw vote", async () => {
         const obv = await OnBlockVesting.deployed();
-        await obv.transferOwnership(accounts[4]);
-        const owner = await obv.owner.call();
-        assert.equal(owner, accounts[4])
-        await obv.transferOwnership(accounts[0], { from: accounts[4] });
-        const ownerAfter = await obv.owner.call();
-        assert.equal(ownerAfter, accounts[0])
+        const receipt = await obv.requestVote(new BN('0'), accounts[5], new BN('0'), { from: accounts[1] });
+        expectEvent(receipt, 'VoteRequested', {
+            requester: accounts[1],
+            onVote: accounts[5],
+            newFee: new BN('0'),
+            action: new BN('0')
+        });
     });
+
+    it("should vote on new withdraw vote and finish", async () => {
+        const obv = await OnBlockVesting.deployed();
+        const createReceipt = await obv.requestVote(new BN('0'), accounts[5], new BN('0'), { from: accounts[1] });
+        expectEvent(createReceipt, 'VoteRequested', {
+            requester: accounts[1],
+            onVote: accounts[5],
+            newFee: new BN('0'),
+            action: new BN('0')
+        });
+
+        const voteReceipt = await obv.vote(new BN('0'), accounts[1], accounts[5], new BN('0'), { from: accounts[2] });
+        expectEvent(voteReceipt, 'Voted', {
+            sender: accounts[2],
+            onVote: accounts[5],
+            voteAddress: accounts[5],
+            voteFee: new BN('0'),
+            action: new BN('0')
+        });
+
+        const voteStateReceipt = await obv.isVoteDone(new BN('0'), accounts[5], { from: accounts[1] });
+        expectEvent(voteStateReceipt, 'VoteState', {
+            sender: accounts[1],
+            voteAddress: accounts[5],
+            voteCount: new BN(2),
+            minVotes: new BN(3),
+            action: new BN(0)
+        });
+
+        const voteState = await obv.isVoteDone.call(new BN('0'), accounts[5], { from: accounts[1] });
+        assert.isFalse(voteState);
+
+        const voteReceipt2 = await obv.vote(new BN('0'), accounts[1], accounts[5], new BN('0'), { from: accounts[3] });
+        expectEvent(voteReceipt2, 'Voted', {
+            sender: accounts[3],
+            onVote: accounts[5],
+            voteAddress: accounts[5],
+            voteFee: new BN('0'),
+            action: new BN('0')
+        });
+
+        const voteStateReceipt2 = await obv.isVoteDone(new BN('0'), accounts[5], { from: accounts[1] });
+        expectEvent(voteStateReceipt2, 'VoteState', {
+            sender: accounts[1],
+            voteAddress: accounts[5],
+            voteCount: new BN(3),
+            minVotes: new BN(3),
+            action: new BN(0)
+        });
+
+        const voteStateFinal = await obv.isVoteDone.call(new BN('0'), accounts[5], { from: accounts[1] });
+        assert.isTrue(voteStateFinal);
+    });
+
+    it("should fail, because is not voter", async () => {
+        const obv = await OnBlockVesting.deployed();
+        await expectRevert(obv.setVaultFee(new BN('2000000000'), { from: accounts[5] }),
+        "Sender is not an active voter -- Reason given: Sender is not an active voter."
+        );
+        const fee = await obv.getVaultFee.call();
+        assert.equal(fee, '2000000000');
+    });
+
+    // it("should transfer ownership", async () => {
+    //     const obv = await OnBlockVesting.deployed();
+    //     await obv.transferOwnership(accounts[4]);
+    //     const owner = await obv.owner.call();
+    //     assert.equal(owner, accounts[4])
+    //     await obv.transferOwnership(accounts[0], { from: accounts[4] });
+    //     const ownerAfter = await obv.owner.call();
+    //     assert.equal(ownerAfter, accounts[0])
+    // });
 
     it("should create new vesting vault", async () => {
         const obv = await OnBlockVesting.deployed();
