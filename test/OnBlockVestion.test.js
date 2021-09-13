@@ -11,7 +11,7 @@ const {
   ether
 } = require('@openzeppelin/test-helpers');
 
-const TEN_SECONDS_FROM_NOW = Date.now() / 1000 + 10 | 0
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 contract("OnBlockVesting", async accounts => {
     it("should have 4 voters", async () => {
@@ -29,20 +29,105 @@ contract("OnBlockVesting", async accounts => {
         assert.equal(fee, '10000000');
     });
 
-    it("should match updated vault fee", async () => {
+    it("should fail, because is not voter", async () => {
         const obv = await OnBlockVesting.deployed();
-        await obv.setVaultFee(new BN('2000000000'));
+        await expectRevert(obv.setVaultFee(new BN('2000000000'), { from: accounts[5] }),
+        "Sender is not an active voter -- Reason given: Sender is not an active voter."
+        );
         const fee = await obv.getVaultFee.call();
-        assert.equal(fee, '2000000000');
+        assert.equal(fee, '10000000');
+    });
+
+
+    it("should fail without vote ", async () => {
+        const obv = await OnBlockVesting.deployed();
+        await expectRevert(obv.setVaultFee(new BN('9999'), { from: accounts[2] }),
+        "Vote was not successful yet -- Reason given: Vote was not successful yet."
+        );
+        const fee = await obv.getVaultFee.call();
+        assert.equal(fee, '10000000');
     });
 
     it("should fail, because fee to high", async () => {
         const obv = await OnBlockVesting.deployed();
-        await expectRevert(obv.setVaultFee(new BN('2000000000'), { from: accounts[2] }),
+        await expectRevert(obv.setVaultFee(new BN('900000000000'), { from: accounts[2] }),
         "Vault fee is too high -- Reason given:  Vault fee is too high."
         );
         const fee = await obv.getVaultFee.call();
-        assert.equal(fee, '2000000000');
+        assert.equal(fee, '10000000');
+    });
+
+    it("should create new fee update vote", async () => {
+        const obv = await OnBlockVesting.deployed();
+        const receipt = await obv.requestVote(new BN('3'), ZERO_ADDRESS, new BN('20000000'), { from: accounts[1] });
+        expectEvent(receipt, 'VoteRequested', {
+            requester: accounts[1],
+            onVote: ZERO_ADDRESS,
+            newFee: new BN('20000000'),
+            action: new BN('3')
+        });
+    });
+
+    it("should vote on new fee update vote and finish", async () => {
+        const obv = await OnBlockVesting.deployed();
+        const createReceipt = await obv.requestVote(new BN('3'), ZERO_ADDRESS, new BN('20000000'), { from: accounts[1] });
+        expectEvent(createReceipt, 'VoteRequested', {
+            requester: accounts[1],
+            onVote: ZERO_ADDRESS,
+            newFee: new BN('20000000'),
+            action: new BN('3')
+        });
+
+        const voteReceipt = await obv.vote(new BN('3'), accounts[1], ZERO_ADDRESS, new BN('20000000'), { from: accounts[2] });
+        expectEvent(voteReceipt, 'Voted', {
+            sender: accounts[2],
+            onVote: ZERO_ADDRESS,
+            voteAddress: ZERO_ADDRESS,
+            voteFee: new BN('20000000'),
+            action: new BN('3')
+        });
+
+        const voteStateReceipt = await obv.isVoteDone(new BN('3'), ZERO_ADDRESS, new BN('20000000'), { from: accounts[1] });
+        expectEvent(voteStateReceipt, 'VoteState', {
+            sender: accounts[1],
+            voteAddress: ZERO_ADDRESS,
+            voteCount: new BN(2),
+            minVotes: new BN(3),
+            voteFee: new BN('20000000'),
+            action: new BN("3")
+        });
+
+        const voteState = await obv.isVoteDone.call(new BN('3'), ZERO_ADDRESS, new BN('20000000'), { from: accounts[1] });
+        assert.isFalse(voteState);
+
+        const voteReceipt2 = await obv.vote(new BN('3'), accounts[1], ZERO_ADDRESS, new BN('20000000'), { from: accounts[3] });
+        expectEvent(voteReceipt2, 'Voted', {
+            sender: accounts[3],
+            onVote: ZERO_ADDRESS,
+            voteAddress: ZERO_ADDRESS,
+            voteFee: new BN('20000000'),
+            action: new BN('3')
+        });
+
+        const voteStateFinal = await obv.isVoteDone.call(new BN('3'), ZERO_ADDRESS, new BN('20000000'), { from: accounts[1] });
+        assert.isTrue(voteStateFinal);
+
+        // vote concluded set new fee now, but be sneaky, try to set a different fee
+
+        await expectRevert(obv.setVaultFee(new BN('9999'), { from: accounts[2] }),
+        "Vote was not successful yet -- Reason given: Vote was not successful yet."
+        );
+
+        // ok let's be serious now
+        const setFeeReceipt = await obv.setVaultFee(new BN('20000000'), { from: accounts[2] });
+        expectEvent(setFeeReceipt, 'FeeUpdated', {
+            updater: accounts[2],
+            newFee: new BN('20000000')
+        });
+
+        const voteStateAfterDone = await obv.isVoteDone.call(new BN('3'), ZERO_ADDRESS, new BN('20000000'), { from: accounts[1] });
+        assert.isFalse(voteStateAfterDone);
+
     });
 
     it("should create new withdraw vote", async () => {
@@ -75,7 +160,7 @@ contract("OnBlockVesting", async accounts => {
             action: new BN('0')
         });
 
-        const voteStateReceipt = await obv.isVoteDone(new BN('0'), accounts[5], { from: accounts[1] });
+        const voteStateReceipt = await obv.isVoteDone(new BN('0'), accounts[5], new BN('0'), { from: accounts[1] });
         expectEvent(voteStateReceipt, 'VoteState', {
             sender: accounts[1],
             voteAddress: accounts[5],
@@ -84,7 +169,7 @@ contract("OnBlockVesting", async accounts => {
             action: new BN(0)
         });
 
-        const voteState = await obv.isVoteDone.call(new BN('0'), accounts[5], { from: accounts[1] });
+        const voteState = await obv.isVoteDone.call(new BN('0'), accounts[5], new BN('0'), { from: accounts[1] });
         assert.isFalse(voteState);
 
         const voteReceipt2 = await obv.vote(new BN('0'), accounts[1], accounts[5], new BN('0'), { from: accounts[3] });
@@ -96,7 +181,7 @@ contract("OnBlockVesting", async accounts => {
             action: new BN('0')
         });
 
-        const voteStateReceipt2 = await obv.isVoteDone(new BN('0'), accounts[5], { from: accounts[1] });
+        const voteStateReceipt2 = await obv.isVoteDone(new BN('0'), accounts[5], new BN('0'), { from: accounts[1] });
         expectEvent(voteStateReceipt2, 'VoteState', {
             sender: accounts[1],
             voteAddress: accounts[5],
@@ -105,35 +190,16 @@ contract("OnBlockVesting", async accounts => {
             action: new BN(0)
         });
 
-        const voteStateFinal = await obv.isVoteDone.call(new BN('0'), accounts[5], { from: accounts[1] });
+        const voteStateFinal = await obv.isVoteDone.call(new BN('0'), accounts[5], new BN('0'), { from: accounts[1] });
         assert.isTrue(voteStateFinal);
     });
-
-    it("should fail, because is not voter", async () => {
-        const obv = await OnBlockVesting.deployed();
-        await expectRevert(obv.setVaultFee(new BN('2000000000'), { from: accounts[5] }),
-        "Sender is not an active voter -- Reason given: Sender is not an active voter."
-        );
-        const fee = await obv.getVaultFee.call();
-        assert.equal(fee, '2000000000');
-    });
-
-    // it("should transfer ownership", async () => {
-    //     const obv = await OnBlockVesting.deployed();
-    //     await obv.transferOwnership(accounts[4]);
-    //     const owner = await obv.owner.call();
-    //     assert.equal(owner, accounts[4])
-    //     await obv.transferOwnership(accounts[0], { from: accounts[4] });
-    //     const ownerAfter = await obv.owner.call();
-    //     assert.equal(ownerAfter, accounts[0])
-    // });
 
     it("should create new vesting vault", async () => {
         const obv = await OnBlockVesting.deployed();
         const gm = await GhostMarket.deployed();
 
-        const receipt = await obv.createVault(gm.address, { value: '2000000000'})
         const fee = await obv.getVaultFee.call();
+        const receipt = await obv.createVault(gm.address, { value: fee})
         expectEvent(receipt, 'VaultCreated', { vaultId: new BN('1'), token: gm.address, fee: fee});
     });
 
@@ -173,8 +239,10 @@ contract("OnBlockVesting", async accounts => {
         const obv = await OnBlockVesting.deployed();
         const gm = await GhostMarket.deployed();
 
+        const block = await web3.eth.getBlock("latest")
+        const time = block.timestamp + 10;
         await expectRevert(obv.addBeneficiary(gm.address, accounts[1], 100,
-            TEN_SECONDS_FROM_NOW, 86400 * 100 /* 100 days */, 0, 1),
+            time, 86400 * 100 /* 100 days */, 0, 1),
         "Token allowance check failed -- Reason given: Token allowance check failed"
         );
     });
@@ -185,7 +253,8 @@ contract("OnBlockVesting", async accounts => {
 
         await gm.approve(obv.address, 100);
 
-        const time = TEN_SECONDS_FROM_NOW;
+        const block = await web3.eth.getBlock("latest")
+        const time = block.timestamp + 10;
         const receipt = await obv.addBeneficiary(gm.address, accounts[1], 100,
             time, 1000 /* 1000 seconds */, 0, 0);
         expectEvent(receipt, 'AddedBeneficiary', { vaultId: new BN('1'), account: accounts[1], amount: new BN('100'),
@@ -199,7 +268,8 @@ contract("OnBlockVesting", async accounts => {
         await gm.approve(obv.address, 200);
 
         const allowance = await gm.allowance.call(accounts[0], obv.address);
-        const time = TEN_SECONDS_FROM_NOW;
+        const block = await web3.eth.getBlock("latest")
+        const time = block.timestamp + 10;
         const receipt = await obv.addBeneficiary(gm.address, accounts[2], 200,
             time, 1000 /* 1000 seconds */, 0, 1);
         expectEvent(receipt, 'AddedBeneficiary', { vaultId: new BN('1'), account: accounts[2], amount: new BN('200'),
@@ -273,7 +343,8 @@ contract("OnBlockVesting", async accounts => {
         const obv = await OnBlockVesting.deployed();
         const gm = await GhostMarket.deployed();
 
-        const time = TEN_SECONDS_FROM_NOW;
+        const block = await web3.eth.getBlock("latest")
+        const time = block.timestamp + 10;
         const snapshot = await timeHelper.takeSnapshot();
         try {
             await timeHelper.advanceTimeAndBlock(10000000000);
@@ -297,7 +368,8 @@ contract("OnBlockVesting", async accounts => {
         await gm.approve(obv.address, 200);
 
         const allowance = await gm.allowance.call(accounts[0], obv.address);
-        const time = TEN_SECONDS_FROM_NOW;
+        const block = await web3.eth.getBlock("latest")
+        const time = block.timestamp + 10;
         const receipt = await obv.addBeneficiary(gm.address, accounts[3], 200,
             time, 1000 /* 1000 seconds */, 100, 1);
         expectEvent(receipt, 'AddedBeneficiary', { vaultId: new BN('1'), account: accounts[3], amount: new BN('200'),
@@ -308,7 +380,8 @@ contract("OnBlockVesting", async accounts => {
         const obv = await OnBlockVesting.deployed();
         const gm = await GhostMarket.deployed();
 
-        const time = TEN_SECONDS_FROM_NOW;
+        const block = await web3.eth.getBlock("latest")
+        const time = block.timestamp + 10;
         const snapshot = await timeHelper.takeSnapshot();
         try {
             await timeHelper.advanceTimeAndBlock(99);

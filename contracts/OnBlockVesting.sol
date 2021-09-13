@@ -20,7 +20,7 @@ contract OnBlockVesting is ReentrancyGuard {
     uint256 constant SECONDS_PER_DAY = 86400;
     uint256 constant TEN_YRS_DAYS = 3650; // CKP-12
     uint256 constant TEN_YRS_SECONDS = TEN_YRS_DAYS * SECONDS_PER_DAY;
-    uint256 constant MAX_VAULT_FEE = 10000000; // TODO change to a realistic number
+    uint256 constant MAX_VAULT_FEE = 90000000; // TODO change to a realistic number
 
 
     string constant public name = "OnBlockVesting"; // CKP-07
@@ -109,13 +109,16 @@ contract OnBlockVesting is ReentrancyGuard {
     uint256 private MIN_VOTES_FOR_APPROVAL;
 
     // Events
+    event Debug(string arg1);
+    event Debug2(string arg1, bytes32 arg2, bytes32 arg3);
+    event Debug3(uint256 arg1, uint256 arg2);
     event VaultCreated(uint256 vaultId, IERC20 token, uint256 fee);
     event Release(uint256 vaultId, address account, uint256 amount, uint256 released);
     event FeeWithdraw(address initiator, address receiver, uint256 amount);
-    event FeeUpdated(uint256 newFee);
+    event FeeUpdated(address updater, uint256 newFee);
     event VoteRequested(address requester, address onVote, uint256 newFee, VoteAction action);
     event Voted(address sender, address onVote, address voteAddress, uint256 voteFee, VoteAction action);
-    event VoteState(address sender, address voteAddress, uint256 voteCount, uint256 minVotes, VoteAction action);
+    event VoteState(address sender, address voteAddress, uint256 voteFee, uint256 voteCount, uint256 minVotes, VoteAction action);
     event AddedBeneficiary(uint256 vaultId, address account, uint256 amount, uint256 startTime, uint256 duration,
                            LockType lockType);
 
@@ -164,23 +167,70 @@ contract OnBlockVesting is ReentrancyGuard {
         return activeVoters[address_];
     }
 
-    function isVoteDone(VoteAction action, address voteAddress_) public returns (bool) {
+    function finalizeVote(VoteAction action, address voteAddress, uint256 fee) private onlyVoter returns (bool) {
+        if (action == VoteAction.WITHDRAW || action == VoteAction.ADDVOTER || action == VoteAction.REMOVEVOTER) {
+            Vote storage activeVote;
+            for (uint i = 0; i < voters.length; i++) {
+                activeVote = votes[voters[i]];
+                if (activeVote.voteType == action && activeVote.onVote == voteAddress) {
+                    delete votes[voters[i]];
+                }
+            }
+            return true;
+
+        } else if (action == VoteAction.FEEUPDATE) {
+            Vote storage activeVote;
+            for (uint i = 0; i < voters.length; i++) {
+                activeVote = votes[voters[i]];
+                if (activeVote.voteType == action && activeVote.newFee == fee) {
+                    delete votes[voters[i]];
+                }
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    function isVoteDone(VoteAction action, address voteAddress, uint256 fee) public onlyVoter returns (bool) {
         uint256 voteResult = 0;
-        bytes memory addressBytes = abi.encodePacked(voteAddress_);
-        Vote storage activeVote;
-        for (uint i = 0; i < voters.length; i++) {
-            activeVote = votes[voters[i]];
-            if (activeVote.voteType == action && activeVote.onVote == voteAddress_) {
-                for (uint j = 0; j < voters.length; j++) {
-                    if (activeVote.results[voters[j]] == keccak256(addressBytes)) {
-                        voteResult += 1;
+        if (action == VoteAction.WITHDRAW || action == VoteAction.ADDVOTER || action == VoteAction.REMOVEVOTER) {
+            bytes memory addressBytes = abi.encode(voteAddress);
+            Vote storage activeVote;
+            for (uint i = 0; i < voters.length; i++) {
+                activeVote = votes[voters[i]];
+                if (activeVote.voteType == action && activeVote.onVote == voteAddress) {
+                    for (uint j = 0; j < voters.length; j++) {
+                        emit Debug2("good", activeVote.results[voters[j]], keccak256(addressBytes));
+                        if (activeVote.results[voters[j]] == keccak256(addressBytes)) {
+                            voteResult += 1;
+                        }
                     }
                 }
             }
+
+            emit VoteState(msg.sender, voteAddress, 0, voteResult, MIN_VOTES_FOR_APPROVAL, action);
+            return voteResult >= MIN_VOTES_FOR_APPROVAL;
+
+        } else if (action == VoteAction.FEEUPDATE) {
+            bytes memory feeBytes = abi.encode(fee);
+            Vote storage activeVote;
+            for (uint i = 0; i < voters.length; i++) {
+                activeVote = votes[voters[i]];
+                if (activeVote.voteType == action && activeVote.newFee == fee) {
+                    for (uint j = 0; j < voters.length; j++) {
+                        if (activeVote.results[voters[j]] == keccak256(feeBytes)) {
+                            voteResult += 1;
+                        }
+                    }
+                }
+            }
+
+            emit VoteState(msg.sender, address(0), fee, voteResult, MIN_VOTES_FOR_APPROVAL, action);
+            return voteResult >= MIN_VOTES_FOR_APPROVAL;
         }
 
-        emit VoteState(msg.sender, voteAddress_, voteResult, 3, action);
-        return voteResult >= MIN_VOTES_FOR_APPROVAL;
+        return false;
     }
 
     function requestVote(VoteAction action_, address address_, uint256 newFee_) external onlyVoter {
@@ -191,11 +241,11 @@ contract OnBlockVesting is ReentrancyGuard {
         entity.voteType = action_;
 
         if (entity.voteType == VoteAction.FEEUPDATE) {
-            bytes memory feeBytes = abi.encodePacked(newFee_);
+            bytes memory feeBytes = abi.encode(newFee_);
             entity.results[msg.sender] = keccak256(feeBytes);
         } else {
             // Vote creator is the first voter
-            bytes memory addressBytes = abi.encodePacked(address_);
+            bytes memory addressBytes = abi.encode(address_);
             entity.results[msg.sender] = keccak256(addressBytes);
         }
 
@@ -210,30 +260,35 @@ contract OnBlockVesting is ReentrancyGuard {
         if (entity.voteType == action_) {
 
             if (entity.voteType == VoteAction.FEEUPDATE) {
-                bytes memory feeBytes = abi.encodePacked(newFee_);
+                bytes memory feeBytes = abi.encode(newFee_);
                 entity.results[msg.sender] = keccak256(feeBytes);
             } else {
                 // Vote creator is the first voter
-                bytes memory addressBytes = abi.encodePacked(address_);
+                bytes memory addressBytes = abi.encode(address_);
                 entity.results[msg.sender] = keccak256(addressBytes);
             }
         }
 
         emit Voted(msg.sender, entity.onVote, address_, newFee_, entity.voteType);
-        //TODO emit event
     }
 
     function setVaultFee(uint256 newFee_) public onlyVoter { // CKP-06
         require(newFee_ > 0, 'New vault fee has to be > 0');
-        require(VAULT_FEE <= MAX_VAULT_FEE, ' Vault fee is too high'); // CKP-01
+        require(newFee_ <= MAX_VAULT_FEE, ' Vault fee is too high'); // CKP-01
+
+        require(isVoteDone(VoteAction.FEEUPDATE, address(0), newFee_), "Vote was not successful yet");
+
         VAULT_FEE = newFee_;
-        emit FeeUpdated(VAULT_FEE); // CKP-09
+        emit FeeUpdated(msg.sender, VAULT_FEE); // CKP-09
+        finalizeVote(VoteAction.FEEUPDATE, address(0), newFee_);
     }
 
     function withdrawVaultFee(address payable receiver_) external onlyVoter nonReentrant { // CKP-06 // CKP-16
+        require(isVoteDone(VoteAction.WITHDRAW, receiver_, 0), "Vote was not successful yet");
         receiver_.transfer(FEE_SUM);
         emit FeeWithdraw(msg.sender, receiver_, FEE_SUM);
         FEE_SUM = 0;
+        finalizeVote(VoteAction.WITHDRAW, receiver_, 0);
     }
 
     function feeBalance() external view returns (uint256) { // CKP-06
@@ -265,7 +320,7 @@ contract OnBlockVesting is ReentrancyGuard {
     function addBeneficiary(IERC20 token_, address account_, uint256 amount_, uint256 startTime_, uint256 duration_, 
                            uint256 cliff_, LockType lockType_, bool sanity) public nonReentrant { // CKP-03
         require(vaults[token_].id > 0, "Vault does not exist"); // CKP-05
-        require(startTime_ > block.timestamp, "StartTime has to be in the future");
+        require(startTime_ > block.timestamp, "StartTime has to be in the future ");
         require(amount_ > 0, "Amount has to be > 0");
 
         uint256 allowance = token_.allowance(msg.sender, address(this));
