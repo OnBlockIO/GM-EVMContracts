@@ -323,18 +323,17 @@ contract OnBlockVesting is ReentrancyGuard {
         require(startTime_ > block.timestamp, "StartTime has to be in the future ");
         require(amount_ > 0, "Amount has to be > 0");
 
+        // Check the duration for a simple sanity check, if the vesting schedule is > 10 years, make sure the sanity flag is passed.
+        if (sanity && duration_ > TEN_YRS_SECONDS) {
+            require(duration_ < 3650 days, "If you are sure to have a lock time greater than  10 years use the overloaded function");
+        }
+
         uint256 allowance = token_.allowance(msg.sender, address(this));
         require(allowance >= amount_, "Token allowance check failed");
 
         token_.safeTransferFrom(msg.sender, address(this), amount_);
 
         uint256 endTime = startTime_ .add(duration_);
-
-        // Calculate the duration for a simple sanity check, if the vesting schedule is > 10 years, make sure the sanity flag is passed.
-        uint256 vestingDuration_ = endTime - startTime_; // CKP-10
-        if (sanity && vestingDuration_ > TEN_YRS_SECONDS) {
-            require(vestingDuration_ < 3650 days, "If you are sure to have a lock time greater than  10 years use the overloaded function");
-        }
 
         Beneficiary storage beneficiary = getBeneficiary(token_, account_);
 
