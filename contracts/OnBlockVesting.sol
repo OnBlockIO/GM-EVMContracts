@@ -331,16 +331,23 @@ contract OnBlockVesting is ReentrancyGuard {
         uint256 allowance = token_.allowance(msg.sender, address(this));
         require(allowance >= amount_, "Token allowance check failed");
 
+        uint256 balanceBefore = token_.balanceOf(address(this));
+
         token_.safeTransferFrom(msg.sender, address(this), amount_);
 
-        uint256 endTime = startTime_ .add(duration_);
+        uint256 balanceAfter = token_.balanceOf(address(this));
+
+        if (balanceAfter.sub(balanceBefore) != amount_) {
+            // the token is deflationary, we don't support that.
+            revert("Deflationary tokens are not supported!");
+        }
 
         Beneficiary storage beneficiary = getBeneficiary(token_, account_);
 
         beneficiary.account = account_;
         beneficiary.amount = amount_;
         beneficiary.startTime = startTime_;
-        beneficiary.endTime = endTime;
+        beneficiary.endTime = startTime_.add(duration_);
         beneficiary.duration = duration_;
         beneficiary.cliff = startTime_.add(cliff_);
         beneficiary.released = 0;

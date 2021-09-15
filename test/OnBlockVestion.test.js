@@ -2,6 +2,7 @@ const suite = require('../node_modules/erc20-test-suite/lib/suite');
 const timeHelper = require('../src/helper.js');
 const OnBlockVesting = artifacts.require("OnBlockVesting");
 const GhostMarket = artifacts.require("GhostMarket");
+const DeflationaryToken = artifacts.require("DeflationaryToken");
 
 const {
   BN,           // Big Number support
@@ -203,12 +204,36 @@ contract("OnBlockVesting", async accounts => {
         expectEvent(receipt, 'VaultCreated', { vaultId: new BN('1'), token: gm.address, fee: fee});
     });
 
+    it("should create new vesting vault for deflationary", async () => {
+        const obv = await OnBlockVesting.deployed();
+        const dft = await DeflationaryToken.deployed();
+
+        const fee = await obv.getVaultFee.call();
+        const receipt = await obv.createVault(dft.address, { value: fee})
+        expectEvent(receipt, 'VaultCreated', { vaultId: new BN('2'), token: dft.address, fee: fee});
+    });
+
+    it("should fail adding beneficiary, deflationary token", async () => {
+        const obv = await OnBlockVesting.deployed();
+        const dft = await DeflationaryToken.deployed();
+
+        await dft.approve(obv.address, 100);
+        const block = await web3.eth.getBlock("latest")
+        const time = block.timestamp + 10;
+
+        await expectRevert(obv.addBeneficiary(dft.address, accounts[1], 100,
+            time, 86400 * 100 /* 100 days */, 0, 1),
+        "Deflationary tokens are not supported! -- Reason given: Deflationary tokens are not supported!"
+        );
+    });
+
     it("should verify fee balance", async () => {
         const obv = await OnBlockVesting.deployed();
         const gm = await GhostMarket.deployed();
 
         const feeBalance = await obv.feeBalance.call()
-        const fee = await obv.getVaultFee.call();
+        const vaults = await obv.getActiveVaults.call();
+        const fee = (await obv.getVaultFee.call()) * vaults.length;
         assert.equal(feeBalance.toString(), fee.toString());
     });
 
@@ -518,6 +543,6 @@ contract("OnBlockVesting", async accounts => {
         const gm = await GhostMarket.deployed();
 
         const vaults = await obv.getActiveVaults.call();
-        assert.equal(vaults.length, 1)
+        assert.equal(vaults.length, 2)
     });
 });
