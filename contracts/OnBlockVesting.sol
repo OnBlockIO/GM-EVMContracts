@@ -128,7 +128,7 @@ contract OnBlockVesting is ReentrancyGuard {
     }
 
     constructor(uint256 vaultFee_, address[] memory voters_) {
-        require(VAULT_FEE <= MAX_VAULT_FEE, 'Vault fee is too high'); // CKP-01
+        require(vaultFee_ <= MAX_VAULT_FEE, 'Vault fee is too high'); // CKP-01
         require(voters_.length >= 4, 'Contract needs at least four signers');
         VAULT_FEE = vaultFee_;
         ID_COUNTER = 0;
@@ -272,7 +272,7 @@ contract OnBlockVesting is ReentrancyGuard {
         emit Voted(msg.sender, entity.onVote, address_, newFee_, entity.voteType);
     }
 
-    function setVaultFee(uint256 newFee_) public onlyVoter { // CKP-06
+    function setVaultFee(uint256 newFee_) external onlyVoter { // CKP-06
         require(newFee_ > 0, 'New vault fee has to be > 0');
         require(newFee_ <= MAX_VAULT_FEE, ' Vault fee is too high'); // CKP-01
 
