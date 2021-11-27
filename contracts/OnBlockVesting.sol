@@ -20,8 +20,7 @@ contract OnBlockVesting is ReentrancyGuard {
     uint256 constant SECONDS_PER_DAY = 86400;
     uint256 constant TEN_YRS_DAYS = 3650; // CKP-12
     uint256 constant TEN_YRS_SECONDS = TEN_YRS_DAYS * SECONDS_PER_DAY;
-    uint256 constant MAX_VAULT_FEE = 90000000; // TODO change to a realistic number
-
+    uint256 constant MAX_VAULT_FEE = 1000000000000000000; // max 1 unit native currency
 
     string constant public name = "OnBlockVesting"; // CKP-07
     string constant public version = "v0.1"; // CKP-07
@@ -79,7 +78,7 @@ contract OnBlockVesting is ReentrancyGuard {
 
         VoteAction voteType;
 
-        // The address to vote on, either a withdraw address or a new voter to be added or exisiting voter to be removed
+        // The address to vote on, either a withdraw address or a new voter to be added or existing voter to be removed
         address onVote;
 
         uint256 newFee;
@@ -105,7 +104,6 @@ contract OnBlockVesting is ReentrancyGuard {
     uint256 private ID_COUNTER;
     uint256 private VAULT_FEE;
     uint256 private FEE_SUM;
-
     uint256 private MIN_VOTES_FOR_APPROVAL;
 
     // Events
@@ -201,7 +199,7 @@ contract OnBlockVesting is ReentrancyGuard {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.onVote == voteAddress) {
                     for (uint j = 0; j < voters.length; j++) {
-                        emit Debug2("good", activeVote.results[voters[j]], keccak256(addressBytes));
+                        // emit Debug2("good", activeVote.results[voters[j]], keccak256(addressBytes));
                         if (activeVote.results[voters[j]] == keccak256(addressBytes)) {
                             voteResult += 1;
                         }
@@ -253,7 +251,6 @@ contract OnBlockVesting is ReentrancyGuard {
     }
 
     function vote(VoteAction action_, address creator_, address address_, uint256 newFee_) external onlyVoter {
-
         // Get the vote, key is the vote creators address
         Vote storage entity = votes[creator_];
 
@@ -297,7 +294,7 @@ contract OnBlockVesting is ReentrancyGuard {
 
     function createVault(IERC20 token_) external payable returns (uint256) { // CKP-06
         require(vaults[token_].id == 0, "Vault exists already");
-        require(msg.value >= VAULT_FEE, "No fee attached");
+        require(msg.value >= VAULT_FEE, "Not enough fee attached");
 
         FEE_SUM += msg.value;
 
@@ -325,7 +322,7 @@ contract OnBlockVesting is ReentrancyGuard {
 
         // Check the duration for a simple sanity check, if the vesting schedule is > 10 years, make sure the sanity flag is passed.
         if (sanity && duration_ > TEN_YRS_SECONDS) {
-            require(duration_ < 3650 days, "If you are sure to have a lock time greater than  10 years use the overloaded function");
+            require(duration_ < 3650 days, "If you are sure to have a lock time greater than 10 years use the overloaded function");
         }
 
         uint256 allowance = token_.allowance(msg.sender, address(this));
@@ -405,7 +402,7 @@ contract OnBlockVesting is ReentrancyGuard {
     }
 
     /**
-     * @notice Calculates the vested amount based on the beneficiaries parameters..
+     * @notice Calculates the vested amount based on the beneficiaries parameters.
      */
     function vestedAmount(Beneficiary memory beneficiary) private view returns (uint256) {
         if (block.timestamp < beneficiary.cliff || block.timestamp < beneficiary.startTime) {
