@@ -286,6 +286,20 @@ contract("OnBlockVesting", async accounts => {
             startTime: new BN(time), duration: new BN(1000), lockType: '0' });
     });
 
+    it("should fail addign beneficiary, already exists", async () => {
+        const obv = await OnBlockVesting.deployed();
+        const gm = await GhostMarket.deployed();
+
+        await gm.approve(obv.address, 100);
+
+        const block = await web3.eth.getBlock("latest")
+        const time = block.timestamp + 10;
+        await expectRevert(obv.addBeneficiary(gm.address, accounts[1], 100,
+            time, 1000 /* 1000 seconds */, 0, 0),
+        "Beneficiary already exists"
+        );
+    });
+
     it("should add beneficiary, linear", async () => {
         const obv = await OnBlockVesting.deployed();
         const gm = await GhostMarket.deployed();
@@ -456,7 +470,7 @@ contract("OnBlockVesting", async accounts => {
             const calculatedAmount = Math.trunc(beneficiary.amount * (block.timestamp - beneficiary.startTime) / beneficiary.duration);
 
             const receipt = await obv.release(gm.address, accounts[1]);
-            expectEvent(receipt, 'Release', { vaultId: new BN('1'), account: accounts[1], amount: new BN(calculatedAmount),
+            expectEvent(receipt, 'Fulfilled', { vaultId: new BN('1'), account: accounts[1], amount: new BN(calculatedAmount),
                 released: new BN(calculatedAmount) });
 
             const amount = await gm.balanceOf.call(accounts[1]);
@@ -464,7 +478,7 @@ contract("OnBlockVesting", async accounts => {
             const contractAmountAfter = await gm.balanceOf.call(obv.address);
             assert.equal(contractAmountAfter, contractAmountBefore - amount);
 
-            const releaseable = await obv.releasableAmount.call(gm.address, accounts[1]);
+            //const releaseable = await obv.releasableAmount.call(gm.address, accounts[1]);
 
         } finally {
             await timeHelper.revertToSnapShot(snapshot['result']);
@@ -500,12 +514,31 @@ contract("OnBlockVesting", async accounts => {
             assert.equal(parseInt(releaseable) + parseInt(beneficiary2.released), beneficiary.amount);
 
             const receipt2 = await obv.release(gm.address, accounts[2]);
-            expectEvent(receipt2, 'Release', { vaultId: new BN('1'), account: accounts[2], amount: new BN(2),
+            expectEvent(receipt2, 'Fulfilled', { vaultId: new BN('1'), account: accounts[2], amount: new BN(2),
                 released: beneficiary.amount });
 
             const releaseable2 = await obv.releasableAmount.call(gm.address, accounts[2]);
             const beneficiary3 = await obv.readBeneficiary.call(gm.address, accounts[2]);
-            assert.equal(parseInt(releaseable2) + parseInt(beneficiary3.released), beneficiary.amount);
+            // beneficiary is removed from mapping
+            assert.equal(undefined, beneficiary.address);
+
+            // let's add it again
+            await gm.approve(obv.address, 100);
+            const allowance = await gm.allowance.call(accounts[0], obv.address);
+            assert.equal(allowance, 100)
+
+            await timeHelper.advanceTimeAndBlock(1000);
+            const block2 = await web3.eth.getBlock("latest")
+            const time = block2.timestamp + 10;
+            const receipt3 = await obv.addBeneficiary(gm.address, accounts[2], 100,
+                time, 1000 /* 1000 seconds */, 0, 1);
+            expectEvent(receipt3, 'AddedBeneficiary', { vaultId: new BN('1'), account: accounts[2], amount: new BN('100'),
+                startTime: new BN(time), duration: new BN(1000), lockType: '1' });
+
+            // advance time by 100s
+            await timeHelper.advanceTimeAndBlock(110);
+            const releaseable3 = await obv.releasableAmount.call(gm.address, accounts[2]);
+            assert.equal(releaseable3, 10)
 
         } finally {
             await timeHelper.revertToSnapShot(snapshot['result']);

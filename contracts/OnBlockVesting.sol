@@ -112,6 +112,7 @@ contract OnBlockVesting is ReentrancyGuard {
     event Debug3(uint256 arg1, uint256 arg2);
     event VaultCreated(uint256 vaultId, IERC20 token, uint256 fee);
     event Release(uint256 vaultId, address account, uint256 amount, uint256 released);
+    event Fulfilled(uint256 vaultId, address account, uint256 amount, uint256 released);
     event FeeWithdraw(address initiator, address receiver, uint256 amount);
     event FeeUpdated(address updater, uint256 newFee);
     event VoteRequested(address requester, address onVote, uint256 newFee, VoteAction action);
@@ -317,6 +318,7 @@ contract OnBlockVesting is ReentrancyGuard {
     function addBeneficiary(IERC20 token_, address account_, uint256 amount_, uint256 startTime_, uint256 duration_, 
                            uint256 cliff_, LockType lockType_, bool sanity) public nonReentrant { // CKP-03
         require(vaults[token_].id > 0, "Vault does not exist"); // CKP-05
+        require(vaults[token_].beneficiaries[account_].account == address(0), "Beneficiary already exists");
         require(startTime_ > block.timestamp, "StartTime has to be in the future ");
         require(amount_ > 0, "Amount has to be > 0");
 
@@ -390,7 +392,12 @@ contract OnBlockVesting is ReentrancyGuard {
 
         beneficiary.released += amountToRelease;
 
-        emit Release(vault.id, account_, amountToRelease, beneficiary.released);
+        if (beneficiary.released == beneficiary.amount) {
+            emit Fulfilled(vault.id, account_, amountToRelease, beneficiary.released);
+            delete vault.beneficiaries[account_];
+        } else {
+            emit Release(vault.id, account_, amountToRelease, beneficiary.released);
+        }
     }
 
     /**
