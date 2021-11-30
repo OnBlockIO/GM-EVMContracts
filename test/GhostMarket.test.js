@@ -29,7 +29,7 @@ contract("GhostMarket", async accounts => {
     it("Name", async () => {
         let instance = await GhostMarket.deployed();
         let name = await instance.name.call();
-        assert.equal(name, 'GhostMarket');
+        assert.equal(name, 'GhostMarket Token');
     });
 
     it("Symbol", async () => {
