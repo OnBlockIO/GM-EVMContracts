@@ -51,7 +51,7 @@ contract("OnBlockVesting", async accounts => {
 
     it("should fail, because fee to high", async () => {
         const obv = await OnBlockVesting.deployed();
-        await expectRevert(obv.setVaultFee(new BN('900000000000'), { from: accounts[2] }),
+        await expectRevert(obv.setVaultFee(new BN('9000000000000000000'), { from: accounts[2] }),
         "Vault fee is too high -- Reason given:  Vault fee is too high."
         );
         const fee = await obv.getVaultFee.call();
