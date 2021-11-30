@@ -40,7 +40,7 @@ contract("OnBlockVesting", async accounts => {
     });
 
 
-    it("should fail without vote ", async () => {
+    it("should fail without vote", async () => {
         const obv = await OnBlockVesting.deployed();
         await expectRevert(obv.setVaultFee(new BN('9999'), { from: accounts[2] }),
         "Vote was not successful yet -- Reason given: Vote was not successful yet."
@@ -223,7 +223,7 @@ contract("OnBlockVesting", async accounts => {
 
         await expectRevert(obv.addBeneficiary(dft.address, accounts[1], 100,
             time, 86400 * 100 /* 100 days */, 0, 1),
-        "Deflationary tokens are not supported! -- Reason given: Deflationary tokens are not supported!"
+        "SafeERC20: low-level call failed -- Reason given: Deflationary tokens are not supported!."
         );
     });
 
