@@ -27,7 +27,7 @@ contract("OnBlockVesting", async accounts => {
     it("should match vault fee", async () => {
         const obv = await OnBlockVesting.deployed();
         const fee = await obv.getVaultFee.call();
-        assert.equal(fee, '10000000');
+        assert.equal(fee, '1000000000000000');
     });
 
     it("should fail, because is not voter", async () => {
@@ -36,7 +36,7 @@ contract("OnBlockVesting", async accounts => {
         "Sender is not an active voter -- Reason given: Sender is not an active voter."
         );
         const fee = await obv.getVaultFee.call();
-        assert.equal(fee, '10000000');
+        assert.equal(fee, '1000000000000000');
     });
 
 
@@ -46,7 +46,7 @@ contract("OnBlockVesting", async accounts => {
         "Vote was not successful yet -- Reason given: Vote was not successful yet."
         );
         const fee = await obv.getVaultFee.call();
-        assert.equal(fee, '10000000');
+        assert.equal(fee, '1000000000000000');
     });
 
     it("should fail, because fee to high", async () => {
@@ -55,7 +55,7 @@ contract("OnBlockVesting", async accounts => {
         "Vault fee is too high -- Reason given:  Vault fee is too high."
         );
         const fee = await obv.getVaultFee.call();
-        assert.equal(fee, '10000000');
+        assert.equal(fee, '1000000000000000');
     });
 
     it("should create new fee update vote", async () => {
