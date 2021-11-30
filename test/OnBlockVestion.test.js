@@ -286,7 +286,7 @@ contract("OnBlockVesting", async accounts => {
             startTime: new BN(time), duration: new BN(1000), lockType: '0' });
     });
 
-    it("should fail addign beneficiary, already exists", async () => {
+    it("should fail adding beneficiary, already exists", async () => {
         const obv = await OnBlockVesting.deployed();
         const gm = await GhostMarket.deployed();
 
