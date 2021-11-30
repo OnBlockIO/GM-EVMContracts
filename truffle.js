@@ -1,12 +1,9 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider');
-// const fs = require('fs');
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
-
-import {
+const {
   MAINNET_PRIVATE_KEYS,
   TESTNET_PRIVATE_KEYS,
   ETHERSCAN_API_KEY
-} from './.secrets.json'
+} = require('./.secrets.json');
 
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
