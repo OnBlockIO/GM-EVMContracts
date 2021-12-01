@@ -3,7 +3,7 @@ const {
   BN,           // Big Number support
 } = require('@openzeppelin/test-helpers');
 
-const GM = artifacts.require('GhostMarket');
+const GM = artifacts.require('GhostMarketToken');
 const OBV = artifacts.require('OnBlockVesting');
 const DFT = artifacts.require('DeflationaryToken');
 
