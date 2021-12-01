@@ -1,12 +1,12 @@
 const suite = require('../node_modules/erc20-test-suite/lib/suite');
-const GhostMarket = artifacts.require("GhostMarket");
+const GhostMarket = artifacts.require("GhostMarketToken");
 const {
   constants,    // Common constants, like the zero address and largest integers
   expectRevert, // Assertions for transactions that should fail
   ether
 } = require('@openzeppelin/test-helpers');
 
-contract("GhostMarket", async accounts => {
+contract("GhostMarketToken", async accounts => {
     it("Owner is set", async () => {
         let instance = await GhostMarket.deployed();
         let owner = await instance.owner.call();

@@ -1,7 +1,7 @@
 const suite = require('../node_modules/erc20-test-suite/lib/suite');
 const timeHelper = require('../src/helper.js');
 const OnBlockVesting = artifacts.require("OnBlockVesting");
-const GhostMarket = artifacts.require("GhostMarket");
+const GhostMarket = artifacts.require("GhostMarketToken");
 const DeflationaryToken = artifacts.require("DeflationaryToken");
 
 const {

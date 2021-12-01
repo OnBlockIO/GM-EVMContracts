@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";                                             
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";                                             
                                                                                                                         
-contract GhostMarket is Initializable, ERC20Upgradeable, OwnableUpgradeable, PausableUpgradeable {
+contract GhostMarketToken is Initializable, ERC20Upgradeable, OwnableUpgradeable, PausableUpgradeable {
                                                                                                                         
     uint8 private _decimals;                                                                                            
                                                                                                                         
