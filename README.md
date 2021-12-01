@@ -49,6 +49,23 @@ https://snowtrace.io/address/
 #### TransparentUpgradeableProxy
 https://snowtrace.io/address/
 
+## Deployed Contracts on Ethereum:
+
+#### OnBlockVesting
+https://etherscan.com/address/
+
+#### GhostMarketToken
+https://etherscan.com/address/
+
+#### ProxyAdmin
+https://etherscan.com/address/
+
+#### TransparentUpgradeableProxy
+https://etherscan.com/address/
+
+#### TransparentUpgradeableProxy
+https://etherscan.com/address/
+
 ## Audit
 
 Coming soon...
