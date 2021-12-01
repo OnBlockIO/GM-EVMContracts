@@ -2,7 +2,8 @@ const HDWalletProvider = require('@truffle/hdwallet-provider');
 const {
   MAINNET_PRIVATE_KEYS,
   TESTNET_PRIVATE_KEYS,
-  ETHERSCAN_API_KEY
+  ETHERSCAN_API_KEY,
+  INFURA_API_KEY
 } = require('./.secrets.json');
 
 module.exports = {
@@ -14,20 +15,62 @@ module.exports = {
       port: 8545,
       network_id: "*" // Match any network id
     },
-    testnet: {
+    bsctestnet: {
       provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `https://data-seed-prebsc-1-s1.binance.org:8545`),
       network_id: 97,
       confirmations: 10,
       timeoutBlocks: 200,
       skipDryRun: true
     },
-    mainnet: {
+    bscmainnet: {
       provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://bsc-dataseed1.binance.org`),
       network_id: 56,
       confirmations: 10,
       timeoutBlocks: 200,
       skipDryRun: true
     },
+    polygontestnet: {
+      provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `https://rpc-mumbai.maticvigil.com/`),
+      network_id: 80001,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
+    polygonmainnet: {
+      provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://rpc-mainnet.matic.quiknode.pro`),
+      network_id: 137,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
+    avalanchetestnet: {
+      provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `https://api.avax-test.network/ext/bc/C/rpc`),
+      network_id: 43113,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
+    avalanchemainnet: {
+      provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://api.avax.network/ext/bc/C/rpc`),
+      network_id: 43114,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
+    ethtestnet: {
+      provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `https://ropsten.infura.io/v3/${INFURA_API_KEY}`),
+      network_id: 3,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
+    ethmainnet: {
+      provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://infura.io/v3/${INFURA_API_KEY}`),
+      network_id: 1,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    }
   },
   compilers: {
     solc: {
