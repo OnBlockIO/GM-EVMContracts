@@ -25,49 +25,53 @@ module.exports = {
     bscmainnet: {
       provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://bsc-dataseed1.binance.org`),
       network_id: 56,
-      confirmations: 10,
+      confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true
     },
     polygontestnet: {
-      provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `https://rpc-mumbai.maticvigil.com/`),
+      provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `https://polygon-mumbai.infura.io/v3/${INFURA_API_KEY}`),
       network_id: 80001,
-      confirmations: 10,
+      confirmations: 2,
       timeoutBlocks: 200,
-      skipDryRun: true
+      skipDryRun: true,
+      gas: 6000000,
+      gasPrice: 10000000000,
     },
     polygonmainnet: {
       provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://rpc-mainnet.matic.quiknode.pro`),
       network_id: 137,
-      confirmations: 10,
+      confirmations: 2,
       timeoutBlocks: 200,
-      skipDryRun: true
+      skipDryRun: true,
+      gas: 6000000,
+      gasPrice: 10000000000,
     },
     avalanchetestnet: {
       provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `https://api.avax-test.network/ext/bc/C/rpc`),
-      network_id: 43113,
-      confirmations: 10,
+      network_id: '*',
+      confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true
     },
     avalanchemainnet: {
       provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://api.avax.network/ext/bc/C/rpc`),
-      network_id: 43114,
-      confirmations: 10,
+      network_id: '*',
+      confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true
     },
     ethtestnet: {
       provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `https://ropsten.infura.io/v3/${INFURA_API_KEY}`),
-      network_id: 3,
-      confirmations: 10,
+      network_id: '*',
+      confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true
     },
     ethmainnet: {
       provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://infura.io/v3/${INFURA_API_KEY}`),
-      network_id: 1,
-      confirmations: 10,
+      network_id: '*',
+      confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true
     }
