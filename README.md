@@ -126,5 +126,11 @@ testnet deployment:
 truffle test --network <TESTNET_NAME>
 ```
 
+## Verify
+
+```
+truffle run verify GhostMarketToken@<CONTRACT_HASH> --network <NETWORK_NAME>
+```
+
 
 
