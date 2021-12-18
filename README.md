@@ -68,7 +68,7 @@ https://etherscan.com/address/
 
 ## Audit
 
-Coming soon...
+https://www.certik.com/projects/ghostmarket
 
 ## Technical Information
 
