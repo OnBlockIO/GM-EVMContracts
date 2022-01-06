@@ -23,9 +23,9 @@ module.exports = {
       skipDryRun: true
     },
     bscmainnet: {
-      provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://bsc-dataseed1.binance.org`),
+      provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `wss://bsc-ws-node.nariox.org:443`),
       network_id: 56,
-      confirmations: 2,
+      confirmations: 10,
       timeoutBlocks: 200,
       skipDryRun: true
     },
@@ -39,13 +39,13 @@ module.exports = {
       gasPrice: 10000000000,
     },
     polygonmainnet: {
-      provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://rpc-mainnet.matic.quiknode.pro`),
+      provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://polygon-mainnet.infura.io/v3/${INFURA_API_KEY}`),
       network_id: 137,
       confirmations: 2,
-      timeoutBlocks: 200,
       skipDryRun: true,
-      gas: 6000000,
-      gasPrice: 10000000000,
+      networkCheckTimeout: 10000,
+      gas: 20000000,
+      gasPrice: 30000000000,
     },
     avalanchetestnet: {
       provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `https://api.avax-test.network/ext/bc/C/rpc`),
@@ -62,15 +62,17 @@ module.exports = {
       skipDryRun: true
     },
     ethtestnet: {
-      provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `https://ropsten.infura.io/v3/${INFURA_API_KEY}`),
+      provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `wss://ropsten.infura.io/ws/v3/${INFURA_API_KEY}`),
       network_id: '*',
       confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true
     },
     ethmainnet: {
-      provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://infura.io/v3/${INFURA_API_KEY}`),
+      provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `wss://mainnet.infura.io/ws/v3/${INFURA_API_KEY}`),
       network_id: '*',
+      gas: 2100000,
+      gasPrice: 150000000000, // 180 gwei
       confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true
