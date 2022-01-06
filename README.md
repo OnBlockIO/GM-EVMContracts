@@ -7,29 +7,20 @@
 https://bscscan.com/address/
 
 #### GhostMarketToken
-https://bscscan.com/address/
+https://bscscan.com/address/0x42bD1B1c84aD8Cf576D25FCd86A7EFbE2752Fe02
 
 #### ProxyAdmin
-https://bscscan.com/address/
+https://bscscan.com/address/0xC200F605Ee4b8a151532e8691f33AF8cC26EB99f
 
 #### TransparentUpgradeableProxy
-https://bscscan.com/address/
-
-#### TransparentUpgradeableProxy
-https://bscscan.com/address/
+https://bscscan.com/address/0x0B53b5dA7d0F275C31a6A182622bDF02474aF253
 
 ## Deployed Contracts on Polygon:
-
-#### OnBlockVesting
-https://polygonscan.com/address/
 
 #### GhostMarketToken
 https://polygonscan.com/address/
 
 #### ProxyAdmin
-https://polygonscan.com/address/
-
-#### TransparentUpgradeableProxy
 https://polygonscan.com/address/
 
 #### TransparentUpgradeableProxy
@@ -38,33 +29,24 @@ https://polygonscan.com/address/
 ## Deployed Contracts on Avalanche:
 
 #### GhostMarketToken
-https://snowtrace.io/address/
+https://snowtrace.io/address/0x42bD1B1c84aD8Cf576D25FCd86A7EFbE2752Fe02
 
 #### ProxyAdmin
-https://snowtraceio/address/
+https://snowtraceio/address/0xC200F605Ee4b8a151532e8691f33AF8cC26EB99f
 
 #### TransparentUpgradeableProxy
-https://snowtrace.io/address/
-
-#### TransparentUpgradeableProxy
-https://snowtrace.io/address/
+https://snowtrace.io/address/0x0B53b5dA7d0F275C31a6A182622bDF02474aF253
 
 ## Deployed Contracts on Ethereum:
 
-#### OnBlockVesting
-https://etherscan.com/address/
-
 #### GhostMarketToken
-https://etherscan.com/address/
+https://etherscan.com/address/0x42bD1B1c84aD8Cf576D25FCd86A7EFbE2752Fe02
 
 #### ProxyAdmin
-https://etherscan.com/address/
+https://etherscan.com/address/0xA93Ae78470b46c75523aCBACfc68246Bf2Eb68ce
 
 #### TransparentUpgradeableProxy
-https://etherscan.com/address/
-
-#### TransparentUpgradeableProxy
-https://etherscan.com/address/
+https://etherscan.com/address/0x35609dC59E15d03c5c865507e1348FA5abB319A8
 
 ## Audit
 
