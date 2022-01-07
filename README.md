@@ -18,13 +18,13 @@ https://bscscan.com/address/0x0B53b5dA7d0F275C31a6A182622bDF02474aF253
 ## Deployed Contracts on Polygon:
 
 #### GhostMarketToken
-https://polygonscan.com/address/
+https://polygonscan.com/address/0x68F50816df86F7a2f720deFfFF2395a9F1675585
 
 #### ProxyAdmin
-https://polygonscan.com/address/
+https://polygonscan.com/address/0x1bb6C21e6adB8757F46e77A7F4c5Ad9118f4A04d
 
 #### TransparentUpgradeableProxy
-https://polygonscan.com/address/
+https://polygonscan.com/address/0x6a335AC6A3cdf444967Fe03E7b6B273c86043990
 
 ## Deployed Contracts on Avalanche:
 
