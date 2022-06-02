@@ -62,7 +62,7 @@ module.exports = {
       skipDryRun: true
     },
     ethtestnet: {
-      provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `wss://ropsten.infura.io/ws/v3/${INFURA_API_KEY}`),
+      provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `wss://goerli.infura.io/ws/v3/${INFURA_API_KEY}`),
       network_id: '*',
       confirmations: 2,
       timeoutBlocks: 200,
