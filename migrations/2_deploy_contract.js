@@ -4,14 +4,15 @@ const {
 } = require('@openzeppelin/test-helpers');
 
 const GM = artifacts.require('GhostMarketToken');
-const OBV = artifacts.require('OnBlockVesting');
+const GMD = artifacts.require('GhostMarketTokenDummy');
+// const OBV = artifacts.require('OnBlockVesting');
 // const DFT = artifacts.require('DeflationaryToken');
 const LPStake = artifacts.require('StakingPoolForDexTokens');
 
 const { deployProxy } = require('@openzeppelin/truffle-upgrades');
 
 // TODO - REPLACE BY THE ONE REQUIRED
-const chain = 'bsc'
+const chain = 'bsct'
 
 const blocksPerDayConfig = {
   bsc: 28800,
@@ -42,7 +43,7 @@ const stakedTokenConfig = {
   etht: '',
   polygon: '0x66eae4669e5bc9a391d97d8aa2bffd7dffb2690e',
   polygont: '',
-  avalanche: '',
+  avalanche: '0xef61490aa6316d06d5375164f0db7d472cd0029f',
   avalanchet: '',
 }
 
@@ -61,12 +62,14 @@ const totalRewards = 500000 // 500k per pool
 const duration = 90 // 90 days
 const decimals = 10 ** 8 // gm decimals
 const _rewardPerBlock = parseInt(totalRewards / duration / blocksPerDayConfig[chain] * decimals) // 192901234
-const _endBlock = _startBlock + (duration * blocksPerDayConfig[chain])
+const _endBlock = startBlockConfig[chain] + (duration * blocksPerDayConfig[chain])
 
 module.exports = async function (deployer) {
-    const voters = (await web3.eth.getAccounts()).slice(0, 4);
-    await deployProxy(GM, ['GhostMarket Token', 'GM', '10000000000000000', '8'], { deployer, initializer: 'initialize' });
+    // const voters = (await web3.eth.getAccounts()).slice(0, 4);
+    // const gm = await deployProxy(GM, ['GhostMarket Token', 'GM', '10000000000000000', '8'], { deployer, initializer: 'initialize' });
+    // const dummy = await deployProxy(GMD, ['GhostMarket Token Dummy', 'GMD', '10000000000000000', '8'], { deployer, initializer: 'initialize' });
     // await deployProxy(DFT, ['DeflationaryToken', 'DFT', '10000000000000000', '8'], { deployer, initializer: 'initialize' });
-    await deployer.deploy(OBV, new BN('1000000000000000'), voters); // 0.001 unit vault fee
+    // await deployer.deploy(OBV, new BN('1000000000000000'), voters); // 0.001 unit vault fee
     await deployProxy(LPStake, [stakedTokenConfig[chain], gmTokenConfig[chain], _rewardPerBlock, startBlockConfig[chain], _endBlock], { deployer, initializer: 'initialize' });
+    // await deployProxy(LPStake,[dummy.address, gm.address, _rewardPerBlock, startBlockConfig[chain], _endBlock], { deployer, initializer: 'initialize' });
 };
