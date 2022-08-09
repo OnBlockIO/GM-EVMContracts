@@ -44,8 +44,6 @@ module.exports = {
       confirmations: 2,
       skipDryRun: true,
       networkCheckTimeout: 10000,
-      gas: 20000000,
-      gasPrice: 30000000000,
     },
     avalanchetestnet: {
       provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `https://api.avax-test.network/ext/bc/C/rpc`),
