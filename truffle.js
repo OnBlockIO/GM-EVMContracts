@@ -23,7 +23,7 @@ module.exports = {
       skipDryRun: true
     },
     bscmainnet: {
-      provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://bsc-dataseed2.binance.org`),
+      provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://bsc-dataseed4.ninicoin.io/`),
       network_id: 56,
       confirmations: 2,
       timeoutBlocks: 200,

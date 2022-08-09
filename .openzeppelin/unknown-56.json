@@ -1,0 +1,162 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0xCF0D28A3fac054Dc3Eef4a8fE93052938023239A",
+    "txHash": "0x682609b5d11120cade559406c5d853dd12268cf03e338e7cbca8c78e140f2eb1"
+  },
+  "proxies": [
+    {
+      "address": "0x5992cD0fF3074A7849AA2f2799bD3ce1DD17e747",
+      "txHash": "0xa139452f0cba2378d558567e3345db2c6b377f6c986e0d33f31b1d775d8b9a0e",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "bf517f9a55ef643c6514c25492db6a32ec76a4c550b9c4bf8e1e4459bd6d0a22": {
+      "address": "0x3f7a616b9b97210aB7404F1673B356433d87FFE0",
+      "txHash": "0xb8df89e1947dcc7d2c20db34d8fb66dc3c0812fdecf3db3313c0f5dc2fa95f32",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "../@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "../@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:28"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "../@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:96"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "../@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "../@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:67"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "GhostMarketToken",
+            "type": "t_contract(IERC20)1369",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:22"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "stakedToken",
+            "type": "t_contract(IERC20)1369",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:25"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "START_BLOCK",
+            "type": "t_uint256",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:28"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "accTokenPerShare",
+            "type": "t_uint256",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:31"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "endBlock",
+            "type": "t_uint256",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:34"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "lastRewardBlock",
+            "type": "t_uint256",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:37"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "rewardPerBlock",
+            "type": "t_uint256",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:40"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "userInfo",
+            "type": "t_mapping(t_address,t_struct(UserInfo)4201_storage)",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:43"
+          }
+        ],
+        "types": {
+          "t_contract(IERC20)1369": {
+            "label": "contract IERC20"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_struct(UserInfo)4201_storage)": {
+            "label": "mapping(address => struct StakingPoolForDexTokens.UserInfo)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_struct(UserInfo)4201_storage": {
+            "label": "struct StakingPoolForDexTokens.UserInfo",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "rewardDebt",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    }
+  }
+}
