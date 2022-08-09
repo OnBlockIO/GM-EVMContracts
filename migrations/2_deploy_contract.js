@@ -12,7 +12,7 @@ const LPStake = artifacts.require('StakingPoolForDexTokens');
 const { deployProxy } = require('@openzeppelin/truffle-upgrades');
 
 // TODO - REPLACE BY THE ONE REQUIRED
-const chain = 'bsct'
+const chain = 'bsc'
 
 const blocksPerDayConfig = {
   bsc: 28800,
@@ -26,13 +26,13 @@ const blocksPerDayConfig = {
 }
 
 const startBlockConfig = {
-  bsc: 0,
+  bsc: 20311984,
   bsct: 21577987,
   eth: 0,
   etht: 0,
-  polygon: 0,
+  polygon: 31726839,
   polygont: 0,
-  avalanche: 0,
+  avalanche: 18450573,
   avalanchet: 0,
 }
 
@@ -63,6 +63,10 @@ const duration = 90 // 90 days
 const decimals = 10 ** 8 // gm decimals
 const _rewardPerBlock = parseInt(totalRewards / duration / blocksPerDayConfig[chain] * decimals) // 192901234
 const _endBlock = startBlockConfig[chain] + (duration * blocksPerDayConfig[chain])
+
+console.log(`chain: ${chain}`)
+console.log(`_rewardPerBlock: ${_rewardPerBlock}`)
+console.log(`_endBlock: ${_endBlock}`)
 
 module.exports = async function (deployer) {
     // const voters = (await web3.eth.getAccounts()).slice(0, 4);
