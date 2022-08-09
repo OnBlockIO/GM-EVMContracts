@@ -18,14 +18,14 @@ module.exports = {
     bsctestnet: {
       provider: () => new HDWalletProvider(TESTNET_PRIVATE_KEYS, `https://data-seed-prebsc-1-s1.binance.org:8545`),
       network_id: 97,
-      confirmations: 10,
+      confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true
     },
     bscmainnet: {
-      provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `wss://bsc-ws-node.nariox.org:443`),
+      provider: () => new HDWalletProvider(MAINNET_PRIVATE_KEYS, `https://bsc-dataseed2.binance.org`),
       network_id: 56,
-      confirmations: 10,
+      confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true
     },

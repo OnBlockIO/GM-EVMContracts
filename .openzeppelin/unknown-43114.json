@@ -1,20 +1,20 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0xC200F605Ee4b8a151532e8691f33AF8cC26EB99f",
-    "txHash": "0x8c47498ab9aef15fe46db197322e7ae3973a9ac227e0604a6c7ca24ac0ae850d"
+    "address": "0x3B48563237C32a1f886FD19DB6F5AFFD23855E2a",
+    "txHash": "0x7dd2987b80c6e242e43806806d210cf810f2d974b75c27677ebd6df740c7db36"
   },
   "proxies": [
     {
-      "address": "0x0B53b5dA7d0F275C31a6A182622bDF02474aF253",
-      "txHash": "0xbaa6b2dade66fcb03f2d26735dddef4ac624c570dc94d61f51b03260ed79cb78",
+      "address": "0xF3fd0F360aCE3B0e83843221a763FEC857291060",
+      "txHash": "0xdd30ddbf1f5a3c77f0dc92a75338067b57b537be444b72c13f76503c169dbac6",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "492400b1767c4185d47e759a5a343e18f5aba66276e08ae0bd43e99a9deba25f": {
-      "address": "0x42bD1B1c84aD8Cf576D25FCd86A7EFbE2752Fe02",
-      "txHash": "0x15b5f73c94ec7d5a5c44b26a03ac3c41756aed999a39c490cd9bd840b7f28153",
+    "bf517f9a55ef643c6514c25492db6a32ec76a4c550b9c4bf8e1e4459bd6d0a22": {
+      "address": "0x71e70353b41127dADeA7E3C60aa32CcaddF89098",
+      "txHash": "0x2c1400e80243158e9b262c774063a46abc5a8b0a6695eb8a8821039a9679f308",
       "layout": {
         "storage": [
           {
@@ -34,42 +34,6 @@
             "label": "__gap",
             "type": "t_array(t_uint256)50_storage",
             "src": "../@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
-          },
-          {
-            "contract": "ERC20Upgradeable",
-            "label": "_balances",
-            "type": "t_mapping(t_address,t_uint256)",
-            "src": "../@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:35"
-          },
-          {
-            "contract": "ERC20Upgradeable",
-            "label": "_allowances",
-            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
-            "src": "../@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:37"
-          },
-          {
-            "contract": "ERC20Upgradeable",
-            "label": "_totalSupply",
-            "type": "t_uint256",
-            "src": "../@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:39"
-          },
-          {
-            "contract": "ERC20Upgradeable",
-            "label": "_name",
-            "type": "t_string_storage",
-            "src": "../@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:41"
-          },
-          {
-            "contract": "ERC20Upgradeable",
-            "label": "_symbol",
-            "type": "t_string_storage",
-            "src": "../@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:42"
-          },
-          {
-            "contract": "ERC20Upgradeable",
-            "label": "__gap",
-            "type": "t_array(t_uint256)45_storage",
-            "src": "../@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:360"
           },
           {
             "contract": "OwnableUpgradeable",
@@ -96,39 +60,97 @@
             "src": "../@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:96"
           },
           {
-            "contract": "GhostMarketToken",
-            "label": "_decimals",
-            "type": "t_uint8",
-            "src": "../project:/contracts/GhostMarketToken.sol:12"
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "../@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "../@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:67"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "GhostMarketToken",
+            "type": "t_contract(IERC20)1369",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:22"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "stakedToken",
+            "type": "t_contract(IERC20)1369",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:25"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "START_BLOCK",
+            "type": "t_uint256",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:28"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "accTokenPerShare",
+            "type": "t_uint256",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:31"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "endBlock",
+            "type": "t_uint256",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:34"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "lastRewardBlock",
+            "type": "t_uint256",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:37"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "rewardPerBlock",
+            "type": "t_uint256",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:40"
+          },
+          {
+            "contract": "StakingPoolForDexTokens",
+            "label": "userInfo",
+            "type": "t_mapping(t_address,t_struct(UserInfo)4201_storage)",
+            "src": "../project:/contracts/StakingPoolForDexTokens.sol:43"
           }
         ],
         "types": {
-          "t_uint8": {
-            "label": "uint8"
-          },
-          "t_bool": {
-            "label": "bool"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
+          "t_contract(IERC20)1369": {
+            "label": "contract IERC20"
           },
           "t_uint256": {
             "label": "uint256"
           },
+          "t_mapping(t_address,t_struct(UserInfo)4201_storage)": {
+            "label": "mapping(address => struct StakingPoolForDexTokens.UserInfo)"
+          },
           "t_address": {
             "label": "address"
           },
-          "t_mapping(t_address,t_uint256)": {
-            "label": "mapping(address => uint256)"
+          "t_struct(UserInfo)4201_storage": {
+            "label": "struct StakingPoolForDexTokens.UserInfo",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "rewardDebt",
+                "type": "t_uint256"
+              }
+            ]
           },
-          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
-            "label": "mapping(address => mapping(address => uint256))"
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
           },
-          "t_string_storage": {
-            "label": "string"
-          },
-          "t_array(t_uint256)45_storage": {
-            "label": "uint256[45]"
+          "t_bool": {
+            "label": "bool"
           },
           "t_array(t_uint256)50_storage": {
             "label": "uint256[50]"

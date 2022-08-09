@@ -12,7 +12,7 @@ const LPStake = artifacts.require('StakingPoolForDexTokens');
 const { deployProxy } = require('@openzeppelin/truffle-upgrades');
 
 // TODO - REPLACE BY THE ONE REQUIRED
-const chain = 'bsc'
+const chain = 'avalanche'
 
 const blocksPerDayConfig = {
   bsc: 28800,
