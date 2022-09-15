@@ -78,7 +78,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
      * @notice Deposit staked tokens and collect reward tokens (if any)
      * @param amount amount to deposit (in stakedToken)
      */
-    function deposit(uint256 amount) external nonReentrant {
+    function deposit(uint256 amount) external nonReentrant whenNotPaused {
         require(amount > 0, "Deposit: Amount must be > 0");
 
         _updatePool();
@@ -106,7 +106,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
     /**
      * @notice Harvest tokens that are pending
      */
-    function harvest() external nonReentrant {
+    function harvest() external nonReentrant whenNotPaused {
         _updatePool();
 
         uint256 pendingRewards = ((userInfo[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR) -
@@ -142,7 +142,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
      * @notice Withdraw staked tokens and collect reward tokens
      * @param amount amount to withdraw (in stakedToken)
      */
-    function withdraw(uint256 amount) external nonReentrant {
+    function withdraw(uint256 amount) external nonReentrant whenNotPaused {
         require(
             (userInfo[msg.sender].amount >= amount) && (amount > 0),
             "Withdraw: Amount must be > 0 or lower than user balance"
@@ -170,7 +170,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
      * @param amount amount to withdraw (in ghostMarketToken)
      * @dev Only callable by owner.
      */
-    function adminRewardWithdraw(uint256 amount) external onlyOwner {
+    function adminRewardWithdraw(uint256 amount) external onlyOwner whenNotPaused {
         GhostMarketToken.safeTransfer(msg.sender, amount);
 
         emit AdminRewardWithdraw(amount);
@@ -196,7 +196,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
      * @param newRewardPerBlock the new reward per block
      * @param newEndBlock the new end block
      */
-    function updateRewardPerBlockAndEndBlock(uint256 newRewardPerBlock, uint256 newEndBlock) external onlyOwner {
+    function updateRewardPerBlockAndEndBlock(uint256 newRewardPerBlock, uint256 newEndBlock) external onlyOwner whenNotPaused {
         if (block.number >= START_BLOCK) {
             _updatePool();
         }
@@ -213,7 +213,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
      * @notice Top up rewards pool
      * @param amount amount to withdraw (in ghostMarketToken)
      */
-    function adminRewardDeposit(uint256 amount) external onlyOwner {
+    function adminRewardDeposit(uint256 amount) external onlyOwner whenNotPaused {
         require(amount > 0, "UpdateRewards: Amount must be > 0");
 
         _updatePool();
@@ -228,7 +228,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
      * @param user address of the user
      * @return Pending reward
      */
-    function calculatePendingRewards(address user) external view returns (uint256) {
+    function calculatePendingRewards(address user) external view whenNotPaused returns (uint256) {
         uint256 stakedTokenSupply = stakedToken.balanceOf(address(this));
 
         if ((block.number > lastRewardBlock) && (stakedTokenSupply != 0)) {
