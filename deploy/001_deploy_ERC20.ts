@@ -6,7 +6,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deploy} = deployments;
   const {deployer} = await getNamedAccounts();
 
-  await deploy('GM', {
+  await deploy('GhostMarketToken', {
     from: deployer,
     proxy: {
       owner: deployer,

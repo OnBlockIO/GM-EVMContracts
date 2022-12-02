@@ -58,7 +58,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`_rewardPerBlock: ${_rewardPerBlock}`)
   console.log(`_endBlock: ${_endBlock}`)
 
-  await deploy('LPStake', {
+  await deploy('StakingPoolForDexTokens', {
     from: deployer,
     proxy: {
       owner: deployer,

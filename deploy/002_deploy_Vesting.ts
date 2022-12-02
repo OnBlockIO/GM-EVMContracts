@@ -8,7 +8,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const voters = [deployer,deployer,deployer,deployer] // TODO improve
 
-  await deploy('OBV', {
+  await deploy('OnBlockVesting', {
     from: deployer,
     args: ['1000000000000000', voters]
   });
