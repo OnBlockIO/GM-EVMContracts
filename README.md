@@ -1,5 +1,5 @@
 
-# GhostMarket ERC20 & Vesting Contracts
+# GhostMarket Token Contracts
 
 ## Deployed Contracts on BSC:
 
