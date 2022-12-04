@@ -17,7 +17,6 @@
   ],
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
-    "@openzeppelin/contracts": "^4.4.2",
     "@typechain/ethers-v5": "^9.0.0",
     "@typechain/hardhat": "^4.0.0",
     "@types/chai": "^4.3.0",
@@ -74,9 +73,8 @@
   },
   "dependencies": {
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
-    "@openzeppelin/contracts-upgradeable": "^4.5.2",
+    "@openzeppelin/contracts-upgradeable": "4.1.0",
     "@openzeppelin/hardhat-upgrades": "^1.17.0",
-    "@openzeppelin/test-helpers": "^0.5.16",
     "hardhat-deploy": "^0.11.21",
     "hardhat-deploy-tenderly": "^0.2.0"
   }

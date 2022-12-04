@@ -1,4 +1,4 @@
-import { expect } from './chai-setup';
+import { expect } from '../utils/chai-setup';
 import { ethers, upgrades } from 'hardhat';
 import { GhostMarketToken } from '../typechain';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';

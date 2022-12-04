@@ -22,5 +22,6 @@ deployments/localhost
 /.dapp
 
 .openzeppelin/
+.openzeppelin
 
 .secrets.json

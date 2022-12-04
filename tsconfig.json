@@ -11,10 +11,10 @@
   },
   "include": [
     "hardhat.config.ts",
+    "utils/chai-setup.ts",
     "./scripts",
     "./deploy",
     "./test",
-    "typechain/**/*",
-    "deploy-copy"
+    "typechain/**/*"
   ]
 }
