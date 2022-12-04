@@ -2,6 +2,7 @@ import {expect} from '../utils/chai-setup';
 import {ethers, upgrades} from 'hardhat';
 import {GhostMarketERC1155} from '../typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
+import {BigNumber} from 'ethers';
 
 describe('GhostMarket ERC1155 Test', function () {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -19,8 +20,6 @@ describe('GhostMarket ERC1155 Test', function () {
   let testingAsSigner1: GhostMarketERC1155;
   let testingAsSigner2: GhostMarketERC1155;
   let testingAsSigner3: GhostMarketERC1155;
-  let testingAsSigner4: GhostMarketERC1155;
-  let testingAsSigner5: GhostMarketERC1155;
 
   /*before('Deploy Contracts', async() => {
   })*/
@@ -28,18 +27,14 @@ describe('GhostMarket ERC1155 Test', function () {
   beforeEach(async function () {
     const ERC1155 = await ethers.getContractFactory('GhostMarketERC1155');
     [owner, ...addrs] = await ethers.getSigners();
-    erc1155_proxy = <GhostMarketERC1155>(
-      await upgrades.deployProxy(ERC1155, [TOKEN_NAME, TOKEN_SYMBOL, BASE_URI], {
-        initializer: 'initialize',
-        unsafeAllowCustomTypes: true,
-      })
-    );
+    erc1155_proxy = <GhostMarketERC1155>await upgrades.deployProxy(ERC1155, [TOKEN_NAME, TOKEN_SYMBOL, BASE_URI], {
+      initializer: 'initialize',
+      unsafeAllowCustomTypes: true,
+    });
     await erc1155_proxy.deployed();
     testingAsSigner1 = erc1155_proxy.connect(addrs[1]);
     testingAsSigner2 = erc1155_proxy.connect(addrs[2]);
     testingAsSigner3 = erc1155_proxy.connect(addrs[3]);
-    testingAsSigner4 = erc1155_proxy.connect(addrs[4]);
-    testingAsSigner5 = erc1155_proxy.connect(addrs[5]);
   });
 
   it('should have name ' + TOKEN_NAME, async function () {
@@ -405,14 +400,14 @@ describe('GhostMarket ERC1155 Test', function () {
     });
   });
 
-  function expectEqualStringValues(value1: any, value2: any) {
+  function expectEqualStringValues(value1: BigNumber | number | string, value2: BigNumber | number | string) {
     expect(value1.toString()).to.equal(value2.toString());
   }
 
-  async function getLastTokenID(token: any) {
+  async function getLastTokenID(token: GhostMarketERC1155): Promise<BigNumber> {
     const counter = await token.getCurrentCounter();
-    if (counter == 0) {
-      return ethers.BigNumber.from(parseInt(counter));
-    } else return ethers.BigNumber.from(counter - 1);
+    if (ethers.BigNumber.from(counter).eq(ethers.BigNumber.from(0))) {
+      return ethers.BigNumber.from(counter);
+    } else return ethers.BigNumber.from(counter).sub(1);
   }
 });

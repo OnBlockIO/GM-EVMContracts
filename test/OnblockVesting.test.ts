@@ -474,9 +474,12 @@ describe('Onblock Vesting Test', function () {
         await ethers.provider.send('evm_mine', []);
         const beneficiary = await obv.readBeneficiary(gm_proxy.address, addrs[2].address);
         const block = await ethers.provider.getBlock('latest');
-        const calculatedAmount = Math.trunc((ethers.BigNumber.from(beneficiary.amount)
-          .mul(ethers.BigNumber.from(block.timestamp).sub(ethers.BigNumber.from(beneficiary.startTime)))
-          .div(ethers.BigNumber.from(beneficiary.duration))).toNumber());
+        const calculatedAmount = Math.trunc(
+          ethers.BigNumber.from(beneficiary.amount)
+            .mul(ethers.BigNumber.from(block.timestamp).sub(ethers.BigNumber.from(beneficiary.startTime)))
+            .div(ethers.BigNumber.from(beneficiary.duration))
+            .toNumber()
+        );
         const amount = await obv.releasableAmount(gm_proxy.address, addrs[2].address);
         expect(amount).to.equal(calculatedAmount);
       } finally {
@@ -542,9 +545,12 @@ describe('Onblock Vesting Test', function () {
         await ethers.provider.send('evm_increaseTime', [110]); // 100s cliff & now + 10s = startTime = 110
         await ethers.provider.send('evm_mine', []);
         const block = await ethers.provider.getBlock('latest');
-        const calculatedAmount = Math.trunc((ethers.BigNumber.from(beneficiary.amount)
-          .mul(ethers.BigNumber.from(block.timestamp).sub(ethers.BigNumber.from(beneficiary.startTime)))
-          .div(ethers.BigNumber.from(beneficiary.duration))).toNumber());
+        const calculatedAmount = Math.trunc(
+          ethers.BigNumber.from(beneficiary.amount)
+            .mul(ethers.BigNumber.from(block.timestamp).sub(ethers.BigNumber.from(beneficiary.startTime)))
+            .div(ethers.BigNumber.from(beneficiary.duration))
+            .toNumber()
+        );
         const amount = await obv.releasableAmount(gm_proxy.address, addrs[3].address);
         expect(amount).to.equal(calculatedAmount);
       } finally {
@@ -560,9 +566,12 @@ describe('Onblock Vesting Test', function () {
         await ethers.provider.send('evm_increaseTime', [1010]); // 100s cliff & now + 10s = startTime = 110
         await ethers.provider.send('evm_mine', []);
         const block = await ethers.provider.getBlock('latest');
-        const calculatedAmount = Math.trunc((ethers.BigNumber.from(beneficiary.amount)
-        .mul(ethers.BigNumber.from(block.timestamp).sub(ethers.BigNumber.from(beneficiary.startTime)))
-        .div(ethers.BigNumber.from(beneficiary.duration))).toNumber());
+        const calculatedAmount = Math.trunc(
+          ethers.BigNumber.from(beneficiary.amount)
+            .mul(ethers.BigNumber.from(block.timestamp).sub(ethers.BigNumber.from(beneficiary.startTime)))
+            .div(ethers.BigNumber.from(beneficiary.duration))
+            .toNumber()
+        );
         const receipt = obv.release(gm_proxy.address, addrs[1].address);
         await expect(receipt)
           .to.emit(obv, 'Fulfilled')
@@ -589,9 +598,12 @@ describe('Onblock Vesting Test', function () {
         await ethers.provider.send('evm_increaseTime', [1000]);
         await ethers.provider.send('evm_mine', []);
         const block = await ethers.provider.getBlock('latest');
-        const calculatedAmount = Math.trunc((ethers.BigNumber.from(beneficiary.amount)
-          .mul(ethers.BigNumber.from(block.timestamp).sub(ethers.BigNumber.from(beneficiary.startTime)))
-          .div(ethers.BigNumber.from(beneficiary.duration))).toNumber());
+        const calculatedAmount = Math.trunc(
+          ethers.BigNumber.from(beneficiary.amount)
+            .mul(ethers.BigNumber.from(block.timestamp).sub(ethers.BigNumber.from(beneficiary.startTime)))
+            .div(ethers.BigNumber.from(beneficiary.duration))
+            .toNumber()
+        );
         const receipt = obv.release(gm_proxy.address, addrs[2].address);
         await expect(receipt)
           .to.emit(obv, 'Release')
@@ -660,9 +672,12 @@ describe('Onblock Vesting Test', function () {
         await ethers.provider.send('evm_increaseTime', [1000]);
         await ethers.provider.send('evm_mine', []);
         const block = await ethers.provider.getBlock('latest');
-        const calculatedAmount = Math.trunc((ethers.BigNumber.from(beneficiary.amount)
-          .mul(ethers.BigNumber.from(block.timestamp).sub(ethers.BigNumber.from(beneficiary.startTime)))
-          .div(ethers.BigNumber.from(beneficiary.duration))).toNumber());
+        const calculatedAmount = Math.trunc(
+          ethers.BigNumber.from(beneficiary.amount)
+            .mul(ethers.BigNumber.from(block.timestamp).sub(ethers.BigNumber.from(beneficiary.startTime)))
+            .div(ethers.BigNumber.from(beneficiary.duration))
+            .toNumber()
+        );
         const receipt = obv.release(gm_proxy.address, addrs[3].address);
         await expect(receipt)
           .to.emit(obv, 'Release')

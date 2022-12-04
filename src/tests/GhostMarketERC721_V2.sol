@@ -2,7 +2,7 @@
 pragma solidity ^0.8.4;
 
 /**
- * @dev TestGhostMarketERC721_V2 for upgrade.
+ * @dev GhostMarketERC721_V2 for upgrade.
  */
 
 import "../ERC721PresetMinterPauserAutoIdUpgradeableCustom.sol";
@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpgradeable.sol";
 
-contract TestGhostMarketERC721_V2 is
+contract GhostMarketERC721_V2 is
     Initializable,
     ERC721PresetMinterPauserAutoIdUpgradeableCustom,
     ReentrancyGuardUpgradeable,
