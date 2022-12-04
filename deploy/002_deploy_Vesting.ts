@@ -6,14 +6,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deploy} = deployments;
   const {deployer} = await getNamedAccounts();
 
-  const voters = [deployer,deployer,deployer,deployer] // TODO improve
+  const voters = [deployer, deployer, deployer, deployer]; // TODO improve
 
   await deploy('OnBlockVesting', {
     from: deployer,
-    args: ['1000000000000000', voters]
+    args: ['1000000000000000', voters],
   });
-
-}
+};
 
 export default func;
 func.tags = ['Vesting'];

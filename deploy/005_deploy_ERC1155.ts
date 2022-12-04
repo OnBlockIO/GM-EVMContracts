@@ -15,11 +15,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: 'initialize',
-          args: [
-            'GhostMarket ERC1155',
-            'GHOST',
-            'https://api.ghostmarket.io/metadata/avalanche/',
-          ],
+          args: ['GhostMarket ERC1155', 'GHOST', 'https://api.ghostmarket.io/metadata/avalanche/'],
         },
       },
     },

@@ -14,15 +14,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: 'initialize',
-          args: ['GhostMarket Token', 'GM', '10000000000000000', '8']
+          args: ['GhostMarket Token', 'GM', '10000000000000000', '8'],
         },
       },
     },
     log: true,
   });
-
 };
 
 export default func;
 func.tags = ['ERC20'];
-

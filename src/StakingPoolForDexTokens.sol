@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";                                             
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";                                             
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";      
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";       
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardUpgradeable {
@@ -16,7 +16,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
     }
 
     // Precision factor for reward calculation
-    uint256 public constant PRECISION_FACTOR = 10**12;
+    uint256 public constant PRECISION_FACTOR = 10 ** 12;
 
     // GM token (token distributed)
     IERC20 public GhostMarketToken;
@@ -63,16 +63,15 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         uint256 _rewardPerBlock,
         uint256 _startBlock,
         uint256 _endBlock
-    )              
-        public virtual initializer {                                                                                
-        __Ownable_init_unchained();                                                                                     
-        __Pausable_init_unchained();                                                                                              
+    ) public virtual initializer {
+        __Ownable_init_unchained();
+        __Pausable_init_unchained();
         stakedToken = IERC20(_stakedToken);
         GhostMarketToken = IERC20(_ghostMarketToken);
         rewardPerBlock = _rewardPerBlock;
         START_BLOCK = _startBlock;
         endBlock = _endBlock;
-    }           
+    }
 
     /**
      * @notice Deposit staked tokens and collect reward tokens (if any)
@@ -196,7 +195,10 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
      * @param newRewardPerBlock the new reward per block
      * @param newEndBlock the new end block
      */
-    function updateRewardPerBlockAndEndBlock(uint256 newRewardPerBlock, uint256 newEndBlock) external onlyOwner whenNotPaused {
+    function updateRewardPerBlockAndEndBlock(
+        uint256 newRewardPerBlock,
+        uint256 newEndBlock
+    ) external onlyOwner whenNotPaused {
         if (block.number >= START_BLOCK) {
             _updatePool();
         }

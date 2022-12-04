@@ -1,22 +1,15 @@
 import 'dotenv/config';
-import { HardhatUserConfig } from 'hardhat/types';
 import 'hardhat-deploy';
 import '@nomiclabs/hardhat-ethers';
 import 'hardhat-gas-reporter';
 import '@typechain/hardhat';
 import 'solidity-coverage';
-import 'hardhat-deploy-tenderly';
-import { node_url, accounts } from './utils/network';
 import '@openzeppelin/hardhat-upgrades';
-import '@nomiclabs/hardhat-etherscan'
+import '@nomiclabs/hardhat-etherscan';
+import {HardhatUserConfig} from 'hardhat/types';
+import {node_url, accounts} from './utils/network';
 
-import {
-  ETH_NODE_URI,
-  TESTNET_PRIVATE_KEY,
-  MAINNET_PRIVATE_KEY,
-  ETHERSCAN_API_KEY,
-} from './.secrets.json';
-
+import {ETH_NODE_URI, TESTNET_PRIVATE_KEY, MAINNET_PRIVATE_KEY, ETHERSCAN_API_KEY} from './.secrets.json';
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -26,16 +19,7 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 2000,
-          },
-        },
-      },
-      {
-        version: '0.8.2',
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 2000,
+            runs: 100,
           },
         },
       },
@@ -44,16 +28,7 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 2000,
-          },
-        },
-      },
-      {
-        version: '0.8.9',
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 2000,
+            runs: 100,
           },
         },
       },
@@ -74,12 +49,10 @@ const config: HardhatUserConfig = {
       accounts: accounts(process.env.HARDHAT_FORK),
       forking: process.env.HARDHAT_FORK
         ? {
-          // TODO once PR merged : network: process.env.HARDHAT_FORK,
-          url: node_url(process.env.HARDHAT_FORK),
-          blockNumber: process.env.HARDHAT_FORK_NUMBER
-            ? parseInt(process.env.HARDHAT_FORK_NUMBER)
-            : undefined,
-        }
+            // TODO once PR merged : network: process.env.HARDHAT_FORK,
+            url: node_url(process.env.HARDHAT_FORK),
+            blockNumber: process.env.HARDHAT_FORK_NUMBER ? parseInt(process.env.HARDHAT_FORK_NUMBER) : undefined,
+          }
         : undefined,
     },
     localhost: {
@@ -89,7 +62,7 @@ const config: HardhatUserConfig = {
       //gasPrice: 0,
     },
     testnet_nodeploy: {
-      url:  ETH_NODE_URI,
+      url: ETH_NODE_URI,
       accounts: TESTNET_PRIVATE_KEY,
       saveDeployments: true,
       tags: ['testnet_nodeploy'],
@@ -144,7 +117,7 @@ const config: HardhatUserConfig = {
     },
   },
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY
+    apiKey: ETHERSCAN_API_KEY,
   },
   paths: {
     sources: 'src',
@@ -165,19 +138,14 @@ const config: HardhatUserConfig = {
   },
   external: process.env.HARDHAT_FORK
     ? {
-      deployments: {
-        // process.env.HARDHAT_FORK will specify the network that the fork is made from.
-        // these lines allow it to fetch the deployments from the network being forked from both for node and deploy task
-        hardhat: ['deployments/' + process.env.HARDHAT_FORK],
-        localhost: ['deployments/' + process.env.HARDHAT_FORK],
-      },
-    }
+        deployments: {
+          // process.env.HARDHAT_FORK will specify the network that the fork is made from.
+          // these lines allow it to fetch the deployments from the network being forked from both for node and deploy task
+          hardhat: ['deployments/' + process.env.HARDHAT_FORK],
+          localhost: ['deployments/' + process.env.HARDHAT_FORK],
+        },
+      }
     : undefined,
-
-  tenderly: {
-    project: 'template-ethereum-contracts',
-    username: process.env.TENDERLY_USERNAME as string,
-  },
 };
 
 export default config;
