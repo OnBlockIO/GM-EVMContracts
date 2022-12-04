@@ -1,4 +1,4 @@
-import { expect } from './chai-setup';
+import { expect } from '../utils/chai-setup';
 import { ethers, upgrades } from 'hardhat';
 import { GhostMarketToken, DeflationaryToken, OnBlockVesting } from '../typechain';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
@@ -221,6 +221,15 @@ describe("Onblock Vesting Test", function () {
         await expect(obv['addBeneficiary(address,address,uint256,uint256,uint256,uint256,uint8)'](gm_proxy.address, addrs[1].address, 100,
             time, 1000 /* 1000 seconds */, 0, 0))
                 .to.revertedWith("Beneficiary already exists")
+    });
+
+    it("should fail adding beneficiary, more than san. period", async () => {
+        await gm_proxy.approve(obv.address, 100);
+        const block = await ethers.provider.getBlock("latest")
+        const time = block.timestamp + 10;
+        await expect(obv['addBeneficiary(address,address,uint256,uint256,uint256,uint256,uint8)'](gm_proxy.address, addrs[2].address, 200,
+            time, 1000000000000 /* 1000000000000 seconds */, 0, 1))
+                .to.revertedWith("If you are sure to have a lock time greater than 10 years use the overloaded function")
     });
 
     it("should add beneficiary, linear", async () => {
