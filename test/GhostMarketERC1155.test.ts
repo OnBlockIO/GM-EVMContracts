@@ -205,7 +205,7 @@ describe('GhostMarket ERC1155 Test', function () {
 
       await expect(
         testingAsSigner3.burnBatch(addrs[0].address, tokenBatchIds, burnAmounts, {from: addrs[3].address})
-      ).revertedWith('ERC1155: caller is not token owner or approved');
+      ).revertedWith('ERC1155: caller is not owner nor approved');
     });
   });
 
