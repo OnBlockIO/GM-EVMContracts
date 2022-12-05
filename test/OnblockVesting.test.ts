@@ -13,7 +13,6 @@ describe('Onblock Vesting Test', function () {
   let testingAsSigner1: OnBlockVesting;
   let testingAsSigner2: OnBlockVesting;
   let testingAsSigner3: OnBlockVesting;
-  let testingAsSigner4: OnBlockVesting;
   let testingAsSigner5: OnBlockVesting;
 
   before('Deploy Contracts', async () => {
@@ -32,7 +31,6 @@ describe('Onblock Vesting Test', function () {
     testingAsSigner1 = obv.connect(addrs[1]);
     testingAsSigner2 = obv.connect(addrs[2]);
     testingAsSigner3 = obv.connect(addrs[3]);
-    testingAsSigner4 = obv.connect(addrs[4]);
     testingAsSigner5 = obv.connect(addrs[5]);
   });
 

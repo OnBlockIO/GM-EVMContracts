@@ -51,7 +51,7 @@ describe('GhostMarket ERC721 Test', function () {
 
   it('should upgrade contract', async function () {
     const GhostMarketERC721_ContractFactory = await ethers.getContractFactory('GhostMarketERC721');
-    const GhostMarketERC721_V2_ContractFactory = await ethers.getContractFactory('GhostMarketERC721_V2');
+    const GhostMarketERC721V2_ContractFactory = await ethers.getContractFactory('GhostMarketERC721V2');
 
     const ghostMarketERC721 = await upgrades.deployProxy(
       GhostMarketERC721_ContractFactory,
@@ -63,21 +63,21 @@ describe('GhostMarket ERC721 Test', function () {
     ghostMarketERC721.setGhostmarketMintFee(mintFeeValue);
 
     //upgrade
-    const ghostMarketERC721_V2 = await upgrades.upgradeProxy(
+    const ghostMarketERC721V2 = await upgrades.upgradeProxy(
       ghostMarketERC721.address,
-      GhostMarketERC721_V2_ContractFactory
+      GhostMarketERC721V2_ContractFactory
     );
 
     //test new function
-    expect(await ghostMarketERC721_V2.getSomething()).to.equal(10);
+    expect(await ghostMarketERC721V2.getSomething()).to.equal(10);
 
     //name and symbol should be the same
-    expect((await ghostMarketERC721_V2.name()).toString()).to.equal(TOKEN_NAME);
-    expect((await ghostMarketERC721_V2.symbol()).toString()).to.equal(TOKEN_SYMBOL);
+    expect((await ghostMarketERC721V2.name()).toString()).to.equal(TOKEN_NAME);
+    expect((await ghostMarketERC721V2.symbol()).toString()).to.equal(TOKEN_SYMBOL);
 
     //increment already set _ghostmarketMintFees value
-    const result = ghostMarketERC721_V2.incrementMintingFee();
-    await expect(result).to.emit(ghostMarketERC721_V2, 'NewMintFeeIncremented').withArgs('100000000000000001');
+    const result = ghostMarketERC721V2.incrementMintingFee();
+    await expect(result).to.emit(ghostMarketERC721V2, 'NewMintFeeIncremented').withArgs('100000000000000001');
   });
 
   it('should transfer ownership of contract', async function () {

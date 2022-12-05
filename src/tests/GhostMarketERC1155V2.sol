@@ -12,7 +12,7 @@ import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpg
  * @dev ERC1155 token with minting, burning, pause, royalties & lock content functions.
  */
 
-contract GhostMarketERC1155_V2 is
+contract GhostMarketERC1155V2 is
     Initializable,
     ERC1155PresetMinterPauserUpgradeableCustom,
     ReentrancyGuardUpgradeable,
@@ -65,12 +65,12 @@ contract GhostMarketERC1155_V2 is
     /**
      * bytes4(keccak256(_INTERFACE_ID_ERC1155_GHOSTMARKET)) == 0x94407210
      */
-    bytes4 constant _INTERFACE_ID_ERC1155_GHOSTMARKET = bytes4(keccak256("_INTERFACE_ID_ERC1155_GHOSTMARKET"));
+    bytes4 private constant _INTERFACE_ID_ERC1155_GHOSTMARKET = bytes4(keccak256("_INTERFACE_ID_ERC1155_GHOSTMARKET"));
 
     /**
      * bytes4(keccak256(_GHOSTMARKET_NFT_ROYALTIES)) == 0xe42093a6
      */
-    bytes4 constant _GHOSTMARKET_NFT_ROYALTIES = bytes4(keccak256("_GHOSTMARKET_NFT_ROYALTIES"));
+    bytes4 private constant _GHOSTMARKET_NFT_ROYALTIES = bytes4(keccak256("_GHOSTMARKET_NFT_ROYALTIES"));
 
     function initialize(string memory _name, string memory _symbol, string memory uri) public virtual initializer {
         __Context_init_unchained();
@@ -219,9 +219,10 @@ contract GhostMarketERC1155_V2 is
     function withdraw(uint256 withdrawAmount) external onlyOwner {
         require(
             withdrawAmount > 0 && withdrawAmount <= _payedMintFeesBalance,
-            "Withdraw amount should be greater then 0 and less then contract balance"
+            "Withdraw amount should be>= 0 and < contract balance"
         );
         _payedMintFeesBalance -= withdrawAmount;
+        // solhint-disable-next-line avoid-low-level-calls
         (bool success, ) = msg.sender.call{value: withdrawAmount}("");
         require(success, "Transfer failed.");
         emit MintFeesWithdrawn(msg.sender, withdrawAmount);

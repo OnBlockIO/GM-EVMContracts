@@ -64,7 +64,7 @@ describe('GhostMarket ERC1155 Test', function () {
 
   it('should upgrade contract', async function () {
     const GhostMarketERC1155_ContractFactory = await ethers.getContractFactory('GhostMarketERC1155');
-    const GhostMarketERC1155_V2_ContractFactory = await ethers.getContractFactory('GhostMarketERC1155_V2');
+    const GhostMarketERC1155V2_ContractFactory = await ethers.getContractFactory('GhostMarketERC1155V2');
 
     const ghostMarketERC1155 = await upgrades.deployProxy(
       GhostMarketERC1155_ContractFactory,
@@ -76,21 +76,21 @@ describe('GhostMarket ERC1155 Test', function () {
     ghostMarketERC1155.setGhostmarketMintFee(mintFeeValue);
 
     //upgrade
-    const ghostMarketERC1155_V2 = await upgrades.upgradeProxy(
+    const ghostMarketERC1155V2 = await upgrades.upgradeProxy(
       ghostMarketERC1155.address,
-      GhostMarketERC1155_V2_ContractFactory
+      GhostMarketERC1155V2_ContractFactory
     );
 
     //test new function
-    expect(await ghostMarketERC1155_V2.getSomething()).to.equal(10);
+    expect(await ghostMarketERC1155V2.getSomething()).to.equal(10);
 
     //name and symbol should be the same
-    expect((await ghostMarketERC1155_V2.name()).toString()).to.equal(TOKEN_NAME);
-    expect((await ghostMarketERC1155_V2.symbol()).toString()).to.equal(TOKEN_SYMBOL);
+    expect((await ghostMarketERC1155V2.name()).toString()).to.equal(TOKEN_NAME);
+    expect((await ghostMarketERC1155V2.symbol()).toString()).to.equal(TOKEN_SYMBOL);
 
     //increment already set _ghostmarketMintFees value
-    const result = ghostMarketERC1155_V2.incrementMintingFee();
-    await expect(result).to.emit(ghostMarketERC1155_V2, 'NewMintFeeIncremented').withArgs('100000000000000001');
+    const result = ghostMarketERC1155V2.incrementMintingFee();
+    await expect(result).to.emit(ghostMarketERC1155V2, 'NewMintFeeIncremented').withArgs('100000000000000001');
   });
 
   it('should be able to pause/unpause contract', async () => {

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.4;
 
 /**
- * @dev GhostMarketERC721_V2 for upgrade.
+ * @dev GhostMarketERC721V2 for upgrade.
  */
 
 import "../ERC721PresetMinterPauserAutoIdUpgradeableCustom.sol";
@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpgradeable.sol";
 
-contract GhostMarketERC721_V2 is
+contract GhostMarketERC721V2 is
     Initializable,
     ERC721PresetMinterPauserAutoIdUpgradeableCustom,
     ReentrancyGuardUpgradeable,
@@ -179,9 +179,10 @@ contract GhostMarketERC721_V2 is
     function withdraw(uint256 withdrawAmount) external onlyOwner {
         require(
             withdrawAmount > 0 && withdrawAmount <= _payedMintFeesBalance,
-            "Withdraw amount should be greater then 0 and less then contract balance"
+            "Withdraw amount should be >= 0 and < then contract balance"
         );
         _payedMintFeesBalance -= withdrawAmount;
+        // solhint-disable-next-line avoid-low-level-calls
         (bool success, ) = msg.sender.call{value: withdrawAmount}("");
         require(success, "Transfer failed.");
         emit MintFeesWithdrawn(msg.sender, withdrawAmount);
