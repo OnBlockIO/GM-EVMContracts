@@ -1,11 +1,11 @@
 {
-  "name": "evm-token-contracts",
+  "name": "evm-tokens-contracts",
   "version": "1.0.0",
-  "description": "GhostMarket token smart contracts",
+  "description": "GhostMarket tokens smart contracts",
   "engines": {
     "node": ">= 16.16.0"
   },
-  "repository": "github:onblockio/evm-token-contracts",
+  "repository": "github:onblockio/evm-tokens-contracts",
   "author": "onblockio",
   "license": "MIT",
   "keywords": [
