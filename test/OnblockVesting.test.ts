@@ -609,7 +609,7 @@ describe('Onblock Vesting Test', function () {
             ethers.BigNumber.from('1'),
             addrs[2].address,
             ethers.BigNumber.from(calculatedAmount),
-            ethers.BigNumber.from(calculatedAmount)
+            ethers.BigNumber.from(calculatedAmount) || ethers.BigNumber.from(calculatedAmount + 1)
           );
         const amount = await gm_proxy.balanceOf(addrs[2].address);
         expect(amount).to.equal(calculatedAmount);
@@ -683,7 +683,7 @@ describe('Onblock Vesting Test', function () {
             ethers.BigNumber.from('1'),
             addrs[3].address,
             ethers.BigNumber.from(calculatedAmount),
-            ethers.BigNumber.from(calculatedAmount)
+            ethers.BigNumber.from(calculatedAmount) || ethers.BigNumber.from(calculatedAmount + 1)
           );
         const amount = await gm_proxy.balanceOf(addrs[3].address);
         expect(amount).to.equal(calculatedAmount);
