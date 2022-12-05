@@ -12,3 +12,4 @@ deployments/hardhat
 deployments/localhost
 .openzeppelin
 .secrets.json
+.DS_Store
