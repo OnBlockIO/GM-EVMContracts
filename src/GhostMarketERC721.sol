@@ -37,15 +37,7 @@ contract GhostMarketERC721 is
 
     // events
     event LockedContentViewed(address msgSender, uint256 tokenId, string lockedContent);
-    event MintFeesWithdrawn(address feeWithdrawer, uint256 withdrawAmount);
-    event MintFeesUpdated(address feeChanger, uint256 newValue);
     event Minted(address toAddress, uint256 tokenId, string externalURI);
-
-    // mint fees balance
-    uint256 internal _payedMintFeesBalance;
-
-    // mint fees value
-    uint256 internal _ghostmarketMintFees;
 
     /**
      * bytes4(keccak256(_INTERFACE_ID_ERC721_GHOSTMARKET)) == 0xee40ffc1
@@ -118,19 +110,6 @@ contract GhostMarketERC721 is
     }
 
     /**
-     * @dev check mint fees sent to contract
-     * emits MintFeesPaid event if set
-     */
-    function _checkMintFees() internal {
-        if (_ghostmarketMintFees > 0) {
-            require(msg.value == _ghostmarketMintFees, "Wrong fees value sent to GhostMarket for mint fees");
-        }
-        if (msg.value > 0) {
-            _payedMintFeesBalance += msg.value;
-        }
-    }
-
-    /**
      * @dev increment a NFT locked content view tracker
      */
     function _incrementCurrentLockedContentViewTracker(uint256 tokenId) internal {
@@ -164,23 +143,7 @@ contract GhostMarketERC721 is
         if (keccak256(abi.encodePacked(lockedcontent)) != keccak256(abi.encodePacked(""))) {
             _setLockedContent(tokenId, lockedcontent);
         }
-        _checkMintFees();
         emit Minted(to, tokenId, externalURI);
-    }
-
-    /**
-     * @dev withdraw contract balance
-     * emits MintFeesWithdrawn event
-     */
-    function withdraw(uint256 withdrawAmount) external onlyOwner {
-        require(
-            withdrawAmount > 0 && withdrawAmount <= _payedMintFeesBalance,
-            "Withdraw amount should be greater then 0 and less then contract balance"
-        );
-        _payedMintFeesBalance -= withdrawAmount;
-        (bool success, ) = msg.sender.call{value: withdrawAmount}("");
-        require(success, "Transfer failed.");
-        emit MintFeesWithdrawn(msg.sender, withdrawAmount);
     }
 
     /**
@@ -190,23 +153,6 @@ contract GhostMarketERC721 is
         for (uint256 i = 0; i < tokensId.length; i++) {
             burn(tokensId[i]);
         }
-    }
-
-    /**
-     * @dev sets Ghostmarket mint fees as uint256
-     * emits MintFeesUpdated event
-     */
-    function setGhostmarketMintFee(uint256 gmmf) external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "Caller must have admin role to set mint fees");
-        _ghostmarketMintFees = gmmf;
-        emit MintFeesUpdated(msg.sender, _ghostmarketMintFees);
-    }
-
-    /**
-     * @return get Ghostmarket mint fees
-     */
-    function getGhostmarketMintFees() external view returns (uint256) {
-        return _ghostmarketMintFees;
     }
 
     /**
