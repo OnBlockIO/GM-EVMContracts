@@ -41,36 +41,18 @@ contract GhostMarketERC1155V2 is
     mapping(uint256 => string) internal _metadataJson;
 
     // events
-    event RoyaltiesFeesSet(uint256 tokenId, address[] recipients, uint256[] bps);
     event LockedContentViewed(address msgSender, uint256 tokenId, string lockedContent);
-    event AttributesSet(uint256 tokenId, string metadataJson);
-    event MintFeesWithdrawn(address feeWithdrawer, uint256 withdrawAmount);
-    event MintFeesChanged(uint256 newValue);
-    event Minted(
-        address toAddress,
-        uint256 tokenId,
-        string tokenURI,
-        string externalURI,
-        uint256 amount,
-        uint256 mintFees
-    );
-    event NewMintFeeIncremented(uint256 newValue);
-
-    // mint fees balance
-    uint256 internal _payedMintFeesBalance;
-
-    // mint fees value
-    uint256 internal _ghostmarketMintFees;
+    event Minted(address toAddress, uint256 tokenId, string externalURI, uint256 amount);
 
     /**
      * bytes4(keccak256(_INTERFACE_ID_ERC1155_GHOSTMARKET)) == 0x94407210
      */
-    bytes4 private constant _INTERFACE_ID_ERC1155_GHOSTMARKET = bytes4(keccak256("_INTERFACE_ID_ERC1155_GHOSTMARKET"));
+    bytes4 public constant _INTERFACE_ID_ERC1155_GHOSTMARKET = bytes4(keccak256("_INTERFACE_ID_ERC1155_GHOSTMARKET"));
 
     /**
      * bytes4(keccak256(_GHOSTMARKET_NFT_ROYALTIES)) == 0xe42093a6
      */
-    bytes4 private constant _GHOSTMARKET_NFT_ROYALTIES = bytes4(keccak256("_GHOSTMARKET_NFT_ROYALTIES"));
+    bytes4 public constant _GHOSTMARKET_NFT_ROYALTIES = bytes4(keccak256("_GHOSTMARKET_NFT_ROYALTIES"));
 
     function initialize(string memory _name, string memory _symbol, string memory uri) public virtual initializer {
         __Context_init_unchained();
@@ -114,11 +96,6 @@ contract GhostMarketERC1155V2 is
         return 10;
     }
 
-    function incrementMintingFee() external {
-        _ghostmarketMintFees2 = _ghostmarketMintFees + 1;
-        emit NewMintFeeIncremented(_ghostmarketMintFees2);
-    }
-
     /**
      * @dev check if msg.sender is owner of NFT id
      */
@@ -129,7 +106,6 @@ contract GhostMarketERC1155V2 is
     /**
      * @dev set a NFT royalties fees & recipients
      * fee basis points 10000 = 100%
-     * emits RoyaltiesFeesSet event if set
      */
     function _saveRoyalties(uint256 tokenId, Royalty[] memory royalties) internal {
         for (uint256 i = 0; i < royalties.length; i++) {
@@ -137,19 +113,14 @@ contract GhostMarketERC1155V2 is
             require(royalties[i].value > 0, "Royalties value should be positive");
             require(royalties[i].value <= 5000, "Royalties value should not be more than 50%");
             _royalties[tokenId].push(royalties[i]);
-            address[] memory recipients = new address[](royalties.length);
-            uint256[] memory bps = new uint256[](royalties.length);
-            emit RoyaltiesFeesSet(tokenId, recipients, bps);
         }
     }
 
     /**
      * @dev set a NFT custom attributes to contract storage
-     * emits AttributesSet event
      */
     function _setMetadataJson(uint256 tokenId, string memory metadataJson) internal {
         _metadataJson[tokenId] = metadataJson;
-        emit AttributesSet(tokenId, metadataJson);
     }
 
     /**
@@ -157,19 +128,6 @@ contract GhostMarketERC1155V2 is
      */
     function _setLockedContent(uint256 tokenId, string memory content) internal {
         _lockedContent[tokenId] = content;
-    }
-
-    /**
-     * @dev check mint fees sent to contract
-     * emits MintFeesPaid event if set
-     */
-    function _checkMintFees() internal {
-        if (_ghostmarketMintFees > 0) {
-            require(msg.value == _ghostmarketMintFees, "Wrong fees value sent to GhostMarket for mint fees");
-        }
-        if (msg.value > 0) {
-            _payedMintFeesBalance += msg.value;
-        }
     }
 
     /**
@@ -207,42 +165,8 @@ contract GhostMarketERC1155V2 is
         if (keccak256(abi.encodePacked(lockedcontent)) != keccak256(abi.encodePacked(""))) {
             _setLockedContent(_tokenIdTracker.current(), lockedcontent);
         }
-        _checkMintFees();
-        emit Minted(to, _tokenIdTracker.current(), uri(_tokenIdTracker.current()), externalURI, amount, msg.value);
+        emit Minted(to, _tokenIdTracker.current(), externalURI, amount);
         _tokenIdTracker.increment();
-    }
-
-    /**
-     * @dev withdraw contract balance
-     * emits MintFeesWithdrawn event
-     */
-    function withdraw(uint256 withdrawAmount) external onlyOwner {
-        require(
-            withdrawAmount > 0 && withdrawAmount <= _payedMintFeesBalance,
-            "Withdraw amount should be>= 0 and < contract balance"
-        );
-        _payedMintFeesBalance -= withdrawAmount;
-        // solhint-disable-next-line avoid-low-level-calls
-        (bool success, ) = msg.sender.call{value: withdrawAmount}("");
-        require(success, "Transfer failed.");
-        emit MintFeesWithdrawn(msg.sender, withdrawAmount);
-    }
-
-    /**
-     * @dev sets Ghostmarket mint fees as uint256
-     * emits MintFeesChanged event
-     */
-    function setGhostmarketMintFee(uint256 gmmf) external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "Caller must have admin role to set mint fees");
-        _ghostmarketMintFees = gmmf;
-        emit MintFeesChanged(_ghostmarketMintFees);
-    }
-
-    /**
-     * @return get Ghostmarket mint fees
-     */
-    function getGhostmarketMintFees() external view returns (uint256) {
-        return _ghostmarketMintFees;
     }
 
     /**
@@ -309,6 +233,4 @@ contract GhostMarketERC1155V2 is
     }
 
     uint256[50] private __gap;
-
-    uint256 internal _ghostmarketMintFees2;
 }

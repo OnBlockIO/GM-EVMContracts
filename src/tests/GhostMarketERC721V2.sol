@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-/**
- * @dev GhostMarketERC721V2 for upgrade.
- */
-
 import "../ERC721PresetMinterPauserAutoIdUpgradeableCustom.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpgradeable.sol";
+
+/**
+ * @dev ERC721 token with minting, burning, pause, royalties & lock content functions.
+ */
 
 contract GhostMarketERC721V2 is
     Initializable,
@@ -42,7 +42,12 @@ contract GhostMarketERC721V2 is
     /**
      * bytes4(keccak256(_INTERFACE_ID_ERC721_GHOSTMARKET)) == 0xee40ffc1
      */
-    bytes4 private constant _INTERFACE_ID_ERC721_GHOSTMARKET = 0xee40ffc1;
+    bytes4 constant _INTERFACE_ID_ERC721_GHOSTMARKET = bytes4(keccak256("_INTERFACE_ID_ERC721_GHOSTMARKET"));
+
+    /**
+     * bytes4(keccak256(_GHOSTMARKET_NFT_ROYALTIES)) == 0xe42093a6
+     */
+    bytes4 constant _GHOSTMARKET_NFT_ROYALTIES = bytes4(keccak256("_GHOSTMARKET_NFT_ROYALTIES"));
 
     function initialize(string memory name, string memory symbol, string memory uri) public override initializer {
         __Context_init_unchained();
@@ -58,6 +63,7 @@ contract GhostMarketERC721V2 is
         __ERC721PresetMinterPauserAutoId_init_unchained(uri);
         __Ownable_init_unchained();
         _registerInterface(_INTERFACE_ID_ERC721_GHOSTMARKET);
+        _registerInterface(_GHOSTMARKET_NFT_ROYALTIES);
     }
 
     function getSomething() external pure returns (uint) {
@@ -175,6 +181,13 @@ contract GhostMarketERC721V2 is
      */
     function getMetadataJson(uint256 tokenId) external view returns (string memory) {
         return _metadataJson[tokenId];
+    }
+
+    /**
+     * @dev get royalties array
+     */
+    function getRoyalties(uint256 tokenId) external view returns (Royalty[] memory) {
+        return _royalties[tokenId];
     }
 
     /**

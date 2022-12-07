@@ -15,7 +15,6 @@ describe('GhostMarket ERC721 Test', function () {
   let owner: SignerWithAddress;
   let addrs: SignerWithAddress[];
   let testingAsSigner1: GhostMarketERC721;
-  let testingAsSigner2: GhostMarketERC721;
 
   /*before('Deploy Contracts', async() => {
     })*/
@@ -29,7 +28,6 @@ describe('GhostMarket ERC721 Test', function () {
     });
     await erc721_proxy.deployed();
     testingAsSigner1 = erc721_proxy.connect(addrs[1]);
-    testingAsSigner2 = erc721_proxy.connect(addrs[2]);
   });
 
   it('name should be ' + TOKEN_NAME, async function () {
