@@ -19,13 +19,13 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
     uint256 public constant PRECISION_FACTOR = 10 ** 12;
 
     // GM token (token distributed)
-    IERC20 public GhostMarketToken;
+    IERC20 public ghostMarketToken;
 
     // The staked token (ex Uniswap WETH/GM LP token)
     IERC20 public stakedToken;
 
     // Block number when rewards start
-    uint256 public START_BLOCK;
+    uint256 public startBlock;
 
     // Accumulated tokens per share
     uint256 public accTokenPerShare;
@@ -67,9 +67,9 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         __Ownable_init_unchained();
         __Pausable_init_unchained();
         stakedToken = IERC20(_stakedToken);
-        GhostMarketToken = IERC20(_ghostMarketToken);
+        ghostMarketToken = IERC20(_ghostMarketToken);
         rewardPerBlock = _rewardPerBlock;
-        START_BLOCK = _startBlock;
+        startBlock = _startBlock;
         endBlock = _endBlock;
     }
 
@@ -90,7 +90,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
                 userInfo[msg.sender].rewardDebt;
 
             if (pendingRewards > 0) {
-                GhostMarketToken.safeTransfer(msg.sender, pendingRewards);
+                ghostMarketToken.safeTransfer(msg.sender, pendingRewards);
             }
         }
 
@@ -114,7 +114,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         require(pendingRewards > 0, "Harvest: Pending rewards must be > 0");
 
         userInfo[msg.sender].rewardDebt = (userInfo[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR;
-        GhostMarketToken.safeTransfer(msg.sender, pendingRewards);
+        ghostMarketToken.safeTransfer(msg.sender, pendingRewards);
 
         emit Harvest(msg.sender, pendingRewards);
     }
@@ -158,7 +158,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         stakedToken.safeTransfer(msg.sender, amount);
 
         if (pendingRewards > 0) {
-            GhostMarketToken.safeTransfer(msg.sender, pendingRewards);
+            ghostMarketToken.safeTransfer(msg.sender, pendingRewards);
         }
 
         emit Withdraw(msg.sender, amount, pendingRewards);
@@ -170,7 +170,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
      * @dev Only callable by owner.
      */
     function adminRewardWithdraw(uint256 amount) external onlyOwner whenNotPaused {
-        GhostMarketToken.safeTransfer(msg.sender, amount);
+        ghostMarketToken.safeTransfer(msg.sender, amount);
 
         emit AdminRewardWithdraw(amount);
     }
@@ -199,11 +199,11 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         uint256 newRewardPerBlock,
         uint256 newEndBlock
     ) external onlyOwner whenNotPaused {
-        if (block.number >= START_BLOCK) {
+        if (block.number >= startBlock) {
             _updatePool();
         }
         require(newEndBlock > block.number, "Owner: New endBlock must be after current block");
-        require(newEndBlock > START_BLOCK, "Owner: New endBlock must be after start block");
+        require(newEndBlock > startBlock, "Owner: New endBlock must be after start block");
 
         endBlock = newEndBlock;
         rewardPerBlock = newRewardPerBlock;
@@ -220,7 +220,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
 
         _updatePool();
 
-        GhostMarketToken.safeTransferFrom(msg.sender, address(this), amount);
+        ghostMarketToken.safeTransferFrom(msg.sender, address(this), amount);
 
         emit AdminRewardDeposit(amount);
     }
