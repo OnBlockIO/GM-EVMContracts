@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
@@ -143,7 +143,7 @@ contract ERC721PresetMinterPauserAutoIdUpgradeableCustom is
     }
 
     function setBaseTokenURI(string memory baseTokenURI) public {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "setBaseTokenURI: must have ADMIN role to change this");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "must have ADMIN role to change this");
         _baseTokenURI = baseTokenURI;
     }
 
