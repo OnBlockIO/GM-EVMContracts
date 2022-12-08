@@ -91,8 +91,8 @@ contract OnBlockVesting is ReentrancyGuard {
 
     // Events
     event VaultCreated(uint256 vaultId, IERC20 token, uint256 fee);
-    event Release(uint256 vaultId, address account, uint256 amount, uint256 released);
-    event Fulfilled(uint256 vaultId, address account, uint256 amount, uint256 released);
+    event Release(uint256 indexed vaultId, address indexed account, uint256 amount, uint256 released);
+    event Fulfilled(uint256 indexed vaultId, address indexed account, uint256 amount, uint256 released);
     event FeeWithdraw(address initiator, address receiver, uint256 amount);
     event FeeUpdated(address updater, uint256 newFee);
     event VoteRequested(address requester, address onVote, uint256 newFee, VoteAction action);

@@ -37,7 +37,7 @@ contract GhostMarketERC721 is
 
     // events
     event LockedContentViewed(address indexed msgSender, uint256 indexed tokenId, string lockedContent);
-    event Minted(address toAddress, uint256 tokenId, string externalURI);
+    event Minted(address indexed toAddress, uint256 indexed tokenId, string externalURI);
 
     // @dev deprecated
     uint256 internal _payedMintFeesBalance;

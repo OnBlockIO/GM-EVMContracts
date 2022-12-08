@@ -42,7 +42,7 @@ contract GhostMarketERC1155 is
 
     // events
     event LockedContentViewed(address indexed msgSender, uint256 indexed tokenId, string lockedContent);
-    event Minted(address toAddress, uint256 tokenId, string externalURI, uint256 amount);
+    event Minted(address indexed toAddress, uint256 indexed tokenId, string externalURI, uint256 amount);
 
     // @dev deprecated
     uint256 internal _payedMintFeesBalance;
