@@ -344,7 +344,7 @@ contract OnBlockVesting is ReentrancyGuard {
 
         uint256 balanceAfter = token_.balanceOf(address(this));
 
-        if (balanceAfter.sub(balanceBefore) != amount_) {
+        if (balanceAfter - balanceBefore != amount_) {
             // the token is deflationary, we don't support that.
             revert("Deflationary tokens are not supported!");
         }
@@ -354,9 +354,9 @@ contract OnBlockVesting is ReentrancyGuard {
         beneficiary.account = account_;
         beneficiary.amount = amount_;
         beneficiary.startTime = startTime_;
-        beneficiary.endTime = startTime_.add(duration_);
+        beneficiary.endTime = startTime_ + duration_;
         beneficiary.duration = duration_;
-        beneficiary.cliff = startTime_.add(cliff_);
+        beneficiary.cliff = startTime_ + cliff_;
         beneficiary.released = 0;
         beneficiary.lockType = lockType_;
 
@@ -378,7 +378,7 @@ contract OnBlockVesting is ReentrancyGuard {
         return beneficiary;
     }
 
-    function getID() private view returns (uint256) {
+    function getID() private returns (uint256) {
         return ++idCounter;
     }
 
@@ -419,7 +419,7 @@ contract OnBlockVesting is ReentrancyGuard {
      */
     function releasableAmount(IERC20 token_, address account_) public view returns (uint256) {
         Beneficiary storage beneficiary = getBeneficiary(token_, account_);
-        return vestedAmount(beneficiary).sub(beneficiary.released);
+        return vestedAmount(beneficiary) - beneficiary.released;
     }
 
     /**
@@ -435,7 +435,7 @@ contract OnBlockVesting is ReentrancyGuard {
         }
 
         if (beneficiary.lockType == LockType.LINEAR) {
-            return beneficiary.amount.mul(block.timestamp.sub(beneficiary.startTime)).div(beneficiary.duration);
+            return beneficiary.amount * (block.timestamp - beneficiary.startTime) / (beneficiary.duration);
         }
 
         return 0;
