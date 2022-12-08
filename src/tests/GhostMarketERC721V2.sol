@@ -91,7 +91,7 @@ contract GhostMarketERC721V2 is
      */
     function _saveRoyalties(uint256 tokenId, Royalty[] memory royalties) internal {
         require(_exists(tokenId), "ERC721: approved query for nonexistent token");
-        for (uint256 i = 0; i < royalties.length; ++i) {
+        for (uint256 i; i < royalties.length; ++i) {
             require(royalties[i].recipient != address(0x0), "Recipient should be present");
             require(royalties[i].value > 0, "Royalties value should be positive");
             require(royalties[i].value <= 5000, "Royalties value should not be more than 50%");
@@ -154,7 +154,7 @@ contract GhostMarketERC721V2 is
      * @dev bulk burn NFT
      */
     function burnBatch(uint256[] memory tokensId) external {
-        for (uint256 i = 0; i < tokensId.length; ++i) {
+        for (uint256 i; i < tokensId.length; ++i) {
             burn(tokensId[i]);
         }
     }
@@ -196,7 +196,7 @@ contract GhostMarketERC721V2 is
     function getRoyaltiesRecipients(uint256 tokenId) external view returns (address payable[] memory) {
         Royalty[] memory royalties = _royalties[tokenId];
         address payable[] memory result = new address payable[](royalties.length);
-        for (uint256 i = 0; i < royalties.length; ++i) {
+        for (uint256 i; i < royalties.length; ++i) {
             result[i] = royalties[i].recipient;
         }
         return result;
@@ -209,7 +209,7 @@ contract GhostMarketERC721V2 is
     function getRoyaltiesBps(uint256 tokenId) external view returns (uint256[] memory) {
         Royalty[] memory royalties = _royalties[tokenId];
         uint256[] memory result = new uint256[](royalties.length);
-        for (uint256 i = 0; i < royalties.length; ++i) {
+        for (uint256 i; i < royalties.length; ++i) {
             result[i] = royalties[i].value;
         }
         return result;
