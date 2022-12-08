@@ -39,7 +39,7 @@ describe('Onblock Vesting Test', function () {
 
   describe('Contract', function () {
     it('should have 4 voters', async () => {
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 4; ++i) {
         const success = await obv.isVoter(addrs[i].address);
         expect(success).to.equal(true);
       }

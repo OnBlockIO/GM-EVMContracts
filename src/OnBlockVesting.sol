@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
@@ -13,12 +12,11 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
  */
 contract OnBlockVesting is ReentrancyGuard {
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
 
     uint256 private constant SECONDS_PER_DAY = 86400;
     uint256 private constant TEN_YRS_DAYS = 3650;
     uint256 private constant TEN_YRS_SECONDS = TEN_YRS_DAYS * SECONDS_PER_DAY;
-    uint256 private constant MAX_vaultFee = 1000000000000000000; // max 1 unit native currency
+    uint256 private constant MAX_VAULT_FEE = 1000000000000000000; // max 1 unit native currency
 
     string public constant name = "OnBlockVesting";
     string public constant version = "v1.0";
@@ -125,13 +123,13 @@ contract OnBlockVesting is ReentrancyGuard {
     }
 
     constructor(uint256 vaultFee_, address[] memory voters_) {
-        require(vaultFee_ <= MAX_vaultFee, "Vault fee is too high");
+        require(vaultFee_ <= MAX_VAULT_FEE, "Vault fee is too high");
         require(voters_.length >= 4, "Contract needs at least four signers");
         vaultFee = vaultFee_;
         idCounter = 0;
         feeSum = 0;
         voters = voters_;
-        for (uint i = 0; i < voters.length; i++) {
+        for (uint i = 0; i < voters.length; ++i) {
             activeVoters[voters[i]] = true;
         }
 
@@ -167,7 +165,7 @@ contract OnBlockVesting is ReentrancyGuard {
     function finalizeVote(VoteAction action, address voteAddress, uint256 fee) private onlyVoter returns (bool) {
         if (action == VoteAction.WITHDRAW || action == VoteAction.ADDVOTER || action == VoteAction.REMOVEVOTER) {
             Vote storage activeVote;
-            for (uint i = 0; i < voters.length; i++) {
+            for (uint i = 0; i < voters.length; ++i) {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.onVote == voteAddress) {
                     delete votes[voters[i]];
@@ -176,7 +174,7 @@ contract OnBlockVesting is ReentrancyGuard {
             return true;
         } else if (action == VoteAction.FEEUPDATE) {
             Vote storage activeVote;
-            for (uint i = 0; i < voters.length; i++) {
+            for (uint i = 0; i < voters.length; ++i) {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.newFee == fee) {
                     delete votes[voters[i]];
@@ -193,10 +191,10 @@ contract OnBlockVesting is ReentrancyGuard {
         if (action == VoteAction.WITHDRAW || action == VoteAction.ADDVOTER || action == VoteAction.REMOVEVOTER) {
             bytes memory addressBytes = abi.encode(voteAddress);
             Vote storage activeVote;
-            for (uint i = 0; i < voters.length; i++) {
+            for (uint i = 0; i < voters.length; ++i) {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.onVote == voteAddress) {
-                    for (uint j = 0; j < voters.length; j++) {
+                    for (uint j = 0; j < voters.length; ++j) {
                         // emit Debug2("good", activeVote.results[voters[j]], keccak256(addressBytes));
                         if (activeVote.results[voters[j]] == keccak256(addressBytes)) {
                             voteResult += 1;
@@ -210,10 +208,10 @@ contract OnBlockVesting is ReentrancyGuard {
         } else if (action == VoteAction.FEEUPDATE) {
             bytes memory feeBytes = abi.encode(fee);
             Vote storage activeVote;
-            for (uint i = 0; i < voters.length; i++) {
+            for (uint i = 0; i < voters.length; ++i) {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.newFee == fee) {
-                    for (uint j = 0; j < voters.length; j++) {
+                    for (uint j = 0; j < voters.length; ++j) {
                         if (activeVote.results[voters[j]] == keccak256(feeBytes)) {
                             voteResult += 1;
                         }
@@ -267,7 +265,7 @@ contract OnBlockVesting is ReentrancyGuard {
 
     function setVaultFee(uint256 newFee_) external onlyVoter {
         require(newFee_ > 0, "New vault fee has to be > 0");
-        require(newFee_ <= MAX_vaultFee, "Vault fee is too high");
+        require(newFee_ <= MAX_VAULT_FEE, "Vault fee is too high");
 
         require(isVoteDone(VoteAction.FEEUPDATE, address(0), newFee_), "Vote was not successful yet");
 

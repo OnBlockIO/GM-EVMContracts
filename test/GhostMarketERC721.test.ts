@@ -120,7 +120,7 @@ describe('GhostMarket ERC721 Test', function () {
 
     it('should burn multiple NFTs', async function () {
       const tokenIDs = [1, 2, 3, 4, 5];
-      for (let i = 0; i < tokenIDs.length; i++) {
+      for (let i = 0; i < tokenIDs.length; ++i) {
         await erc721_proxy.mintGhost(owner.address, [], 'ext_uri', '', '');
       }
 
@@ -137,7 +137,7 @@ describe('GhostMarket ERC721 Test', function () {
 
     it('should revert if not-owner tries to burn a NFTs', async function () {
       const tokenIDs = [1, 2];
-      for (let i = 0; i < tokenIDs.length; i++) {
+      for (let i = 0; i < tokenIDs.length; ++i) {
         await erc721_proxy.mintGhost(addrs[0].address, [], 'ext_uri', '', '');
       }
 

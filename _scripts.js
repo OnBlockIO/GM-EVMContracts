@@ -13,7 +13,7 @@ function parseArgs(rawArgs, numFixedArgs, expectedOptions) {
   const options = {};
   const extra = [];
   const alreadyCounted = {};
-  for (let i = 0; i < rawArgs.length; i++) {
+  for (let i = 0; i < rawArgs.length; ++i) {
     const rawArg = rawArgs[i];
     if (rawArg.startsWith('--')) {
       const optionName = rawArg.slice(2);
@@ -23,7 +23,7 @@ function parseArgs(rawArgs, numFixedArgs, expectedOptions) {
         if (optionDetected === 'boolean') {
           options[optionName] = true;
         } else {
-          i++;
+          ++i;
           options[optionName] = rawArgs[i];
         }
       } else {
