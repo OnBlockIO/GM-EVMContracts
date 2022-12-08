@@ -41,7 +41,7 @@ contract GhostMarketERC1155 is
     mapping(uint256 => string) internal _metadataJson;
 
     // events
-    event LockedContentViewed(address msgSender, uint256 tokenId, string lockedContent);
+    event LockedContentViewed(address indexed msgSender, uint256 indexed tokenId, string lockedContent);
     event Minted(address toAddress, uint256 tokenId, string externalURI, uint256 amount);
 
     /**
