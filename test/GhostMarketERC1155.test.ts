@@ -266,10 +266,11 @@ describe('GhostMarket ERC1155 Test', function () {
     });
 
     it('should revert if lock content is too long', async function () {
-      const hiddenLongcontent = 'top secret top secret top secret top secret top secret top secret top secret top secret top secret top top secret top secret top secret top secret top secret top secret top secret top secret top secret top'; // 205 bytes
-      await expect(erc1155_proxy.mintGhost(addrs[1].address, MINT_AMOUNT, DATA, [], 'ext_uri', '', hiddenLongcontent)).revertedWith(
-        'Lock content bytes length should be < 200'
-      );
+      const hiddenLongcontent =
+        'top secret top secret top secret top secret top secret top secret top secret top secret top secret top top secret top secret top secret top secret top secret top secret top secret top secret top secret top'; // 205 bytes
+      await expect(
+        erc1155_proxy.mintGhost(addrs[1].address, MINT_AMOUNT, DATA, [], 'ext_uri', '', hiddenLongcontent)
+      ).revertedWith('Lock content bytes length should be < 200');
     });
 
     it('should increment locked content view count', async function () {

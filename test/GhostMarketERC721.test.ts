@@ -267,7 +267,8 @@ describe('GhostMarket ERC721 Test', function () {
     });
 
     it('should revert if lock content is too long', async function () {
-      const hiddenLongcontent = 'top secret top secret top secret top secret top secret top secret top secret top secret top secret top top secret top secret top secret top secret top secret top secret top secret top secret top secret top'; // 205 bytes
+      const hiddenLongcontent =
+        'top secret top secret top secret top secret top secret top secret top secret top secret top secret top top secret top secret top secret top secret top secret top secret top secret top secret top secret top'; // 205 bytes
       await expect(erc721_proxy.mintGhost(addrs[1].address, [], 'ext_uri', '', hiddenLongcontent)).revertedWith(
         'Lock content bytes length should be < 200'
       );
