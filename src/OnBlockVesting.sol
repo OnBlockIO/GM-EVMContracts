@@ -126,7 +126,8 @@ contract OnBlockVesting is ReentrancyGuard {
         idCounter = 0;
         feeSum = 0;
         voters = voters_;
-        for (uint i; i < voters.length; ++i) {
+        uint length = voters.length;
+        for (uint i; i < length; ++i) {
             activeVoters[voters[i]] = true;
         }
 
@@ -162,7 +163,8 @@ contract OnBlockVesting is ReentrancyGuard {
     function finalizeVote(VoteAction action, address voteAddress, uint256 fee) private onlyVoter returns (bool) {
         if (action == VoteAction.WITHDRAW || action == VoteAction.ADDVOTER || action == VoteAction.REMOVEVOTER) {
             Vote storage activeVote;
-            for (uint i; i < voters.length; ++i) {
+            uint length = voters.length;
+            for (uint i; i < length; ++i) {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.onVote == voteAddress) {
                     delete votes[voters[i]];
@@ -171,7 +173,8 @@ contract OnBlockVesting is ReentrancyGuard {
             return true;
         } else if (action == VoteAction.FEEUPDATE) {
             Vote storage activeVote;
-            for (uint i; i < voters.length; ++i) {
+            uint length = voters.length;
+            for (uint i; i < length; ++i) {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.newFee == fee) {
                     delete votes[voters[i]];
@@ -188,7 +191,8 @@ contract OnBlockVesting is ReentrancyGuard {
         if (action == VoteAction.WITHDRAW || action == VoteAction.ADDVOTER || action == VoteAction.REMOVEVOTER) {
             bytes memory addressBytes = abi.encode(voteAddress);
             Vote storage activeVote;
-            for (uint i; i < voters.length; ++i) {
+            uint length = voters.length;
+            for (uint i; i < length; ++i) {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.onVote == voteAddress) {
                     for (uint j = 0; j < voters.length; ++j) {
@@ -204,7 +208,8 @@ contract OnBlockVesting is ReentrancyGuard {
         } else if (action == VoteAction.FEEUPDATE) {
             bytes memory feeBytes = abi.encode(fee);
             Vote storage activeVote;
-            for (uint i; i < voters.length; ++i) {
+            uint length = voters.length;
+            for (uint i; i < length; ++i) {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.newFee == fee) {
                     for (uint j = 0; j < voters.length; ++j) {

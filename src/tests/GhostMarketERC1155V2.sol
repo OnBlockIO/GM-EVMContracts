@@ -108,7 +108,8 @@ contract GhostMarketERC1155V2 is
      * fee basis points 10000 = 100%
      */
     function _saveRoyalties(uint256 tokenId, Royalty[] memory royalties) internal {
-        for (uint256 i; i < royalties.length; ++i) {
+        uint length = royalties.length;
+        for (uint256 i; i < length; ++i) {
             require(royalties[i].recipient != address(0x0), "Recipient should be present");
             require(royalties[i].value > 0, "Royalties value should be positive");
             require(royalties[i].value <= 5000, "Royalties value should not be more than 50%");
@@ -207,7 +208,8 @@ contract GhostMarketERC1155V2 is
     function getRoyaltiesRecipients(uint256 tokenId) external view returns (address payable[] memory) {
         Royalty[] memory royalties = _royalties[tokenId];
         address payable[] memory result = new address payable[](royalties.length);
-        for (uint256 i; i < royalties.length; ++i) {
+        uint length = royalties.length;
+        for (uint256 i; i < length; ++i) {
             result[i] = royalties[i].recipient;
         }
         return result;
@@ -220,7 +222,8 @@ contract GhostMarketERC1155V2 is
     function getRoyaltiesBps(uint256 tokenId) external view returns (uint256[] memory) {
         Royalty[] memory royalties = _royalties[tokenId];
         uint256[] memory result = new uint256[](royalties.length);
-        for (uint256 i; i < royalties.length; ++i) {
+        uint length = royalties.length;
+        for (uint256 i; i < length; ++i) {
             result[i] = royalties[i].value;
         }
         return result;
