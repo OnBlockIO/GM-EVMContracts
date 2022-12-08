@@ -334,10 +334,7 @@ contract OnBlockVesting is ReentrancyGuard {
 
         // Check the duration for a simple sanity check, if the vesting schedule is > 10 years, make sure the sanity flag is passed.
         if (sanity && duration_ > TEN_YRS_SECONDS) {
-            require(
-                duration_ < 3650 days,
-                "If you are sure to have a lock time greater than 10 years use the overloaded function"
-            );
+            require(duration_ < 3650 days, "Use the overloaded function for lock time greater than 10 years");
         }
 
         uint256 allowance = token_.allowance(msg.sender, address(this));
@@ -440,7 +437,7 @@ contract OnBlockVesting is ReentrancyGuard {
         }
 
         if (beneficiary.lockType == LockType.LINEAR) {
-            return beneficiary.amount * (block.timestamp - beneficiary.startTime) / (beneficiary.duration);
+            return (beneficiary.amount * (block.timestamp - beneficiary.startTime)) / (beneficiary.duration);
         }
 
         return 0;
