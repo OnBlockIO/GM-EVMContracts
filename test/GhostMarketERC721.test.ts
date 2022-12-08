@@ -266,6 +266,13 @@ describe('GhostMarket ERC721 Test', function () {
       await expect(erc721_proxy.getLockedContent(tokenId)).revertedWith('Caller must be the owner of the NFT');
     });
 
+    it('should revert if lock content is too long', async function () {
+      const hiddenLongcontent = 'top secret top secret top secret top secret top secret top secret top secret top secret top secret top top secret top secret top secret top secret top secret top secret top secret top secret top secret top'; // 205 bytes
+      await expect(erc721_proxy.mintGhost(addrs[1].address, [], 'ext_uri', '', hiddenLongcontent)).revertedWith(
+        'Lock content bytes length should be < 200'
+      );
+    });
+
     it('should increment locked content view count', async function () {
       erc721_proxy.mintGhost(owner.address, [], 'ext_uri', '', hiddencontent);
       const tokenId = await erc721_proxy.getLastTokenID();

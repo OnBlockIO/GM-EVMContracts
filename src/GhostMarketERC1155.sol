@@ -123,6 +123,7 @@ contract GhostMarketERC1155 is
      * @dev set a NFT locked content as string
      */
     function _setLockedContent(uint256 tokenId, string memory content) internal {
+        require(bytes(content).length < 200, "Lock content bytes length should be < 200");
         _lockedContent[tokenId] = content;
     }
 
