@@ -71,14 +71,14 @@ contract OnBlockVesting is ReentrancyGuard {
     }
 
     // votes
-    mapping(address => Vote) public votes;
+    mapping(address => Vote) private votes;
 
     // Mapping to hold all vaults
     mapping(IERC20 => Vault) private vaults;
 
     // active voters
-    address[] public voters;
-    mapping(address => bool) public activeVoters;
+    address[] private voters;
+    mapping(address => bool) private activeVoters;
 
     // Array to track all active token vaults
     IERC20[] private activeVaults;
@@ -90,9 +90,6 @@ contract OnBlockVesting is ReentrancyGuard {
     uint256 private minVotesForApproval;
 
     // Events
-    event Debug(string arg1);
-    event Debug2(string arg1, bytes32 arg2, bytes32 arg3);
-    event Debug3(uint256 arg1, uint256 arg2);
     event VaultCreated(uint256 vaultId, IERC20 token, uint256 fee);
     event Release(uint256 vaultId, address account, uint256 amount, uint256 released);
     event Fulfilled(uint256 vaultId, address account, uint256 amount, uint256 released);
@@ -195,7 +192,6 @@ contract OnBlockVesting is ReentrancyGuard {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.onVote == voteAddress) {
                     for (uint j = 0; j < voters.length; ++j) {
-                        // emit Debug2("good", activeVote.results[voters[j]], keccak256(addressBytes));
                         if (activeVote.results[voters[j]] == keccak256(addressBytes)) {
                             voteResult += 1;
                         }
@@ -382,7 +378,7 @@ contract OnBlockVesting is ReentrancyGuard {
         return beneficiary;
     }
 
-    function getID() private returns (uint256) {
+    function getID() private view returns (uint256) {
         return ++idCounter;
     }
 
