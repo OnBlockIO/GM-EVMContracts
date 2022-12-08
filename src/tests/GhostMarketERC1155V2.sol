@@ -41,7 +41,7 @@ contract GhostMarketERC1155V2 is
     mapping(uint256 => string) internal _metadataJson;
 
     // events
-    event LockedContentViewed(address msgSender, uint256 tokenId, string lockedContent);
+    event LockedContentViewed(address indexed msgSender, uint256 indexed tokenId, string lockedContent);
     event Minted(address toAddress, uint256 tokenId, string externalURI, uint256 amount);
 
     /**
@@ -127,6 +127,7 @@ contract GhostMarketERC1155V2 is
      * @dev set a NFT locked content as string
      */
     function _setLockedContent(uint256 tokenId, string memory content) internal {
+        require(bytes(content).length < 200, "Lock content bytes length should be < 200");
         _lockedContent[tokenId] = content;
     }
 
