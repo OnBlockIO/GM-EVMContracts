@@ -15,16 +15,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: '0.8.0',
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 100,
-          },
-        },
-      },
-      {
-        version: '0.8.4',
+        version: '0.8.9',
         settings: {
           optimizer: {
             enabled: true,
@@ -36,7 +27,6 @@ const config: HardhatUserConfig = {
   },
   namedAccounts: {
     deployer: 0,
-    simpleERC20Beneficiary: 1,
   },
   networks: {
     /*     localhost: {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
@@ -48,7 +48,6 @@ contract ERC721PresetMinterPauserAutoIdUpgradeableCustom is
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant POLYNETWORK_ROLE = keccak256("POLYNETWORK_ROLE");
 
     CountersUpgradeable.Counter private _tokenIdTracker;
 
@@ -84,7 +83,6 @@ contract ERC721PresetMinterPauserAutoIdUpgradeableCustom is
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(MINTER_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, _msgSender());
-        _setupRole(POLYNETWORK_ROLE, _msgSender());
         _tokenIdTracker.increment();
     }
 
@@ -123,16 +121,6 @@ contract ERC721PresetMinterPauserAutoIdUpgradeableCustom is
         return ERC721URIStorageUpgradeable.tokenURI(tokenId);
     }
 
-    /**
-     * @dev polynetwork CrossChainNFTMapping
-     */
-    function mintWithURI(address to, uint256 tokenId, string memory uri) external {
-        require(hasRole(POLYNETWORK_ROLE, _msgSender()), "mintWithURI: must have POLYNETWORK_ROLE role to mint");
-        require(!_exists(tokenId), "token id already exist");
-        _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
-    }
-
     function _safeMint(address to, uint256 tokenId) internal virtual override {
         super._safeMint(to, tokenId);
     }
@@ -155,7 +143,7 @@ contract ERC721PresetMinterPauserAutoIdUpgradeableCustom is
     }
 
     function setBaseTokenURI(string memory baseTokenURI) public {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "setBaseTokenURI: must have ADMIN role to change this");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "must have ADMIN role to change this");
         _baseTokenURI = baseTokenURI;
     }
 

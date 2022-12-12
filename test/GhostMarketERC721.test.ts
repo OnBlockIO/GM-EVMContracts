@@ -9,14 +9,12 @@ describe('GhostMarket ERC721 Test', function () {
   const TOKEN_NAME = 'GhostMarket';
   const TOKEN_SYMBOL = 'GHOST';
   const BASE_URI = 'https://ghostmarket.io/';
-  const POLYNETWORK_ROLE = '0x8a9d57248f1015d5cac20111fe2512477434cf493627e5e959ca751e593d8079';
   const METADATA_JSON =
     '{"name":"My NFT Name","description":"My NFT Name","image":"ipfs://QmWpUHUKjcYbhqGtxHnH39F5tLepfztGQAcYtsnHtWfgjD","external_url":"extURI","attributes":[{"type":"AttrT1","value":"AttrV1","display":""},{"type":"AttrT2","value":"AttrV2","display":""}],"properties":{"has_locked":true,"creator":"0x9e1bd73820a607b06086b5b5173765a61ceee7dc","royalties":0,"type":2}}';
   let erc721_proxy: GhostMarketERC721;
   let owner: SignerWithAddress;
   let addrs: SignerWithAddress[];
   let testingAsSigner1: GhostMarketERC721;
-  let testingAsSigner2: GhostMarketERC721;
 
   /*before('Deploy Contracts', async() => {
     })*/
@@ -30,7 +28,6 @@ describe('GhostMarket ERC721 Test', function () {
     });
     await erc721_proxy.deployed();
     testingAsSigner1 = erc721_proxy.connect(addrs[1]);
-    testingAsSigner2 = erc721_proxy.connect(addrs[2]);
   });
 
   it('name should be ' + TOKEN_NAME, async function () {
@@ -59,9 +56,6 @@ describe('GhostMarket ERC721 Test', function () {
       {initializer: 'initialize', unsafeAllowCustomTypes: true}
     );
 
-    const mintFeeValue = ethers.utils.parseEther('0.1');
-    ghostMarketERC721.setGhostmarketMintFee(mintFeeValue);
-
     //upgrade
     const ghostMarketERC721V2 = await upgrades.upgradeProxy(
       ghostMarketERC721.address,
@@ -74,10 +68,6 @@ describe('GhostMarket ERC721 Test', function () {
     //name and symbol should be the same
     expect((await ghostMarketERC721V2.name()).toString()).to.equal(TOKEN_NAME);
     expect((await ghostMarketERC721V2.symbol()).toString()).to.equal(TOKEN_SYMBOL);
-
-    //increment already set _ghostmarketMintFees value
-    const result = ghostMarketERC721V2.incrementMintingFee();
-    await expect(result).to.emit(ghostMarketERC721V2, 'NewMintFeeIncremented').withArgs('100000000000000001');
   });
 
   it('should transfer ownership of contract', async function () {
@@ -95,30 +85,6 @@ describe('GhostMarket ERC721 Test', function () {
     await erc721_proxy.mintGhost(addrs[0].address, [], 'ext_uri', '', '');
     const tokenId = await erc721_proxy.getLastTokenID();
     expectEqualStringValues(tokenId, 1);
-  });
-
-  describe('mintWithURI', function () {
-    it('should revert if minter using mintWithURI function has not the POLYNETWORK_ROLE', async function () {
-      const tokenId = (await erc721_proxy.getLastTokenID()).toString();
-      testingAsSigner1.revokeRole(POLYNETWORK_ROLE, addrs[1].address);
-      await expect(
-        testingAsSigner1.mintWithURI(addrs[0].address, tokenId, tokenId, {from: addrs[1].address})
-      ).revertedWith('mintWithURI: must have POLYNETWORK_ROLE role to mint');
-    });
-
-    it('should grant POLYNETWORK_ROLE to address', async function () {
-      erc721_proxy.grantRole(POLYNETWORK_ROLE, addrs[1].address);
-      const hasPolyRole = (await erc721_proxy.hasRole(POLYNETWORK_ROLE, addrs[1].address)).toString();
-      expect(hasPolyRole).to.equal('true');
-      erc721_proxy.mintWithURI(addrs[0].address, 1, 'testuri', {from: addrs[1].address});
-    });
-
-    it('should mintWithURI and have given tokenURI', async function () {
-      const tokenId = await erc721_proxy.getLastTokenID();
-      const specialuri = 'special-uri';
-      await erc721_proxy.mintWithURI(addrs[0].address, tokenId, specialuri);
-      expect(await erc721_proxy.tokenURI(tokenId)).to.equal(BASE_URI + specialuri);
-    });
   });
 
   it('should revert if externalURI is empty', async function () {
@@ -154,7 +120,7 @@ describe('GhostMarket ERC721 Test', function () {
 
     it('should burn multiple NFTs', async function () {
       const tokenIDs = [1, 2, 3, 4, 5];
-      for (let i = 0; i < tokenIDs.length; i++) {
+      for (let i = 0; i < tokenIDs.length; ++i) {
         await erc721_proxy.mintGhost(owner.address, [], 'ext_uri', '', '');
       }
 
@@ -171,7 +137,7 @@ describe('GhostMarket ERC721 Test', function () {
 
     it('should revert if not-owner tries to burn a NFTs', async function () {
       const tokenIDs = [1, 2];
-      for (let i = 0; i < tokenIDs.length; i++) {
+      for (let i = 0; i < tokenIDs.length; ++i) {
         await erc721_proxy.mintGhost(addrs[0].address, [], 'ext_uri', '', '');
       }
 
@@ -283,78 +249,6 @@ describe('GhostMarket ERC721 Test', function () {
     });
   });
 
-  describe('mint NFT with fee', function () {
-    it('should mint if setGhostmarketMintFee is set to 0', async function () {
-      const feeAddressEthBalanceBefore = await ethers.provider.getBalance(erc721_proxy.address);
-      await erc721_proxy.setGhostmarketMintFee(0);
-      await erc721_proxy.mintGhost(addrs[0].address, [], 'ext_uri', '', '');
-      const feeAddressEthBalanceAfter = await ethers.provider.getBalance(erc721_proxy.address);
-      expect(feeAddressEthBalanceAfter).to.equal(feeAddressEthBalanceBefore);
-    });
-
-    it('should send fee to mintingFeeAccount', async function () {
-      const value = ethers.utils.parseEther('0.1').toString();
-      await erc721_proxy.setGhostmarketMintFee(value);
-      const feeAddressEthBalanceBefore = await ethers.provider.getBalance(erc721_proxy.address);
-      await erc721_proxy.mintGhost(addrs[0].address, [], 'ext_uri', '', '', {value: value});
-      const feeAddressEthBalanceAfter = await ethers.provider.getBalance(erc721_proxy.address);
-      expect(feeAddressEthBalanceAfter).to.equal(feeAddressEthBalanceBefore.add(value));
-    });
-
-    it('should send fee to mintingFeeAccount from another minting account', async function () {
-      const value = ethers.utils.parseEther('0.1').toString();
-      await erc721_proxy.setGhostmarketMintFee(value);
-      const feeAddressEthBalanceBefore = await ethers.provider.getBalance(erc721_proxy.address);
-
-      await testingAsSigner2.mintGhost(addrs[0].address, [], 'ext_uri', '', '', {
-        value: value,
-        from: addrs[2].address,
-      });
-      const feeAddressEthBalanceAfter = await ethers.provider.getBalance(erc721_proxy.address);
-      expect(feeAddressEthBalanceAfter).to.equal(feeAddressEthBalanceBefore.add(value));
-    });
-  });
-
-  describe('withdraw from contract', function () {
-    it('should withdraw all available balance from contract', async function () {
-      const value = ethers.utils.parseEther('0.1');
-      await erc721_proxy.setGhostmarketMintFee(value);
-      const feeSet = await erc721_proxy.getGhostmarketMintFees();
-      expect(feeSet).to.equal(value);
-
-      await testingAsSigner2.mintGhost(addrs[0].address, [], 'ext_uri', '', '', {value: value, from: addrs[2].address});
-      await testingAsSigner2.mintGhost(addrs[0].address, [], 'ext_uri', '', '', {value: value, from: addrs[2].address});
-      await testingAsSigner2.mintGhost(addrs[0].address, [], 'ext_uri', '', '', {value: value, from: addrs[2].address});
-      const feeAddressEthBalanceAfter = await ethers.provider.getBalance(erc721_proxy.address);
-      await erc721_proxy.withdraw(feeAddressEthBalanceAfter);
-      expect(await ethers.provider.getBalance(erc721_proxy.address)).to.equal('0');
-    });
-
-    it('should revert trying to withdraw more then the contract balance', async function () {
-      const value = ethers.utils.parseEther('0.1');
-      await erc721_proxy.setGhostmarketMintFee(value);
-      await erc721_proxy.mintGhost(addrs[0].address, [], 'ext_uri', '', '', {value: value});
-      await erc721_proxy.mintGhost(addrs[0].address, [], 'ext_uri', '', '', {value: value});
-      await erc721_proxy.mintGhost(addrs[0].address, [], 'ext_uri', '', '', {value: value});
-      const feeAddressEthBalanceAfter = await ethers.provider.getBalance(erc721_proxy.address);
-      await expect(erc721_proxy.withdraw(feeAddressEthBalanceAfter.add(value))).revertedWith(
-        'Withdraw amount should be greater then 0 and less then contract balance'
-      );
-    });
-
-    it('should revert if other then the contract owner tries to withdraw', async function () {
-      const value = ethers.utils.parseEther('0.1');
-      await erc721_proxy.setGhostmarketMintFee(value);
-      await erc721_proxy.mintGhost(addrs[0].address, [], 'ext_uri', '', '', {value: value});
-      await erc721_proxy.mintGhost(addrs[0].address, [], 'ext_uri', '', '', {value: value});
-      await erc721_proxy.mintGhost(addrs[0].address, [], 'ext_uri', '', '', {value: value});
-      const feeAddressEthBalanceAfter = await ethers.provider.getBalance(erc721_proxy.address);
-      await expect(testingAsSigner2.withdraw(feeAddressEthBalanceAfter, {from: addrs[2].address})).revertedWith(
-        'Ownable: caller is not the owner'
-      );
-    });
-  });
-
   describe('locked content', function () {
     const hiddencontent = 'top secret';
     it('should set and get locked content for nft', async function () {
@@ -370,6 +264,14 @@ describe('GhostMarket ERC721 Test', function () {
       erc721_proxy.mintGhost(addrs[1].address, [], 'ext_uri', '', hiddencontent);
       const tokenId = await erc721_proxy.getLastTokenID();
       await expect(erc721_proxy.getLockedContent(tokenId)).revertedWith('Caller must be the owner of the NFT');
+    });
+
+    it('should revert if lock content is too long', async function () {
+      const hiddenLongcontent =
+        'top secret top secret top secret top secret top secret top secret top secret top secret top secret top top secret top secret top secret top secret top secret top secret top secret top secret top secret top'; // 205 bytes
+      await expect(erc721_proxy.mintGhost(addrs[1].address, [], 'ext_uri', '', hiddenLongcontent)).revertedWith(
+        'Lock content bytes length should be < 200'
+      );
     });
 
     it('should increment locked content view count', async function () {

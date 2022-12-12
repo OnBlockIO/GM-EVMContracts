@@ -39,7 +39,7 @@ describe('Onblock Vesting Test', function () {
 
   describe('Contract', function () {
     it('should have 4 voters', async () => {
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 4; ++i) {
         const success = await obv.isVoter(addrs[i].address);
         expect(success).to.equal(true);
       }
@@ -412,7 +412,7 @@ describe('Onblock Vesting Test', function () {
           0,
           1
         )
-      ).to.revertedWith('If you are sure to have a lock time greater than 10 years use the overloaded function');
+      ).to.revertedWith('Use the overloaded function for lock time greater than 10 years');
     });
 
     it('should add beneficiary, linear', async () => {
@@ -576,11 +576,11 @@ describe('Onblock Vesting Test', function () {
           .withArgs(
             ethers.BigNumber.from('1'),
             addrs[1].address,
-            ethers.BigNumber.from(calculatedAmount),
-            ethers.BigNumber.from(calculatedAmount)
+            ethers.BigNumber.from(calculatedAmount) || ethers.BigNumber.from(calculatedAmount + 1),
+            ethers.BigNumber.from(calculatedAmount) || ethers.BigNumber.from(calculatedAmount + 1)
           );
         const amount = await gm_proxy.balanceOf(addrs[1].address);
-        expect(amount).to.equal(calculatedAmount);
+        expect(amount).to.equal(calculatedAmount || calculatedAmount + 1);
         const contractAmountAfter = await gm_proxy.balanceOf(obv.address);
         expect(contractAmountAfter).to.equal(ethers.BigNumber.from(contractAmountBefore).sub(amount));
       } finally {
@@ -612,7 +612,7 @@ describe('Onblock Vesting Test', function () {
             ethers.BigNumber.from(calculatedAmount) || ethers.BigNumber.from(calculatedAmount + 1)
           );
         const amount = await gm_proxy.balanceOf(addrs[2].address);
-        expect(amount).to.equal(calculatedAmount);
+        expect(amount).to.equal(calculatedAmount || calculatedAmount + 1);
         const contractAmountAfter = await gm_proxy.balanceOf(obv.address);
         expect(contractAmountAfter).to.equal(ethers.BigNumber.from(contractAmountBefore).sub(amount));
         // advance time again

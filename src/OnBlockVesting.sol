@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
@@ -13,15 +12,14 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
  */
 contract OnBlockVesting is ReentrancyGuard {
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
 
-    uint256 constant SECONDS_PER_DAY = 86400;
-    uint256 constant TEN_YRS_DAYS = 3650; // CKP-12
-    uint256 constant TEN_YRS_SECONDS = TEN_YRS_DAYS * SECONDS_PER_DAY;
-    uint256 constant MAX_VAULT_FEE = 1000000000000000000; // max 1 unit native currency
+    uint256 private constant SECONDS_PER_DAY = 86400;
+    uint256 private constant TEN_YRS_DAYS = 3650;
+    uint256 private constant TEN_YRS_SECONDS = TEN_YRS_DAYS * SECONDS_PER_DAY;
+    uint256 private constant MAX_VAULT_FEE = 1000000000000000000; // max 1 unit native currency
 
-    string public constant name = "OnBlockVesting"; // CKP-07
-    string public constant version = "v0.1"; // CKP-07
+    string public constant name = "OnBlockVesting";
+    string public constant version = "v1.0";
 
     enum LockType {
         FIXED,
@@ -73,31 +71,28 @@ contract OnBlockVesting is ReentrancyGuard {
     }
 
     // votes
-    mapping(address => Vote) public votes;
+    mapping(address => Vote) private votes;
 
     // Mapping to hold all vaults
     mapping(IERC20 => Vault) private vaults;
 
     // active voters
-    address[] public voters;
-    mapping(address => bool) activeVoters;
+    address[] private voters;
+    mapping(address => bool) private activeVoters;
 
     // Array to track all active token vaults
     IERC20[] private activeVaults;
 
     // Globals
-    uint256 private ID_COUNTER;
-    uint256 private VAULT_FEE;
-    uint256 private FEE_SUM;
-    uint256 private MIN_VOTES_FOR_APPROVAL;
+    uint256 private idCounter;
+    uint256 private vaultFee;
+    uint256 private feeSum;
+    uint256 private minVotesForApproval;
 
     // Events
-    event Debug(string arg1);
-    event Debug2(string arg1, bytes32 arg2, bytes32 arg3);
-    event Debug3(uint256 arg1, uint256 arg2);
     event VaultCreated(uint256 vaultId, IERC20 token, uint256 fee);
-    event Release(uint256 vaultId, address account, uint256 amount, uint256 released);
-    event Fulfilled(uint256 vaultId, address account, uint256 amount, uint256 released);
+    event Release(uint256 indexed vaultId, address indexed account, uint256 amount, uint256 released);
+    event Fulfilled(uint256 indexed vaultId, address indexed account, uint256 amount, uint256 released);
     event FeeWithdraw(address initiator, address receiver, uint256 amount);
     event FeeUpdated(address updater, uint256 newFee);
     event VoteRequested(address requester, address onVote, uint256 newFee, VoteAction action);
@@ -125,18 +120,19 @@ contract OnBlockVesting is ReentrancyGuard {
     }
 
     constructor(uint256 vaultFee_, address[] memory voters_) {
-        require(vaultFee_ <= MAX_VAULT_FEE, "Vault fee is too high"); // CKP-01
+        require(vaultFee_ <= MAX_VAULT_FEE, "Vault fee is too high");
         require(voters_.length >= 4, "Contract needs at least four signers");
-        VAULT_FEE = vaultFee_;
-        ID_COUNTER = 0;
-        FEE_SUM = 0;
+        vaultFee = vaultFee_;
+        idCounter = 0;
+        feeSum = 0;
         voters = voters_;
-        for (uint i = 0; i < voters.length; i++) {
+        uint length = voters.length;
+        for (uint i; i < length; ++i) {
             activeVoters[voters[i]] = true;
         }
 
         // 3/4 need to approve
-        MIN_VOTES_FOR_APPROVAL = (voters.length / 4) * 3;
+        minVotesForApproval = (voters.length / 4) * 3;
     }
 
     /*
@@ -145,21 +141,19 @@ contract OnBlockVesting is ReentrancyGuard {
      */
 
     fallback() external payable {
-        revert();
+        revert("Fallback not supported!");
     }
 
     receive() external payable {
-        revert();
+        revert("Receive not supported!");
     }
 
     function getActiveVaults() external view returns (IERC20[] memory) {
-        // CKP-06
         return activeVaults;
     }
 
     function getVaultFee() external view returns (uint256) {
-        // CKP-06
-        return VAULT_FEE;
+        return vaultFee;
     }
 
     function isVoter(address address_) external view returns (bool) {
@@ -169,7 +163,8 @@ contract OnBlockVesting is ReentrancyGuard {
     function finalizeVote(VoteAction action, address voteAddress, uint256 fee) private onlyVoter returns (bool) {
         if (action == VoteAction.WITHDRAW || action == VoteAction.ADDVOTER || action == VoteAction.REMOVEVOTER) {
             Vote storage activeVote;
-            for (uint i = 0; i < voters.length; i++) {
+            uint length = voters.length;
+            for (uint i; i < length; ++i) {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.onVote == voteAddress) {
                     delete votes[voters[i]];
@@ -178,7 +173,8 @@ contract OnBlockVesting is ReentrancyGuard {
             return true;
         } else if (action == VoteAction.FEEUPDATE) {
             Vote storage activeVote;
-            for (uint i = 0; i < voters.length; i++) {
+            uint length = voters.length;
+            for (uint i; i < length; ++i) {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.newFee == fee) {
                     delete votes[voters[i]];
@@ -195,11 +191,11 @@ contract OnBlockVesting is ReentrancyGuard {
         if (action == VoteAction.WITHDRAW || action == VoteAction.ADDVOTER || action == VoteAction.REMOVEVOTER) {
             bytes memory addressBytes = abi.encode(voteAddress);
             Vote storage activeVote;
-            for (uint i = 0; i < voters.length; i++) {
+            uint length = voters.length;
+            for (uint i; i < length; ++i) {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.onVote == voteAddress) {
-                    for (uint j = 0; j < voters.length; j++) {
-                        // emit Debug2("good", activeVote.results[voters[j]], keccak256(addressBytes));
+                    for (uint j = 0; j < voters.length; ++j) {
                         if (activeVote.results[voters[j]] == keccak256(addressBytes)) {
                             voteResult += 1;
                         }
@@ -207,15 +203,16 @@ contract OnBlockVesting is ReentrancyGuard {
                 }
             }
 
-            emit VoteState(msg.sender, voteAddress, 0, voteResult, MIN_VOTES_FOR_APPROVAL, action);
-            return voteResult >= MIN_VOTES_FOR_APPROVAL;
+            emit VoteState(msg.sender, voteAddress, 0, voteResult, minVotesForApproval, action);
+            return voteResult >= minVotesForApproval;
         } else if (action == VoteAction.FEEUPDATE) {
             bytes memory feeBytes = abi.encode(fee);
             Vote storage activeVote;
-            for (uint i = 0; i < voters.length; i++) {
+            uint length = voters.length;
+            for (uint i; i < length; ++i) {
                 activeVote = votes[voters[i]];
                 if (activeVote.voteType == action && activeVote.newFee == fee) {
-                    for (uint j = 0; j < voters.length; j++) {
+                    for (uint j = 0; j < voters.length; ++j) {
                         if (activeVote.results[voters[j]] == keccak256(feeBytes)) {
                             voteResult += 1;
                         }
@@ -223,8 +220,8 @@ contract OnBlockVesting is ReentrancyGuard {
                 }
             }
 
-            emit VoteState(msg.sender, address(0), fee, voteResult, MIN_VOTES_FOR_APPROVAL, action);
-            return voteResult >= MIN_VOTES_FOR_APPROVAL;
+            emit VoteState(msg.sender, address(0), fee, voteResult, minVotesForApproval, action);
+            return voteResult >= minVotesForApproval;
         }
 
         return false;
@@ -268,37 +265,34 @@ contract OnBlockVesting is ReentrancyGuard {
     }
 
     function setVaultFee(uint256 newFee_) external onlyVoter {
-        // CKP-06
         require(newFee_ > 0, "New vault fee has to be > 0");
-        require(newFee_ <= MAX_VAULT_FEE, "Vault fee is too high"); // CKP-01
+        require(newFee_ <= MAX_VAULT_FEE, "Vault fee is too high");
 
         require(isVoteDone(VoteAction.FEEUPDATE, address(0), newFee_), "Vote was not successful yet");
 
-        VAULT_FEE = newFee_;
-        emit FeeUpdated(msg.sender, VAULT_FEE); // CKP-09
+        vaultFee = newFee_;
+        emit FeeUpdated(msg.sender, vaultFee);
         finalizeVote(VoteAction.FEEUPDATE, address(0), newFee_);
     }
 
     function withdrawVaultFee(address payable receiver_) external onlyVoter nonReentrant {
-        // CKP-06 // CKP-16
         require(isVoteDone(VoteAction.WITHDRAW, receiver_, 0), "Vote was not successful yet");
-        receiver_.transfer(FEE_SUM);
-        emit FeeWithdraw(msg.sender, receiver_, FEE_SUM);
-        FEE_SUM = 0;
+        uint256 amount = feeSum;
+        feeSum = 0;
+        receiver_.transfer(amount);
+        emit FeeWithdraw(msg.sender, receiver_, amount);
         finalizeVote(VoteAction.WITHDRAW, receiver_, 0);
     }
 
     function feeBalance() external view returns (uint256) {
-        // CKP-06
-        return FEE_SUM;
+        return feeSum;
     }
 
     function createVault(IERC20 token_) external payable returns (uint256) {
-        // CKP-06
         require(vaults[token_].id == 0, "Vault exists already");
-        require(msg.value >= VAULT_FEE, "Not enough fee attached");
+        require(msg.value >= vaultFee, "Not enough fee attached");
 
-        FEE_SUM += msg.value;
+        feeSum += msg.value;
 
         // Create new Vault
         Vault storage entity = vaults[token_];
@@ -320,8 +314,7 @@ contract OnBlockVesting is ReentrancyGuard {
         uint256 cliff_,
         LockType lockType_
     ) external {
-        // CKP-06
-        addBeneficiary(token_, account_, amount_, startTime_, duration_, cliff_, lockType_, true); // CKP-11
+        addBeneficiary(token_, account_, amount_, startTime_, duration_, cliff_, lockType_, true);
     }
 
     function addBeneficiary(
@@ -334,18 +327,14 @@ contract OnBlockVesting is ReentrancyGuard {
         LockType lockType_,
         bool sanity
     ) public nonReentrant {
-        // CKP-03
-        require(vaults[token_].id > 0, "Vault does not exist"); // CKP-05
+        require(vaults[token_].id > 0, "Vault does not exist");
         require(vaults[token_].beneficiaries[account_].account == address(0), "Beneficiary already exists");
         require(startTime_ > block.timestamp, "StartTime has to be in the future ");
         require(amount_ > 0, "Amount has to be > 0");
 
         // Check the duration for a simple sanity check, if the vesting schedule is > 10 years, make sure the sanity flag is passed.
         if (sanity && duration_ > TEN_YRS_SECONDS) {
-            require(
-                duration_ < 3650 days,
-                "If you are sure to have a lock time greater than 10 years use the overloaded function"
-            );
+            require(duration_ < 3650 days, "Use the overloaded function for lock time greater than 10 years");
         }
 
         uint256 allowance = token_.allowance(msg.sender, address(this));
@@ -357,7 +346,7 @@ contract OnBlockVesting is ReentrancyGuard {
 
         uint256 balanceAfter = token_.balanceOf(address(this));
 
-        if (balanceAfter.sub(balanceBefore) != amount_) {
+        if (balanceAfter - balanceBefore != amount_) {
             // the token is deflationary, we don't support that.
             revert("Deflationary tokens are not supported!");
         }
@@ -367,9 +356,9 @@ contract OnBlockVesting is ReentrancyGuard {
         beneficiary.account = account_;
         beneficiary.amount = amount_;
         beneficiary.startTime = startTime_;
-        beneficiary.endTime = startTime_.add(duration_);
+        beneficiary.endTime = startTime_ + duration_;
         beneficiary.duration = duration_;
-        beneficiary.cliff = startTime_.add(cliff_);
+        beneficiary.cliff = startTime_ + cliff_;
         beneficiary.released = 0;
         beneficiary.lockType = lockType_;
 
@@ -392,11 +381,10 @@ contract OnBlockVesting is ReentrancyGuard {
     }
 
     function getID() private returns (uint256) {
-        return ++ID_COUNTER;
+        return ++idCounter;
     }
 
     function readBeneficiary(IERC20 token_, address account_) external view returns (Beneficiary memory) {
-        // CKP-06
         Vault storage vault = vaults[token_];
         return vault.beneficiaries[account_];
     }
@@ -405,7 +393,6 @@ contract OnBlockVesting is ReentrancyGuard {
      * @notice Transfers tokens held by the vault to the beneficiary.
      */
     function release(IERC20 token_, address account_) external nonReentrant {
-        // CKP-06 // CKP-08 //CKP-13
         Vault storage vault = vaults[token_];
         Beneficiary storage beneficiary = vault.beneficiaries[account_];
 
@@ -434,7 +421,7 @@ contract OnBlockVesting is ReentrancyGuard {
      */
     function releasableAmount(IERC20 token_, address account_) public view returns (uint256) {
         Beneficiary storage beneficiary = getBeneficiary(token_, account_);
-        return vestedAmount(beneficiary).sub(beneficiary.released);
+        return vestedAmount(beneficiary) - beneficiary.released;
     }
 
     /**
@@ -450,7 +437,7 @@ contract OnBlockVesting is ReentrancyGuard {
         }
 
         if (beneficiary.lockType == LockType.LINEAR) {
-            return beneficiary.amount.mul(block.timestamp.sub(beneficiary.startTime)).div(beneficiary.duration);
+            return (beneficiary.amount * (block.timestamp - beneficiary.startTime)) / (beneficiary.duration);
         }
 
         return 0;
