@@ -45,6 +45,7 @@ contract ERC721Upgradeable is
     // Mapping from owner to operator approvals
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
+    // custom
     // Mapping from token ID to flag == true, means token already burned
     mapping(uint256 => bool) private _burnedTokens;
 
@@ -277,6 +278,7 @@ contract ERC721Upgradeable is
      */
     function _mint(address to, uint256 tokenId) internal virtual {
         require(to != address(0), "ERC721: mint to the zero address");
+        // custom
         require(!_burned(tokenId), "token already burned");
         require(!_exists(tokenId), "ERC721: token already minted");
 
@@ -315,17 +317,24 @@ contract ERC721Upgradeable is
         _balances[owner] -= 1;
         delete _owners[tokenId];
 
+        // custom
         _setBurned(tokenId);
 
         emit Transfer(owner, address(0), tokenId);
     }
 
-    /*Returns true if token with tokenId already burned*/
+    // custom
+    /**
+     * @dev Returns true if token with tokenId already burned
+     */
     function _burned(uint256 tokenId) internal view returns (bool) {
         return _burnedTokens[tokenId];
     }
 
-    /*Set token with tokenId burned*/
+    // custom
+    /**
+     * @dev Set token with tokenId burned
+     */
     function _setBurned(uint256 tokenId) internal {
         _burnedTokens[tokenId] = true;
     }
