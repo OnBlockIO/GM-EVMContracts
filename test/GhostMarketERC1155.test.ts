@@ -396,10 +396,10 @@ describe('GhostMarket ERC1155 Test', function () {
       await tProxy.mintAndTransfer(
         {tokenId, tokenURI, amount: MINT_AMOUNT.toString(), minter: addrs[5].address, royalties: [], signature},
         addrs[1].address,
-        1,
+        2,
         {from: proxy.address}
       );
-      expect(await erc1155_proxy.balanceOf(addrs[1].address, tokenId)).to.equal(1);
+      expect(await erc1155_proxy.balanceOf(addrs[1].address, tokenId)).to.equal(2);
 
       // new regular transfer post mint should work
       await testingAsSigner1.safeTransferFrom(addrs[1].address, addrs[6].address, tokenId, 1, '0x', {
@@ -425,10 +425,10 @@ describe('GhostMarket ERC1155 Test', function () {
       await testingAsSigner5.mintAndTransfer(
         {tokenId, tokenURI, amount: MINT_AMOUNT.toString(), minter: addrs[5].address, royalties: [], signature},
         addrs[1].address,
-        1,
+        2,
         {from: addrs[5].address}
       );
-      expect(await erc1155_proxy.balanceOf(addrs[1].address, tokenId)).to.equal(1);
+      expect(await erc1155_proxy.balanceOf(addrs[1].address, tokenId)).to.equal(2);
 
       // new regular transfer post mint should work
       await testingAsSigner1.safeTransferFrom(addrs[1].address, addrs[6].address, tokenId, 1, '0x', {
@@ -446,10 +446,16 @@ describe('GhostMarket ERC1155 Test', function () {
         {tokenId, tokenURI, amount: MINT_AMOUNT.toString(), minter: minter.address, royalties: [], signature: '0x'},
         minter.address,
         transferTo.address,
-        1,
+        2,
         {from: minter.address}
       );
-      expect(await erc1155_proxy.balanceOf(transferTo.address, tokenId)).to.equal(1);
+      expect(await erc1155_proxy.balanceOf(transferTo.address, tokenId)).to.equal(2);
+
+      // new regular transfer post mint should work
+      await testingAsSigner2.safeTransferFrom(addrs[2].address, addrs[6].address, tokenId, 1, '0x', {
+        from: addrs[2].address,
+      });
+      expect(await erc1155_proxy.balanceOf(addrs[6].address, tokenId)).to.equal(1);
     });
 
     it('should work for transfer from or mint from minter. already minted', async () => {
@@ -463,6 +469,7 @@ describe('GhostMarket ERC1155 Test', function () {
         2,
         {from: minter.address}
       );
+      expect(await erc1155_proxy.balanceOf(minter.address, tokenId)).to.equal(2);
       await testingAsSigner1.transferFromOrMint(
         {tokenId, tokenURI, amount: MINT_AMOUNT.toString(), minter: minter.address, royalties: [], signature: '0x'},
         minter.address,
@@ -470,16 +477,17 @@ describe('GhostMarket ERC1155 Test', function () {
         8,
         {from: minter.address}
       );
-      await expect(
-        testingAsSigner1.transferFromOrMint(
-          {tokenId, tokenURI, amount: MINT_AMOUNT.toString(), minter: minter.address, royalties: [], signature: '0x'},
-          minter.address,
-          transferTo.address,
-          7,
-          {from: minter.address}
-        )
-      ).revertedWith('ERC1155: transfer caller is not owner nor approved');
-      expect(await erc1155_proxy.balanceOf(transferTo.address, tokenId)).to.equal(1);
+      expect(await erc1155_proxy.balanceOf(minter.address, tokenId)).to.equal(0);
+      expect(await erc1155_proxy.balanceOf(transferTo.address, tokenId)).to.equal(8);
+      await testingAsSigner1.transferFromOrMint(
+        {tokenId, tokenURI, amount: MINT_AMOUNT.toString(), minter: minter.address, royalties: [], signature: '0x'},
+        minter.address,
+        transferTo.address,
+        7,
+        {from: minter.address}
+      );
+      expect(await erc1155_proxy.balanceOf(minter.address, tokenId)).to.equal(0);
+      expect(await erc1155_proxy.balanceOf(transferTo.address, tokenId)).to.equal(15);
     });
 
     it('should work for transfer from or mint when not minter. not yet minted', async () => {
