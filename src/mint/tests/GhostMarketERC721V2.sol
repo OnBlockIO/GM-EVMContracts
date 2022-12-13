@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
 
-import "../mint/ERC721PresetMinterPauserAutoIdUpgradeableCustom.sol";
+pragma solidity ^0.8.9;
+pragma abicoder v2;
+
+import "../ERC721PresetMinterPauserAutoIdUpgradeableCustom.sol";
+import "../Mint721Validator.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpgradeable.sol";
@@ -15,16 +18,17 @@ contract GhostMarketERC721V2 is
     ERC721PresetMinterPauserAutoIdUpgradeableCustom,
     ReentrancyGuardUpgradeable,
     OwnableUpgradeable,
-    ERC165StorageUpgradeable
+    ERC165StorageUpgradeable,
+    Mint721Validator
 {
-    // struct for royalties fees
+    // dev @deprecated
     struct Royalty {
         address payable recipient;
         uint256 value;
     }
 
     // tokenId => royalties array
-    mapping(uint256 => Royalty[]) internal _royalties;
+    mapping(uint256 => LibPart.Part[]) internal _royalties;
 
     // tokenId => locked content array
     mapping(uint256 => string) internal _lockedContent;
@@ -32,12 +36,12 @@ contract GhostMarketERC721V2 is
     // tokenId => locked content view counter array
     mapping(uint256 => uint256) internal _lockedContentViewTracker;
 
-    // tokenId => attributes array
+    // @dev deprecated
     mapping(uint256 => string) internal _metadataJson;
 
     // events
     event LockedContentViewed(address indexed msgSender, uint256 indexed tokenId, string lockedContent);
-    event Minted(address indexed toAddress, uint256 indexed tokenId, string externalURI);
+    event Minted(address indexed toAddress, uint256 indexed tokenId, string tokenURI);
 
     // @dev deprecated
     uint256 internal _payedMintFeesBalance;
@@ -45,9 +49,7 @@ contract GhostMarketERC721V2 is
     // @dev deprecated
     uint256 internal _ghostmarketMintFees;
 
-    /**
-     * bytes4(keccak256(_INTERFACE_ID_ERC721_GHOSTMARKET)) == 0xee40ffc1
-     */
+    // @dev deprecated
     bytes4 public constant _INTERFACE_ID_ERC721_GHOSTMARKET = bytes4(keccak256("_INTERFACE_ID_ERC721_GHOSTMARKET"));
 
     /**
@@ -70,6 +72,7 @@ contract GhostMarketERC721V2 is
         __Ownable_init_unchained();
         _registerInterface(_INTERFACE_ID_ERC721_GHOSTMARKET);
         _registerInterface(_GHOSTMARKET_NFT_ROYALTIES);
+        __Mint721Validator_init_unchained();
     }
 
     function getSomething() external pure returns (uint) {
@@ -95,22 +98,17 @@ contract GhostMarketERC721V2 is
      * @dev set a NFT royalties fees & recipients
      * fee basis points 10000 = 100%
      */
-    function _saveRoyalties(uint256 tokenId, Royalty[] memory royalties) internal {
+    function _saveRoyalties(uint256 tokenId, LibPart.Part[] memory royalties) internal {
         require(_exists(tokenId), "ERC721: approved query for nonexistent token");
+        uint256 totalValue;
         uint length = royalties.length;
         for (uint256 i; i < length; ++i) {
             require(royalties[i].recipient != address(0x0), "Recipient should be present");
             require(royalties[i].value > 0, "Royalties value should be positive");
-            require(royalties[i].value <= 5000, "Royalties value should not be more than 50%");
+            totalValue += royalties[i].value;
             _royalties[tokenId].push(royalties[i]);
         }
-    }
-
-    /**
-     * @dev set a NFT custom attributes to contract storage
-     */
-    function _setMetadataJson(uint256 tokenId, string memory metadataJson) internal {
-        _metadataJson[tokenId] = metadataJson;
+        require(totalValue <= 5000, "Royalty total value should be < 50%");
     }
 
     /**
@@ -129,33 +127,64 @@ contract GhostMarketERC721V2 is
     }
 
     /**
+     * @dev transfer (if exists) or mint (if non existing) a nft
+     */
+    function transferFromOrMint(LibERC721LazyMint.Mint721Data memory data, address from, address to) external {
+        if (_exists(data.tokenId)) {
+            safeTransferFrom(from, to, data.tokenId);
+        } else {
+            require(from == data.minter, "wrong order maker");
+            mintAndTransfer(data, to);
+        }
+    }
+
+    /**
+     * @dev lazy mint a NFT, set royalties
+     */
+    function mintAndTransfer(LibERC721LazyMint.Mint721Data memory lazyMintData, address to) public virtual {
+        require(
+            keccak256(abi.encodePacked(lazyMintData.tokenURI)) != keccak256(abi.encodePacked("")),
+            "tokenURI can't be empty"
+        );
+        address minter = address(uint160(lazyMintData.tokenId >> 96));
+        address sender = _msgSender();
+        require(
+            minter == sender || isApprovedForAll(minter, sender),
+            "ERC721: transfer caller is not owner nor approved"
+        );
+
+        // TODO would be best with custom override to specific custom transfer event from mint <> creator <> user
+        _mint(to, lazyMintData.tokenId);
+        if (lazyMintData.royalties.length > 0) {
+            _saveRoyalties(lazyMintData.tokenId, lazyMintData.royalties);
+        }
+        if (lazyMintData.minter != _msgSender()) {
+            validate(lazyMintData.minter, LibERC721LazyMint.hash(lazyMintData), lazyMintData.signature);
+        }
+        emit Minted(to, lazyMintData.tokenId, lazyMintData.tokenURI);
+    }
+
+    /**
      * @dev mint NFT, set royalties, set metadata json, set lockedcontent
      * emits Minted event
      */
     function mintGhost(
         address to,
-        Royalty[] memory royalties,
-        string memory externalURI,
-        string memory metadata,
+        LibPart.Part[] memory royalties,
+        string memory tokenURI,
         string memory lockedcontent
     ) external payable nonReentrant {
         require(to != address(0x0), "to can't be empty");
-        require(
-            keccak256(abi.encodePacked(externalURI)) != keccak256(abi.encodePacked("")),
-            "externalURI can't be empty"
-        );
+        require(keccak256(abi.encodePacked(tokenURI)) != keccak256(abi.encodePacked("")), "tokenURI can't be empty");
         mint(to);
         uint256 tokenId = getLastTokenID();
         if (royalties.length > 0) {
             _saveRoyalties(tokenId, royalties);
         }
-        if (keccak256(abi.encodePacked(metadata)) != keccak256(abi.encodePacked(""))) {
-            _setMetadataJson(tokenId, metadata);
-        }
         if (keccak256(abi.encodePacked(lockedcontent)) != keccak256(abi.encodePacked(""))) {
             _setLockedContent(tokenId, lockedcontent);
         }
-        emit Minted(to, tokenId, externalURI);
+        emit Minted(to, tokenId, tokenURI);
     }
 
     /**
@@ -186,16 +215,9 @@ contract GhostMarketERC721V2 is
     }
 
     /**
-     * @dev get a NFT custom attributes
-     */
-    function getMetadataJson(uint256 tokenId) external view returns (string memory) {
-        return _metadataJson[tokenId];
-    }
-
-    /**
      * @dev get royalties array
      */
-    function getRoyalties(uint256 tokenId) external view returns (Royalty[] memory) {
+    function getRoyalties(uint256 tokenId) external view returns (LibPart.Part[] memory) {
         return _royalties[tokenId];
     }
 
@@ -203,7 +225,7 @@ contract GhostMarketERC721V2 is
      * @dev get a NFT royalties recipients
      */
     function getRoyaltiesRecipients(uint256 tokenId) external view returns (address payable[] memory) {
-        Royalty[] memory royalties = _royalties[tokenId];
+        LibPart.Part[] memory royalties = _royalties[tokenId];
         address payable[] memory result = new address payable[](royalties.length);
         uint length = royalties.length;
         for (uint256 i; i < length; ++i) {
@@ -217,7 +239,7 @@ contract GhostMarketERC721V2 is
      * fee basis points 10000 = 100%
      */
     function getRoyaltiesBps(uint256 tokenId) external view returns (uint256[] memory) {
-        Royalty[] memory royalties = _royalties[tokenId];
+        LibPart.Part[] memory royalties = _royalties[tokenId];
         uint256[] memory result = new uint256[](royalties.length);
         uint length = royalties.length;
         for (uint256 i; i < length; ++i) {

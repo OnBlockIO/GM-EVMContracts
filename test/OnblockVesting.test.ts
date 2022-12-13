@@ -1,6 +1,6 @@
 import {expect} from '../utils/chai-setup';
 import {ethers, upgrades} from 'hardhat';
-import {GhostMarketToken, DeflationaryToken, OnBlockVesting} from '../typechain';
+import {GhostMarketToken, DeflationaryTokenTest, OnBlockVesting} from '../typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
 
 describe('Onblock Vesting Test', function () {
@@ -8,7 +8,7 @@ describe('Onblock Vesting Test', function () {
   let owner: SignerWithAddress;
   let addrs: SignerWithAddress[];
   let gm_proxy: GhostMarketToken;
-  let dft_proxy: DeflationaryToken;
+  let dft_proxy: DeflationaryTokenTest;
   let obv: OnBlockVesting;
   let testingAsSigner1: OnBlockVesting;
   let testingAsSigner2: OnBlockVesting;
@@ -17,13 +17,13 @@ describe('Onblock Vesting Test', function () {
 
   before('Deploy Contracts', async () => {
     const GM = await ethers.getContractFactory('GhostMarketToken');
-    const DFT = await ethers.getContractFactory('DeflationaryToken');
+    const DFT = await ethers.getContractFactory('DeflationaryTokenTest');
     const OBV = await ethers.getContractFactory('OnBlockVesting');
     [owner, ...addrs] = await ethers.getSigners();
     gm_proxy = <GhostMarketToken>await upgrades.deployProxy(GM, ['GhostMarket Token', 'GM', '10000000000000000', '8']);
     await gm_proxy.deployed();
-    dft_proxy = <DeflationaryToken>(
-      await upgrades.deployProxy(DFT, ['DeflationaryToken', 'DFT', '10000000000000000', '8'])
+    dft_proxy = <DeflationaryTokenTest>(
+      await upgrades.deployProxy(DFT, ['DeflationaryTokenTest', 'DFT', '10000000000000000', '8'])
     );
     await dft_proxy.deployed();
     obv = <OnBlockVesting>await OBV.deploy('1000000000000000', addrs.map((x) => x.address).slice(0, 4));
@@ -37,14 +37,16 @@ describe('Onblock Vesting Test', function () {
   /*beforeEach(async function () {
   })*/
 
-  describe('Contract', function () {
+  describe('Votes', function () {
     it('should have 4 voters', async () => {
       for (let i = 0; i < 4; ++i) {
         const success = await obv.isVoter(addrs[i].address);
         expect(success).to.equal(true);
       }
     });
+  });
 
+  describe('Vaults', function () {
     it('should match vault fee', async () => {
       const fee = await obv.getVaultFee();
       expect(fee).to.equal('1000000000000000');
@@ -296,26 +298,6 @@ describe('Onblock Vesting Test', function () {
       await expect(receipt).to.emit(obv, 'VaultCreated').withArgs(ethers.BigNumber.from('2'), dft_proxy.address, fee);
     });
 
-    it('should fail adding beneficiary, deflationary token', async () => {
-      const fee = await obv.getVaultFee();
-      obv.createVault(dft_proxy.address, {value: fee});
-      await dft_proxy.approve(obv.address, 100);
-      const block = await ethers.provider.getBlock('latest');
-      const time = block.timestamp + 10;
-
-      await expect(
-        obv['addBeneficiary(address,address,uint256,uint256,uint256,uint256,uint8)'](
-          dft_proxy.address,
-          addrs[1].address,
-          100,
-          time,
-          86400 * 100 /* 100 days */,
-          0,
-          1
-        )
-      ).to.revertedWith('Deflationary tokens are not supported!');
-    });
-
     it('should verify fee balance', async () => {
       const feeBalance = await obv.feeBalance();
       const vaults = await obv.getActiveVaults();
@@ -338,6 +320,28 @@ describe('Onblock Vesting Test', function () {
 
     it('should revert because vault exists already', async () => {
       await expect(obv.createVault(gm_proxy.address)).to.revertedWith('Vault exists already');
+    });
+  });
+
+  describe('Beneficiaries', function () {
+    it('should fail adding beneficiary, deflationary token', async () => {
+      const fee = await obv.getVaultFee();
+      obv.createVault(dft_proxy.address, {value: fee});
+      await dft_proxy.approve(obv.address, 100);
+      const block = await ethers.provider.getBlock('latest');
+      const time = block.timestamp + 10;
+
+      await expect(
+        obv['addBeneficiary(address,address,uint256,uint256,uint256,uint256,uint8)'](
+          dft_proxy.address,
+          addrs[1].address,
+          100,
+          time,
+          86400 * 100 /* 100 days */,
+          0,
+          1
+        )
+      ).to.revertedWith('Deflationary tokens are not supported!');
     });
 
     it('should fail adding beneficiary, no allowance', async () => {
@@ -555,7 +559,9 @@ describe('Onblock Vesting Test', function () {
         await ethers.provider.send('evm_revert', [snapshot]);
       }
     });
+  });
 
+  describe('Release', function () {
     it('should release vested amount, fixed', async () => {
       const beneficiary = await obv.readBeneficiary(gm_proxy.address, addrs[1].address);
       const contractAmountBefore = await gm_proxy.balanceOf(obv.address);

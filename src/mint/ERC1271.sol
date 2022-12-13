@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.9;
+pragma abicoder v2;
 
 abstract contract ERC1271 {
     bytes4 public constant ERC1271_INTERFACE_ID = 0xfb855dc9;
@@ -18,8 +19,4 @@ abstract contract ERC1271 {
      * MUST allow external calls
      */
     function isValidSignature(bytes32 _hash, bytes memory _signature) public view virtual returns (bytes4);
-
-    function returnIsValidSignatureMagicNumber(bool isValid) internal pure returns (bytes4) {
-        return isValid ? ERC1271_RETURN_VALID_SIGNATURE : ERC1271_RETURN_INVALID_SIGNATURE;
-    }
 }

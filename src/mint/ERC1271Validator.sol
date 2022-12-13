@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.9;
+pragma abicoder v2;
 
 import "./ERC1271.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol";
@@ -16,10 +17,17 @@ abstract contract ERC1271Validator is EIP712Upgradeable {
 
     function validate1271(address signer, bytes32 structHash, bytes memory signature) internal view {
         bytes32 hash = _hashTypedDataV4(structHash);
-        if (signer.isContract()) {
-            require(ERC1271(signer).isValidSignature(hash, signature) == MAGICVALUE, SIGNATURE_ERROR);
-        } else {
-            require(hash.recover(signature) == signer, SIGNATURE_ERROR);
+
+        address signerFromSig;
+        if (signature.length == 65) {
+            signerFromSig = hash.recover(signature);
+        }
+        if (signerFromSig != signer) {
+            if (signer.isContract()) {
+                require(ERC1271(signer).isValidSignature(hash, signature) == MAGICVALUE, SIGNATURE_ERROR);
+            } else {
+                revert(SIGNATURE_ERROR);
+            }
         }
     }
 

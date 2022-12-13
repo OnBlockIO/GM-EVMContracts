@@ -12,13 +12,20 @@ library LibERC1155LazyMint {
         string tokenURI;
         uint amount;
         address minter;
+        LibPart.Part[] royalties;
         bytes signature;
     }
 
     bytes32 public constant MINT_AND_TRANSFER_TYPEHASH =
-        keccak256("Mint1155(uint256 tokenId,string tokenURI,uint256 amount,address minter)");
+        keccak256(
+            "Mint1155(uint256 tokenId,string tokenURI,uint256 amount,address minter,Part[] royalties)Part(address recipient,uint256 value)"
+        );
 
     function hash(Mint1155Data memory data) internal pure returns (bytes32) {
+        bytes32[] memory royaltiesBytes = new bytes32[](data.royalties.length);
+        for (uint i = 0; i < data.royalties.length; ++i) {
+            royaltiesBytes[i] = LibPart.hash(data.royalties[i]);
+        }
         return
             keccak256(
                 abi.encode(
@@ -26,7 +33,8 @@ library LibERC1155LazyMint {
                     data.tokenId,
                     keccak256(bytes(data.tokenURI)),
                     data.amount,
-                    data.minter
+                    data.minter,
+                    keccak256(abi.encodePacked(royaltiesBytes))
                 )
             );
     }
