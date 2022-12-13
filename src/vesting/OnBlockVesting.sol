@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.9;
+pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -71,14 +73,14 @@ contract OnBlockVesting is ReentrancyGuard {
     }
 
     // votes
-    mapping(address => Vote) private votes;
+    mapping(address => Vote) public votes;
 
     // Mapping to hold all vaults
     mapping(IERC20 => Vault) private vaults;
 
     // active voters
-    address[] private voters;
-    mapping(address => bool) private activeVoters;
+    address[] public voters;
+    mapping(address => bool) public activeVoters;
 
     // Array to track all active token vaults
     IERC20[] private activeVaults;
