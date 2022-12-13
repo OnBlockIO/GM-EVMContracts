@@ -180,7 +180,6 @@ contract GhostMarketERC1155 is
         require(minter == sender || isApprovedForAll(minter, sender), "ERC1155: transfer caller is not approved");
         require(_amount > 0, "amount incorrect");
 
-        // TODO would be best with custom override to specific custom event from mint <> creator <> user
         mint(to, lazyMintData.tokenId, _amount, "");
         if (lazyMintData.royalties.length > 0) {
             _saveRoyalties(lazyMintData.tokenId, lazyMintData.royalties);

@@ -149,7 +149,6 @@ contract GhostMarketERC721 is
             "ERC721: transfer caller is not owner nor approved"
         );
 
-        // TODO would be best with custom override to specific custom transfer event from mint <> creator <> user
         _mint(to, lazyMintData.tokenId);
         if (lazyMintData.royalties.length > 0) {
             _saveRoyalties(lazyMintData.tokenId, lazyMintData.royalties);
