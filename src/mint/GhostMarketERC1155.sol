@@ -188,6 +188,12 @@ contract GhostMarketERC1155 is
             validate(lazyMintData.minter, LibERC1155LazyMint.hash(lazyMintData), lazyMintData.signature);
         }
         emit Minted(to, lazyMintData.tokenId, lazyMintData.tokenURI, lazyMintData.amount);
+        if (minter != to) {
+            emit TransferSingle(sender, address(0), minter, lazyMintData.tokenId, lazyMintData.amount);
+            emit TransferSingle(sender, minter, to, lazyMintData.tokenId, lazyMintData.amount);
+        } else {
+            emit TransferSingle(sender, address(0), to, data.tokenId, lazyMintData.amount);
+        }
     }
 
     /**
