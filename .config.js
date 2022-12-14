@@ -89,7 +89,7 @@ let settings = {
   bsc_testnet: bsc_testnet,
 };
 
-function getSettings(network: string) {
+function getSettings(network) {
   if (settings[network] !== undefined) {
     return settings[network];
   } else {
