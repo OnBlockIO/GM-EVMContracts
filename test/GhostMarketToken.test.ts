@@ -84,7 +84,7 @@ describe('GhostMarket Token Test', function () {
       const balance = await gm_proxy.balanceOf(addrs[2].address);
       expect(balance).to.equal(2000);
       await expect(gm_proxy.transferFrom(owner.address, addrs[2].address, 2000)).to.revertedWith(
-        'ERC20: transfer amount exceeds allowance'
+        'ERC20: insufficient allowance'
       );
     });
   });

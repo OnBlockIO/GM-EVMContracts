@@ -1,6 +1,6 @@
 import {expect} from '../utils/chai-setup';
 import {ethers, upgrades} from 'hardhat';
-import {GhostMarketERC721} from '../typechain';
+import {GhostMarketERC721, Mint721ValidatorTest} from '../typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
 import {BigNumber} from 'ethers';
 import EIP712, {TYPES_721} from '../src/mint/utils/EIP712';
@@ -12,6 +12,7 @@ describe('GhostMarket ERC721 Test', function () {
   const TOKEN_SYMBOL = 'GHOST';
   const BASE_URI = 'https://ghostmarket.io/';
   let erc721_proxy: GhostMarketERC721;
+  let val: Mint721ValidatorTest;
   let owner: SignerWithAddress;
   let addrs: SignerWithAddress[];
   let testingAsSigner1: GhostMarketERC721;
@@ -26,6 +27,9 @@ describe('GhostMarket ERC721 Test', function () {
       unsafeAllowCustomTypes: true,
     });
     await erc721_proxy.deployed();
+    const VAL = await ethers.getContractFactory('Mint721ValidatorTest');
+    val = await VAL.deploy();
+    await val.deployed();
     testingAsSigner1 = erc721_proxy.connect(addrs[1]);
     testingAsSigner2 = erc721_proxy.connect(addrs[2]);
     testingAsSigner5 = erc721_proxy.connect(addrs[5]);
@@ -47,9 +51,10 @@ describe('GhostMarket ERC721 Test', function () {
     expect((await erc721_proxy.supportsInterface(ethers.utils.hexlify('0x01ffc9a7'))).toString()).to.equal('true');
   });
 
-  it('should support ERC721 (0x80ac58cd/0x5b5e139f) interfaces', async () => {
-    expect((await erc721_proxy.supportsInterface(ethers.utils.hexlify('0x80ac58cd'))).toString()).to.equal('true');
-    expect((await erc721_proxy.supportsInterface(ethers.utils.hexlify('0x5b5e139f'))).toString()).to.equal('true');
+  it('should support ERC721 (0x80ac58cd/0x5b5e139f/0x780e9d63) interfaces', async () => {
+    expect((await erc721_proxy.supportsInterface(ethers.utils.hexlify('0x80ac58cd'))).toString()).to.equal('true'); // ERC721
+    expect((await erc721_proxy.supportsInterface(ethers.utils.hexlify('0x5b5e139f'))).toString()).to.equal('true'); // ERC721Metadata
+    expect((await erc721_proxy.supportsInterface(ethers.utils.hexlify('0x780e9d63'))).toString()).to.equal('true'); // ERC721Enumerable
   });
 
   it('should support _GHOSTMARKET_NFT_ROYALTIES (0xe42093a6) interface', async function () {
@@ -61,7 +66,14 @@ describe('GhostMarket ERC721 Test', function () {
     expect(await erc721_proxy.owner()).to.equal(addrs[1].address);
   });
 
-  it('should be able to upgrade contract', async function () {
+  it.skip('should be able to upgrade from legacy to new contract', async function () {
+    const GhostMarketERC721V2_ContractFactory = await ethers.getContractFactory('GhostMarketERC721');
+    //upgrade
+    await upgrades.upgradeProxy(erc721_proxy.address, GhostMarketERC721V2_ContractFactory);
+  });
+
+
+  it('should be able to upgrade from new contract to another new one', async function () {
     const GhostMarketERC721_ContractFactory = await ethers.getContractFactory('GhostMarketERC721');
     const GhostMarketERC721V2_ContractFactory = await ethers.getContractFactory('GhostMarketERC721V2');
 
@@ -268,19 +280,13 @@ describe('GhostMarket ERC721 Test', function () {
 
   describe('mint lazy NFT', function () {
     it('should work if signer is correct', async () => {
-      const VAL = await ethers.getContractFactory('Mint721ValidatorTest');
-      const val = await VAL.deploy();
-      await val.__Mint721ValidatorTest_init();
       const tokenId = await erc721_proxy.getLastTokenID();
       const tokenURI = BASE_URI + tokenId;
-      const signature = await sign721(addrs[5].address, tokenId.toString(), tokenURI, [], val.address);
-      await val.validateTest({tokenId, tokenURI, minter: addrs[5].address, royalties: [], signature});
+      const signature = await sign721(addrs[1].address, tokenId.toString(), tokenURI, [], val.address);
+      await val.validateTest({tokenId, tokenURI, minter: addrs[1].address, royalties: [], signature});
     });
 
     it('should fail if signer is incorrect', async () => {
-      const VAL = await ethers.getContractFactory('Mint721ValidatorTest');
-      const val = await VAL.deploy();
-      await val.__Mint721ValidatorTest_init();
       const tokenId = await erc721_proxy.getLastTokenID();
       const tokenURI = BASE_URI + tokenId;
       const signature = await sign721(addrs[0].address, tokenId.toString(), tokenURI, [], val.address);
@@ -317,9 +323,6 @@ describe('GhostMarket ERC721 Test', function () {
     });
 
     it('should work if signer is contract and 1271 passes', async () => {
-      const VAL = await ethers.getContractFactory('Mint721ValidatorTest');
-      const val = await VAL.deploy();
-      await val.__Mint721ValidatorTest_init();
       const ERC1271 = await ethers.getContractFactory('ERC1271Test');
       const erc1271 = await ERC1271.deploy();
       const tokenId = await erc721_proxy.getLastTokenID();
@@ -333,9 +336,6 @@ describe('GhostMarket ERC721 Test', function () {
     });
 
     it('should work for mint and transfer with signature from proxy', async function () {
-      const VAL = await ethers.getContractFactory('Mint721ValidatorTest');
-      const val = await VAL.deploy();
-      await val.__Mint721ValidatorTest_init();
       const ERC721_PROXY = await ethers.getContractFactory('ERC721LazyMintTransferProxy');
       const erc721_lazy_proxy = await ERC721_PROXY.deploy();
       await erc721_lazy_proxy.__OperatorRole_init();
@@ -367,9 +367,6 @@ describe('GhostMarket ERC721 Test', function () {
     });
 
     it('should work for mint and transfer with signature from creator', async function () {
-      const VAL = await ethers.getContractFactory('Mint721ValidatorTest');
-      const val = await VAL.deploy();
-      await val.__Mint721ValidatorTest_init();
       const tokenId = addrs[5].address + 'b00000000000000000000001';
       const tokenURI = BASE_URI + tokenId;
       const signature = await sign721(addrs[5].address, tokenId.toString(), tokenURI, [], val.address);
