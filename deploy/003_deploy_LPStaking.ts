@@ -1,13 +1,11 @@
-import {HardhatRuntimeEnvironment} from 'hardhat/types';
-import {DeployFunction} from 'hardhat-deploy/types';
-import {getSettings} from './config';
+import {getSettings} from '../.config';
+import hre, {deployments, getNamedAccounts} from 'hardhat';
 
-const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployments, getNamedAccounts} = hre;
+async function main() {
   const {deploy} = deployments;
   const {deployer} = await getNamedAccounts();
 
-  const CHAIN = 'avalanche_mainnet';
+  const CHAIN = hre.network.name;
   const BLOCKS_PER_DAY = getSettings(CHAIN).blocks_per_day;
   const START_BLOCK = getSettings(CHAIN).start_block;
   const LP_TOKEN = getSettings(CHAIN).lp_token;
@@ -33,7 +31,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     },
     log: true,
   });
-};
+}
 
-export default func;
-func.tags = ['StakingPoolForDexTokens'];
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

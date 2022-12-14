@@ -1,8 +1,6 @@
-import {HardhatRuntimeEnvironment} from 'hardhat/types';
-import {DeployFunction} from 'hardhat-deploy/types';
+import {deployments, getNamedAccounts} from 'hardhat';
 
-const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployments, getNamedAccounts} = hre;
+async function main() {
   const {deploy} = deployments;
   const {deployer} = await getNamedAccounts();
 
@@ -26,7 +24,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     },
     log: true,
   });
-};
+}
 
-export default func;
-func.tags = ['GhostMarketToken'];
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

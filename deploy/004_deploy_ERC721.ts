@@ -1,12 +1,10 @@
-import {HardhatRuntimeEnvironment} from 'hardhat/types';
-import {DeployFunction} from 'hardhat-deploy/types';
+import hre, {deployments, getNamedAccounts} from 'hardhat';
 
-const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployments, getNamedAccounts} = hre;
+async function main() {
   const {deploy} = deployments;
   const {deployer} = await getNamedAccounts();
 
-  const CHAIN = 'avalanche';
+  const CHAIN = hre.network.name;
   const IS_MAINNET = true;
   const NAME = 'GhostMarket ERC721';
   const SYMBOL = 'GHOST';
@@ -28,6 +26,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     },
     log: true,
   });
-};
-export default func;
-func.tags = ['GhostMarketERC721'];
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

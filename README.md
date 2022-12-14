@@ -128,8 +128,6 @@ tests can be run with:
 hardhat test
 ```
 
-default network is `test` or a network parameter can be added
-
 ```
 hardhat test <network_name>
 ```
@@ -140,8 +138,6 @@ coverage can be run with:
 ```
 hardhat coverage
 ```
-
-default network is `test` or a network parameter can be added
 
 ```
 hardhat coverage <network_name>

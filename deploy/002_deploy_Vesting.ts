@@ -1,8 +1,6 @@
-import {HardhatRuntimeEnvironment} from 'hardhat/types';
-import {DeployFunction} from 'hardhat-deploy/types';
+import {deployments, getNamedAccounts, getUnnamedAccounts} from 'hardhat';
 
-const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployments, getNamedAccounts, getUnnamedAccounts} = hre;
+async function main() {
   const {deploy} = deployments;
   const {deployer} = await getNamedAccounts();
   const users = await getUnnamedAccounts();
@@ -16,7 +14,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [VAULT_FEE, VOTERS],
   });
-};
+}
 
-export default func;
-func.tags = ['OnBlockVesting'];
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
