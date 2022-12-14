@@ -7,5 +7,6 @@ module.exports = {
     'operator/tests/',
     'proxies/tests/',
     'vesting/tests/',
+    'legacy/',
   ],
 };
