@@ -13,4 +13,8 @@ contract OperatorRoleTest is OperatorRole {
     function getSomething() external view onlyOperator returns (uint) {
         return 10;
     }
+
+    function getOperator(address operator) external view returns (bool) {
+        return operators[operator];
+    }
 }

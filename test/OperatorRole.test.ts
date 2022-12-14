@@ -27,6 +27,10 @@ describe('OperatorRole Test', function () {
     );
 
     await operator.addOperator(addrs[1].address);
+
+    const operatorStatus = await operator.getOperator(addrs[1].address);
+    expect(operatorStatus).to.equal(true);
+
     await operator.removeOperator(addrs[1].address);
   });
 

@@ -573,6 +573,7 @@ describe('GhostMarket ERC1155 Test', function () {
         1,
         {from: proxy.address}
       );
+      await testingAsSigner1.burn(minter.address, tokenId, 1, {from: minter.address});
     });
 
     it('should set royalties properly', async function () {

@@ -39,12 +39,17 @@ describe('GhostMarket ERC721 Test', function () {
     expect((await erc721_proxy.symbol()).toString()).to.equal(TOKEN_SYMBOL);
   });
 
+  it('should have initial counter = 1', async function () {
+    expectEqualStringValues(await erc721_proxy.getCurrentCounter(), 1);
+  });
+
   it('should support ERC165 (0x01ffc9a7) interface', async () => {
     expect((await erc721_proxy.supportsInterface(ethers.utils.hexlify('0x01ffc9a7'))).toString()).to.equal('true');
   });
 
-  it('should support ERC721 (0x80ac58cd) interfaces', async () => {
+  it('should support ERC721 (0x80ac58cd/0x5b5e139f) interfaces', async () => {
     expect((await erc721_proxy.supportsInterface(ethers.utils.hexlify('0x80ac58cd'))).toString()).to.equal('true');
+    expect((await erc721_proxy.supportsInterface(ethers.utils.hexlify('0x5b5e139f'))).toString()).to.equal('true');
   });
 
   it('should support _GHOSTMARKET_NFT_ROYALTIES (0xe42093a6) interface', async function () {
@@ -419,6 +424,13 @@ describe('GhostMarket ERC721 Test', function () {
         )
       ).revertedWith('ERC721: transfer caller is not owner nor approved');
       expect(await erc721_proxy.ownerOf(tokenId)).to.equal(transferTo.address);
+      await testingAsSigner2.approve(minter.address,tokenId, {from: transferTo.address})
+      await testingAsSigner1.transferFromOrMint(
+        {tokenId, tokenURI, minter: minter.address, royalties: [], signature: '0x'},
+        transferTo.address,
+        minter.address,
+        {from: minter.address}
+      )
     });
 
     it('should work for transfer from or mint when not minter. not yet minted', async () => {
