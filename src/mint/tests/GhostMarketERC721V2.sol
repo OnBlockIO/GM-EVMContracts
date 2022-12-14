@@ -70,7 +70,6 @@ contract GhostMarketERC721V2 is
         __ERC721_init_unchained(name, symbol);
         __ERC721PresetMinterPauserAutoId_init_unchained(uri);
         __Ownable_init_unchained();
-        _registerInterface(_INTERFACE_ID_ERC721_GHOSTMARKET);
         _registerInterface(_GHOSTMARKET_NFT_ROYALTIES);
         __Mint721Validator_init_unchained();
     }
