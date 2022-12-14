@@ -6,6 +6,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deploy} = deployments;
   const {deployer} = await getNamedAccounts();
 
+  const CHAIN = 'avalanche';
+  const IS_MAINNET = true;
+  const NAME = 'GhostMarket ERC1155';
+  const SYMBOL = 'GHOST';
+  const API_PATH = IS_MAINNET ? 'api' : 'api-testnet';
+  const API_URL = `https://${API_PATH}.ghostmarket.io/metadata/${CHAIN}`;
+
   await deploy('GhostMarketERC1155', {
     contract: 'GhostMarketERC1155',
     from: deployer,
@@ -15,7 +22,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: 'initialize',
-          args: ['GhostMarket ERC1155', 'GHOST', 'https://api.ghostmarket.io/metadata/avalanche/'],
+          args: [NAME, SYMBOL, API_URL],
         },
       },
     },

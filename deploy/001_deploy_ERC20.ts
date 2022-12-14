@@ -6,7 +6,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deploy} = deployments;
   const {deployer} = await getNamedAccounts();
 
+  const NAME = 'GhostMarket Token';
+  const SYMBOL = 'GM';
+  const SUPPLY = '10000000000000000';
+  const DECIMALS = '8';
+
   await deploy('GhostMarketToken', {
+    contract: 'GhostMarketToken',
     from: deployer,
     proxy: {
       owner: deployer,
@@ -14,7 +20,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       execute: {
         init: {
           methodName: 'initialize',
-          args: ['GhostMarket Token', 'GM', '10000000000000000', '8'],
+          args: [NAME, SYMBOL, SUPPLY, DECIMALS],
         },
       },
     },
@@ -23,4 +29,4 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default func;
-func.tags = ['ERC20'];
+func.tags = ['GhostMarketToken'];
