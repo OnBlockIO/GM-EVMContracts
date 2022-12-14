@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.9;
-pragma abicoder v2;
 
 abstract contract ERC1271 {
     bytes4 public constant ERC1271_INTERFACE_ID = 0xfb855dc9;

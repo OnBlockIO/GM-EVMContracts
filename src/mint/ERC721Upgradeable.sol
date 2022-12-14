@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.9;
-pragma abicoder v2;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 import "./extensions/IERC721MetadataUpgradeable.sol";
@@ -428,5 +427,5 @@ contract ERC721Upgradeable is
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual {}
 
-    uint256[44] private __gap;
+    uint256[43] private __gap;
 }

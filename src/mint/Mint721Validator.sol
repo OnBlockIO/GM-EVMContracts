@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.9;
-pragma abicoder v2;
 
 import "./ERC1271Validator.sol";
 import "./librairies/LibERC721LazyMint.sol";
@@ -15,5 +14,5 @@ contract Mint721Validator is ERC1271Validator {
         validate1271(account, hash, signature);
     }
 
-    uint256[50] private __gap;
+    uint256[49] private __gap;
 }

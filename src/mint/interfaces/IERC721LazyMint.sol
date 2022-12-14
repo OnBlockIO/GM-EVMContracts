@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.9;
-pragma abicoder v2;
 
 import "../interfaces/IERC721Upgradeable.sol";
 import "../librairies/LibERC721LazyMint.sol";

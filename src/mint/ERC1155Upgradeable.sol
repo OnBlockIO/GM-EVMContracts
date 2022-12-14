@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.9;
-pragma abicoder v2;
 
 import "./interfaces/IERC1155Upgradeable.sol";
 import "./extensions/IERC1155ReceiverUpgradeable.sol";
@@ -278,7 +277,7 @@ contract ERC1155Upgradeable is
 
         _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
 
-        for (uint i = 0; i < ids.length; i++) {
+        for (uint i = 0; i < ids.length; ++i) {
             _balances[ids[i]][to] += amounts[i];
         }
 
@@ -324,7 +323,7 @@ contract ERC1155Upgradeable is
 
         _beforeTokenTransfer(operator, account, address(0), ids, amounts, "");
 
-        for (uint i = 0; i < ids.length; i++) {
+        for (uint i = 0; i < ids.length; ++i) {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
 
