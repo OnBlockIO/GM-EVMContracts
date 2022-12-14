@@ -3,7 +3,7 @@ import {ethers, upgrades} from 'hardhat';
 import {GhostMarketToken, DeflationaryTokenTest, OnBlockVesting} from '../typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
 
-describe('Onblock Vesting Test', function () {
+describe('OnBlock Vesting Test', function () {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   let owner: SignerWithAddress;
   let addrs: SignerWithAddress[];

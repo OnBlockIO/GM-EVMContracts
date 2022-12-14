@@ -536,9 +536,7 @@ describe('GhostMarket ERC1155 Test', function () {
       const mintAmount = 5;
       const burnAmount = 2;
       const result = testingAsSigner1.burn(minter.address, tokenId, burnAmount); // -2
-      await expect(result)
-      .to.emit(erc1155_proxy, 'BurnLazy')
-      .withArgs(minter.address, minter.address, tokenId, 2);
+      await expect(result).to.emit(erc1155_proxy, 'BurnLazy').withArgs(minter.address, minter.address, tokenId, 2);
       await testingAsSigner1.mintAndTransfer(
         {tokenId, tokenURI, amount: mintAmount.toString(), minter: minter.address, royalties: [], signature: '0x'},
         transferTo.address,

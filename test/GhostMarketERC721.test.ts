@@ -424,13 +424,13 @@ describe('GhostMarket ERC721 Test', function () {
         )
       ).revertedWith('ERC721: transfer caller is not owner nor approved');
       expect(await erc721_proxy.ownerOf(tokenId)).to.equal(transferTo.address);
-      await testingAsSigner2.approve(minter.address,tokenId, {from: transferTo.address})
+      await testingAsSigner2.approve(minter.address, tokenId, {from: transferTo.address});
       await testingAsSigner1.transferFromOrMint(
         {tokenId, tokenURI, minter: minter.address, royalties: [], signature: '0x'},
         transferTo.address,
         minter.address,
         {from: minter.address}
-      )
+      );
     });
 
     it('should work for transfer from or mint when not minter. not yet minted', async () => {
