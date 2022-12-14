@@ -35,5 +35,5 @@ func.tags = ['GhostMarketERC721'];
   await exchangeV2.setTransferProxy(ERC1155_LAZY, erc1155LazyMintTransferProxy.address)
   */
 
-__Mint721Validator_init_unchained();
-__Mint1155Validator_init_unchained();
+// __Mint721Validator_init_unchained();
+// __Mint1155Validator_init_unchained();
