@@ -473,23 +473,16 @@ describe('GhostMarket ERC721 Test', function () {
       expectEqualStringValues(royalties[0].value, royaltyValue);
     });
 
-    it('should fail for burn then mint and transfer then burn again', async () => {
+    it('should fail for burn then mintagain', async () => {
       const minter = addrs[1];
-      const transferTo = addrs[2];
-      const transferTo2 = addrs[3];
+      const transferTo = addrs[3];
       const tokenId = minter.address + 'b00000000000000000000001';
       const tokenURI = BASE_URI + tokenId;
-      await testingAsSigner2.burn(tokenId, {from: transferTo.address});
-      await testingAsSigner1.mintAndTransfer(
-        {tokenId, tokenURI, minter: addrs[1].address, royalties: [], signature: '0x'},
-        transferTo.address,
-        {from: minter.address}
-      );
-      await testingAsSigner2.burn(tokenId, {from: transferTo.address});
+      await testingAsSigner1.burn(tokenId);
       await expect(
         testingAsSigner1.mintAndTransfer(
           {tokenId, tokenURI, minter: addrs[1].address, royalties: [], signature: '0x'},
-          transferTo2.address,
+          transferTo.address,
           {from: minter.address}
         )
       ).revertedWith('token already burned');

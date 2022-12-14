@@ -154,14 +154,12 @@ contract GhostMarketERC721V2 is
         );
 
         _mint(to, lazyMintData.tokenId);
-
         if (lazyMintData.minter != _msgSender()) {
             validate(lazyMintData.minter, LibERC721LazyMint.hash(lazyMintData), lazyMintData.signature);
         }
         if (lazyMintData.royalties.length > 0) {
             _saveRoyalties(lazyMintData.tokenId, lazyMintData.royalties);
         }
-
         emit Minted(to, lazyMintData.tokenId, lazyMintData.tokenURI);
     }
 
