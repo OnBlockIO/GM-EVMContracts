@@ -3,9 +3,9 @@
 pragma solidity ^0.8.9;
 pragma abicoder v2;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155ReceiverUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol";
+import "./interfaces/IERC1155Upgradeable.sol";
+import "./extensions/IERC1155ReceiverUpgradeable.sol";
+import "./extensions/IERC1155MetadataURIUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol";
@@ -35,6 +35,13 @@ contract ERC1155Upgradeable is
 
     // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
     string private _uri;
+
+    // custom
+    // Mapping from token ID to supply
+    mapping(uint => uint) private supply;
+    // custom
+    // Mapping from token ID to minted
+    mapping(uint => uint) private minted;
 
     /**
      * @dev See {_setURI}.
@@ -227,6 +234,15 @@ contract ERC1155Upgradeable is
      * acceptance magic value.
      */
     function _mint(address account, uint256 id, uint256 amount, bytes memory data) internal virtual {
+        // custom
+        if (minted[id] > 0 && supply[id] > 0) {
+            uint newMinted = amount + minted[id];
+            require(newMinted <= supply[id], "more than supply");
+            minted[id] = newMinted;
+        } else {
+            minted[id] = amount;
+        }
+
         require(account != address(0), "ERC1155: mint to the zero address");
 
         address operator = _msgSender();
@@ -318,6 +334,40 @@ contract ERC1155Upgradeable is
         }
 
         emit TransferBatch(operator, account, address(0), ids, amounts);
+    }
+
+    // custom
+    /**
+     * @dev lazy burn a NFT, set minted
+     */
+    function _burnLazy(uint256 id, uint256 amount) internal returns (uint256 leftToBurn, uint256 lazyToBurn) {
+        leftToBurn = amount;
+        lazyToBurn = 0;
+        address creator = address(uint160(id >> 96));
+        if (creator == _msgSender()) {
+            lazyToBurn = amount;
+            if (supply[id] != 0) {
+                //calculate Lazy amount available for burn
+                uint256 lazyBalance = supply[id] - minted[id];
+                if (amount > lazyBalance) {
+                    //need to burn more than available
+                    lazyToBurn = lazyBalance;
+                }
+            }
+            minted[id] += amount;
+            leftToBurn = amount - lazyToBurn;
+        }
+    }
+
+    // custom
+    /**
+     * @dev save supply of a NFT
+     */
+    function _saveSupply(uint tokenId, uint _supply) internal {
+        if (supply[tokenId] == 0) {
+            supply[tokenId] = _supply;
+        }
+        // emit Supply(tokenId, _supply);
     }
 
     /**

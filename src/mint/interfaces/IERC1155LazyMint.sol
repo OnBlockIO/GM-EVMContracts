@@ -3,7 +3,7 @@
 pragma solidity ^0.8.9;
 pragma abicoder v2;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.sol";
+import "../interfaces/IERC1155Upgradeable.sol";
 import "../librairies/LibERC1155LazyMint.sol";
 
 interface IERC1155LazyMint is IERC1155Upgradeable {

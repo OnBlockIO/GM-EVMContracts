@@ -47,6 +47,8 @@ contract GhostMarketERC1155 is
     // events
     event LockedContentViewed(address indexed msgSender, uint256 indexed tokenId, string lockedContent);
     event Minted(address indexed toAddress, uint256 indexed tokenId, string tokenURI, uint256 amount);
+    event BurnLazy(address indexed operator, address indexed account, uint256 id, uint256 amount);
+    event BurnLazyBatch(address indexed operator, address indexed account, uint256[] ids, uint256[] amounts);
 
     // @dev deprecated
     uint256 internal _payedMintFeesBalance;
@@ -180,20 +182,23 @@ contract GhostMarketERC1155 is
         require(minter == sender || isApprovedForAll(minter, sender), "ERC1155: transfer caller is not approved");
         require(_amount > 0, "amount incorrect");
 
-        mint(to, lazyMintData.tokenId, _amount, "");
-        if (lazyMintData.royalties.length > 0) {
-            _saveRoyalties(lazyMintData.tokenId, lazyMintData.royalties);
-        }
         if (lazyMintData.minter != _msgSender()) {
             validate(lazyMintData.minter, LibERC1155LazyMint.hash(lazyMintData), lazyMintData.signature);
         }
-        emit Minted(to, lazyMintData.tokenId, lazyMintData.tokenURI, lazyMintData.amount);
-        if (minter != to) {
-            emit TransferSingle(sender, address(0), minter, lazyMintData.tokenId, lazyMintData.amount);
-            emit TransferSingle(sender, minter, to, lazyMintData.tokenId, lazyMintData.amount);
-        } else {
-            emit TransferSingle(sender, address(0), to, lazyMintData.tokenId, lazyMintData.amount);
+        if (lazyMintData.royalties.length > 0) {
+            _saveRoyalties(lazyMintData.tokenId, lazyMintData.royalties);
         }
+        _saveSupply(lazyMintData.tokenId, lazyMintData.amount);
+
+        mint(to, lazyMintData.tokenId, _amount, "");
+
+        if (minter != to) {
+            emit TransferSingle(sender, address(0), minter, lazyMintData.tokenId, _amount);
+            emit TransferSingle(sender, minter, to, lazyMintData.tokenId, _amount);
+        } else {
+            emit TransferSingle(sender, address(0), to, lazyMintData.tokenId, _amount);
+        }
+        emit Minted(to, lazyMintData.tokenId, lazyMintData.tokenURI, _amount);
     }
 
     /**
@@ -217,8 +222,38 @@ contract GhostMarketERC1155 is
         if (keccak256(abi.encodePacked(lockedcontent)) != keccak256(abi.encodePacked(""))) {
             _setLockedContent(_tokenIdTracker.current(), lockedcontent);
         }
+        emit TransferSingle(_msgSender(), address(0), to, _tokenIdTracker.current(), amount);
         emit Minted(to, _tokenIdTracker.current(), tokenURI, amount);
         _tokenIdTracker.increment();
+    }
+
+    /**
+     * @dev burn batch NFT, both minted or lazy minted
+     * emits BurnLazyBatch event
+     */
+    function burnBatch(address account, uint256[] memory ids, uint256[] memory amounts) public virtual override {
+        require(ids.length == amounts.length, "ids != amounts");
+        uint256[] memory leftToBurns = new uint256[](ids.length);
+        uint256[] memory lazyToBurns = new uint256[](ids.length);
+        for (uint i = 0; i < ids.length; ++i) {
+            (leftToBurns[i], lazyToBurns[i]) = ERC1155Upgradeable._burnLazy(ids[i], amounts[i]);
+        }
+        ERC1155BurnableUpgradeable.burnBatch(account, ids, leftToBurns);
+        emit BurnLazyBatch(_msgSender(), account, ids, lazyToBurns);
+    }
+
+    /**
+     * @dev burn NFT, both minted or lazy minted
+     * emits BurnLazy event
+     */
+    function burn(address account, uint256 id, uint256 amount) public virtual override {
+        (uint256 leftToBurn, uint256 lazyToBurn) = ERC1155Upgradeable._burnLazy(id, amount);
+        if (leftToBurn > 0) {
+            ERC1155BurnableUpgradeable.burn(account, id, leftToBurn);
+        }
+        if (lazyToBurn > 0) {
+            emit BurnLazy(_msgSender(), account, id, lazyToBurn);
+        }
     }
 
     /**

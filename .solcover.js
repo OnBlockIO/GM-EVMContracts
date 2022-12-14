@@ -3,8 +3,9 @@ module.exports = {
     'erc20/tests/',
     'lp/tests/',
     'mint/tests/',
+    'mint/extensions/',
+    'operator/tests/',
+    'proxies/tests/',
     'vesting/tests/',
-    'mint/ERC721Upgradeable.sol',
-    'mint/ERC1155Upgradeable.sol',
   ],
 };

@@ -341,11 +341,19 @@ describe('GhostMarket ERC721 Test', function () {
       const proxy = addrs[6];
       const tProxy = erc721_proxy.connect(proxy);
       await testingAsSigner5.setApprovalForAll(proxy.address, true, {from: addrs[5].address});
-      await tProxy.mintAndTransfer(
-        {tokenId, tokenURI, minter: addrs[5].address, royalties: [], signature},
-        addrs[1].address,
-        {from: proxy.address}
-      );
+      await expect(
+        tProxy.mintAndTransfer(
+          {tokenId, tokenURI, minter: addrs[5].address, royalties: [], signature},
+          addrs[1].address,
+          {from: proxy.address}
+        )
+      )
+        .to.emit(erc721_proxy, 'Minted')
+        .withArgs(addrs[5].address, tokenId, tokenURI)
+        .to.emit(erc721_proxy, 'Transfer')
+        .withArgs(ZERO, addrs[5].address, tokenId)
+        .to.emit(erc721_proxy, 'Transfer')
+        .withArgs(addrs[5].address, addrs[1].address, tokenId);
       expect(await erc721_proxy.ownerOf(tokenId)).to.equal(addrs[1].address);
 
       // new regular transfer post mint should work
@@ -463,6 +471,28 @@ describe('GhostMarket ERC721 Test', function () {
       expect(royalties.length).to.equal(1);
       expectEqualStringValues(royalties[0].recipient, addrs[2].address);
       expectEqualStringValues(royalties[0].value, royaltyValue);
+    });
+
+    it('should fail for burn then mint and transfer then burn again', async () => {
+      const minter = addrs[1];
+      const transferTo = addrs[2];
+      const transferTo2 = addrs[3];
+      const tokenId = minter.address + 'b00000000000000000000001';
+      const tokenURI = BASE_URI + tokenId;
+      await testingAsSigner2.burn(tokenId, {from: transferTo.address});
+      await testingAsSigner1.mintAndTransfer(
+        {tokenId, tokenURI, minter: addrs[1].address, royalties: [], signature: '0x'},
+        transferTo.address,
+        {from: minter.address}
+      );
+      await testingAsSigner2.burn(tokenId, {from: transferTo.address});
+      await expect(
+        testingAsSigner1.mintAndTransfer(
+          {tokenId, tokenURI, minter: addrs[1].address, royalties: [], signature: '0x'},
+          transferTo2.address,
+          {from: minter.address}
+        )
+      ).revertedWith('token already burned');
     });
   });
 

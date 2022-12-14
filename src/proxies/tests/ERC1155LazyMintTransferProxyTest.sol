@@ -4,9 +4,9 @@ pragma solidity ^0.8.9;
 pragma abicoder v2;
 
 import "../interfaces/ITransferProxy.sol";
-import "../interfaces/IERC1155LazyMint.sol";
-import "../librairies/LibERC1155LazyMint.sol";
-import "../OperatorRole.sol";
+import "../../mint/interfaces/IERC1155LazyMint.sol";
+import "../../mint/librairies/LibERC1155LazyMint.sol";
+import "../../operator/OperatorRole.sol";
 
 contract ERC1155LazyMintTransferProxyTest is OperatorRole, ITransferProxy {
     function transfer(LibAsset.Asset memory asset, address from, address to) external override onlyOperator {

@@ -3,7 +3,7 @@
 pragma solidity ^0.8.9;
 pragma abicoder v2;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import "../ERC721Upgradeable.sol";
 import "../interfaces/IERC721LazyMint.sol";
 
 contract ERC721LazyMintTest is IERC721LazyMint, ERC721Upgradeable {

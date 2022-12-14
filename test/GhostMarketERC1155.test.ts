@@ -393,12 +393,19 @@ describe('GhostMarket ERC1155 Test', function () {
       const proxy = addrs[6];
       const tProxy = erc1155_proxy.connect(proxy);
       await testingAsSigner5.setApprovalForAll(proxy.address, true, {from: addrs[5].address});
-      await tProxy.mintAndTransfer(
+      const result = tProxy.mintAndTransfer(
         {tokenId, tokenURI, amount: MINT_AMOUNT.toString(), minter: addrs[5].address, royalties: [], signature},
         addrs[1].address,
         2,
         {from: proxy.address}
       );
+      await expect(result)
+        .to.emit(erc1155_proxy, 'Minted')
+        .withArgs(addrs[1].address, tokenId, tokenURI, 2)
+        .to.emit(erc1155_proxy, 'TransferSingle')
+        .withArgs(proxy.address, ZERO, addrs[5].address, tokenId, 2)
+        .to.emit(erc1155_proxy, 'TransferSingle')
+        .withArgs(proxy.address, addrs[5].address, addrs[1].address, tokenId, 2);
       expect(await erc1155_proxy.balanceOf(addrs[1].address, tokenId)).to.equal(2);
 
       // new regular transfer post mint should work
@@ -464,8 +471,8 @@ describe('GhostMarket ERC1155 Test', function () {
       const tokenId = minter.address + 'b00000000000000000000001';
       const tokenURI = BASE_URI + tokenId;
       await testingAsSigner1.mintAndTransfer(
-        {tokenId, tokenURI, amount: MINT_AMOUNT.toString(), minter: addrs[1].address, royalties: [], signature: '0x'},
-        addrs[1].address,
+        {tokenId, tokenURI, amount: 15, minter: minter.address, royalties: [], signature: '0x'},
+        minter.address,
         2,
         {from: minter.address}
       );
@@ -519,6 +526,53 @@ describe('GhostMarket ERC1155 Test', function () {
         {from: transferTo.address}
       );
       expect(await erc1155_proxy.balanceOf(addrs[5].address, tokenId)).to.equal(2);
+    });
+
+    it('should work for burn then mint then burn then mint', async () => {
+      const minter = addrs[1];
+      const transferTo = addrs[2];
+      const tokenId = minter.address + 'b00000000000000000000001';
+      const tokenURI = BASE_URI + tokenId;
+      const mintAmount = 5;
+      const burnAmount = 2;
+      const result = testingAsSigner1.burn(minter.address, tokenId, burnAmount); // -2
+      await expect(result)
+      .to.emit(erc1155_proxy, 'BurnLazy')
+      .withArgs(minter.address, minter.address, tokenId, 2);
+      await testingAsSigner1.mintAndTransfer(
+        {tokenId, tokenURI, amount: mintAmount.toString(), minter: minter.address, royalties: [], signature: '0x'},
+        transferTo.address,
+        2,
+        {from: minter.address}
+      ); // +3
+      expect(await erc1155_proxy.balanceOf(transferTo.address, tokenId)).to.equal(2);
+      await testingAsSigner2.burn(transferTo.address, tokenId, 1, {from: transferTo.address}); // +2
+      await testingAsSigner2.burn(transferTo.address, tokenId, 1, {from: transferTo.address}); // +1
+      const signature = await sign1155(
+        minter.address,
+        tokenId,
+        tokenURI,
+        mintAmount.toString(),
+        [],
+        erc1155_proxy.address
+      );
+      const proxy = addrs[6];
+      const tProxy = erc1155_proxy.connect(proxy);
+      await testingAsSigner1.setApprovalForAll(proxy.address, true, {from: minter.address});
+      await expect(
+        tProxy.mintAndTransfer(
+          {tokenId, tokenURI, amount: mintAmount.toString(), minter: minter.address, royalties: [], signature},
+          addrs[1].address,
+          2,
+          {from: proxy.address}
+        )
+      ).revertedWith('more than supply');
+      await tProxy.mintAndTransfer(
+        {tokenId, tokenURI, amount: mintAmount.toString(), minter: minter.address, royalties: [], signature},
+        addrs[1].address,
+        1,
+        {from: proxy.address}
+      );
     });
 
     it('should set royalties properly', async function () {
