@@ -15,8 +15,9 @@ async function main() {
   if (PROXY) {
     const V2 = await ethers.getContractFactory('GhostMarketToken');
     await upgrades.upgradeProxy(PROXY, V2);
+    console.log('GhostMarketToken upgraded');
   } else {
-    await deploy('GhostMarketToken', {
+    const gm_proxy = await deploy('GhostMarketToken', {
       contract: 'GhostMarketToken',
       from: deployer,
       proxy: {
@@ -31,6 +32,7 @@ async function main() {
       },
       log: true,
     });
+    console.log('GhostMarketToken deployed at: ', gm_proxy.address);
   }
 }
 

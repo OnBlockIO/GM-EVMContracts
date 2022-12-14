@@ -16,8 +16,9 @@ async function main() {
   if (PROXY) {
     const V2 = await ethers.getContractFactory('GhostMarketERC1155');
     await upgrades.upgradeProxy(PROXY, V2);
+    console.log('GhostMarketERC1155 upgraded');
   } else {
-    await deploy('GhostMarketERC1155', {
+    const erc1155_proxy = await deploy('GhostMarketERC1155', {
       contract: 'GhostMarketERC1155',
       from: deployer,
       proxy: {
@@ -32,6 +33,7 @@ async function main() {
       },
       log: true,
     });
+    console.log('GhostMarketERC1155 deployed at: ', erc1155_proxy.address);
   }
 }
 

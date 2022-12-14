@@ -20,8 +20,9 @@ async function main() {
   if (PROXY) {
     const V2 = await ethers.getContractFactory('StakingPoolForDexTokens');
     await upgrades.upgradeProxy(PROXY, V2);
+    console.log('StakingPoolForDexTokens upgraded');
   } else {
-    await deploy('StakingPoolForDexTokens', {
+    const staking_proxy = await deploy('StakingPoolForDexTokens', {
       contract: 'StakingPoolForDexTokens',
       from: deployer,
       proxy: {
@@ -36,6 +37,7 @@ async function main() {
       },
       log: true,
     });
+    console.log('StakingPoolForDexTokens deployed at: ', staking_proxy.address);
   }
 }
 

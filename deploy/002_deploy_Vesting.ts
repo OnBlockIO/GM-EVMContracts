@@ -9,11 +9,12 @@ async function main() {
   const VOTERS = users.slice(0, 4);
   const VAULT_FEE = '1000000000000000';
 
-  await deploy('OnBlockVesting', {
+  const vesting = await deploy('OnBlockVesting', {
     contract: 'OnBlockVesting',
     from: deployer,
     args: [VAULT_FEE, VOTERS],
   });
+  console.log('OnBlockVesting deployed at: ', vesting.address);
 }
 
 main().catch((error) => {
