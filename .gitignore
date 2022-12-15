@@ -13,3 +13,4 @@ deployments/localhost
 .openzeppelin
 .secrets.json
 .DS_Store
+package-lock.json
