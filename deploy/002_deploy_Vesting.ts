@@ -1,6 +1,7 @@
 import {deployments, getNamedAccounts, getUnnamedAccounts} from 'hardhat';
+import { DeployFunction } from 'hardhat-deploy/dist/types';
 
-async function main() {
+const OnBlockVesting: DeployFunction = async function main() {
   const {deploy} = deployments;
   const {deployer} = await getNamedAccounts();
   const users = await getUnnamedAccounts();
@@ -17,7 +18,4 @@ async function main() {
   console.log('OnBlockVesting deployed at: ', vesting.address);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+export default OnBlockVesting

@@ -1,7 +1,8 @@
 import {getSettings} from '../.config';
 import hre, {deployments, ethers, getNamedAccounts, upgrades} from 'hardhat';
+import { DeployFunction } from 'hardhat-deploy/dist/types';
 
-async function main() {
+const StakingPoolForDexTokens: DeployFunction = async function main() {
   const {deploy} = deployments;
   const {deployer} = await getNamedAccounts();
 
@@ -41,7 +42,4 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+export default StakingPoolForDexTokens

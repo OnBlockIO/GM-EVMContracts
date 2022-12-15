@@ -1,7 +1,8 @@
 import {getSettings} from '../.config';
 import hre, {deployments, ethers, upgrades} from 'hardhat';
+import { DeployFunction } from 'hardhat-deploy/dist/types';
 
-async function main() {
+const GhostMarketERC721: DeployFunction = async function main() {
   const {execute} = deployments;
 
   const CHAIN = hre.network.name;
@@ -25,7 +26,4 @@ async function main() {
   // console.log('__Mint721Validator_init_unchained executed');
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+export default GhostMarketERC721
