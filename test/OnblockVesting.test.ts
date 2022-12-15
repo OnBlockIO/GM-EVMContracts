@@ -578,16 +578,15 @@ describe('OnBlock Vesting Test', function () {
             .toNumber()
         );
         const receipt = obv.release(gm_proxy.address, addrs[1].address);
-        await expect(receipt)
-          .to.emit(obv, 'Fulfilled')
-          /*.withArgs(
+        await expect(receipt).to.emit(obv, 'Fulfilled');
+        /*.withArgs(
             ethers.BigNumber.from('1'),
             addrs[1].address,
             ethers.BigNumber.from(calculatedAmount),
             ethers.BigNumber.from(calculatedAmount)
           );*/
         const amount = await gm_proxy.balanceOf(addrs[1].address);
-       //  expect(amount).to.equal(calculatedAmount;
+        //  expect(amount).to.equal(calculatedAmount;
         const contractAmountAfter = await gm_proxy.balanceOf(obv.address);
         expect(contractAmountAfter).to.equal(ethers.BigNumber.from(contractAmountBefore).sub(amount));
       } finally {
@@ -611,9 +610,8 @@ describe('OnBlock Vesting Test', function () {
             .toNumber()
         );
         const receipt = obv.release(gm_proxy.address, addrs[2].address);
-        await expect(receipt)
-          .to.emit(obv, 'Release')
-          /*.withArgs(
+        await expect(receipt).to.emit(obv, 'Release');
+        /*.withArgs(
             ethers.BigNumber.from('1'),
             addrs[2].address,
             ethers.BigNumber.from(calculatedAmount),
@@ -686,9 +684,8 @@ describe('OnBlock Vesting Test', function () {
             .toNumber()
         );
         const receipt = obv.release(gm_proxy.address, addrs[3].address);
-        await expect(receipt)
-          .to.emit(obv, 'Release')
-          /*.withArgs(
+        await expect(receipt).to.emit(obv, 'Release');
+        /*.withArgs(
             ethers.BigNumber.from('1'),
             addrs[3].address,
             ethers.BigNumber.from(calculatedAmount),
