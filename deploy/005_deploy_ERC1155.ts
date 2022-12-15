@@ -1,6 +1,6 @@
 import {getSettings} from '../.config';
 import hre, {deployments, ethers, getNamedAccounts, upgrades} from 'hardhat';
-import { DeployFunction } from 'hardhat-deploy/dist/types';
+import {DeployFunction} from 'hardhat-deploy/dist/types';
 
 const GhostMarketERC1155: DeployFunction = async function main() {
   const {deploy} = deployments;
@@ -36,6 +36,6 @@ const GhostMarketERC1155: DeployFunction = async function main() {
     });
     console.log('GhostMarketERC1155 deployed at: ', erc1155_proxy.address);
   }
-}
+};
 
-export default GhostMarketERC1155
+export default GhostMarketERC1155;

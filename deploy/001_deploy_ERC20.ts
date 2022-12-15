@@ -1,6 +1,6 @@
 import {getSettings} from '../.config';
 import hre, {deployments, ethers, getNamedAccounts, upgrades} from 'hardhat';
-import { DeployFunction } from 'hardhat-deploy/dist/types';
+import {DeployFunction} from 'hardhat-deploy/dist/types';
 
 const GhostMarketToken: DeployFunction = async function main() {
   const {deploy} = deployments;
@@ -35,6 +35,6 @@ const GhostMarketToken: DeployFunction = async function main() {
     });
     console.log('GhostMarketToken deployed at: ', gm_proxy.address);
   }
-}
+};
 
-export default GhostMarketToken
+export default GhostMarketToken;

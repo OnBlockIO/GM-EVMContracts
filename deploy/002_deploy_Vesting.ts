@@ -1,5 +1,5 @@
 import {deployments, getNamedAccounts, getUnnamedAccounts} from 'hardhat';
-import { DeployFunction } from 'hardhat-deploy/dist/types';
+import {DeployFunction} from 'hardhat-deploy/dist/types';
 
 const OnBlockVesting: DeployFunction = async function main() {
   const {deploy} = deployments;
@@ -16,6 +16,6 @@ const OnBlockVesting: DeployFunction = async function main() {
     args: [VAULT_FEE, VOTERS],
   });
   console.log('OnBlockVesting deployed at: ', vesting.address);
-}
+};
 
-export default OnBlockVesting
+export default OnBlockVesting;

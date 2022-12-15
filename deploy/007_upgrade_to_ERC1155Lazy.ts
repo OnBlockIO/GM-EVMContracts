@@ -1,13 +1,13 @@
 import {getSettings} from '../.config';
 import hre, {deployments, ethers, upgrades} from 'hardhat';
-import { DeployFunction } from 'hardhat-deploy/dist/types';
+import {DeployFunction} from 'hardhat-deploy/dist/types';
 
 const GhostMarketERC1155: DeployFunction = async function main() {
   const {execute} = deployments;
 
   const CHAIN = hre.network.name;
   const PROXY = getSettings(CHAIN).erc721_token_proxy;
-  if (!PROXY) return
+  if (!PROXY) return;
 
   const V1 = await ethers.getContractFactory('GhostMarketERC1155V1');
   const V2 = await ethers.getContractFactory('GhostMarketERC1155');
@@ -25,6 +25,6 @@ const GhostMarketERC1155: DeployFunction = async function main() {
   // init new methods
   // await execute('GhostMarketERC1155', {from: PROXY.address, log: true}, '__Mint1155Validator_init_unchained');
   // console.log('__Mint1155Validator_init_unchained executed');
-}
+};
 
-export default GhostMarketERC1155
+export default GhostMarketERC1155;
