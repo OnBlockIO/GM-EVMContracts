@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.9;
 
-import "./ERC1155PresetMinterPauserUpgradeableCustom.sol";
+import "../ERC1155PresetMinterPauserUpgradeableCustom.sol";
+import "../Mint1155Validator.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -12,24 +14,25 @@ import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpg
  * @dev ERC1155 token with minting, burning, pause, royalties & lock content functions.
  */
 
-contract GhostMarketERC1155 is
+contract GhostMarketERC1155V2 is
     Initializable,
     ERC1155PresetMinterPauserUpgradeableCustom,
     ReentrancyGuardUpgradeable,
     OwnableUpgradeable,
-    ERC165StorageUpgradeable
+    ERC165StorageUpgradeable,
+    Mint1155Validator
 {
     string public name;
     string public symbol;
 
-    // struct for royalties fees
+    // dev @deprecated
     struct Royalty {
         address payable recipient;
         uint256 value;
     }
 
     // tokenId => royalties array
-    mapping(uint256 => Royalty[]) internal _royalties;
+    mapping(uint256 => LibPart.Part[]) internal _royalties;
 
     // tokenId => locked content array
     mapping(uint256 => string) internal _lockedContent;
@@ -37,12 +40,14 @@ contract GhostMarketERC1155 is
     // tokenId => locked content view counter array
     mapping(uint256 => uint256) internal _lockedContentViewTracker;
 
-    // tokenId => attributes array
+    // @dev deprecated
     mapping(uint256 => string) internal _metadataJson;
 
     // events
     event LockedContentViewed(address indexed msgSender, uint256 indexed tokenId, string lockedContent);
-    event Minted(address indexed toAddress, uint256 indexed tokenId, string externalURI, uint256 amount);
+    event Minted(address indexed toAddress, uint256 indexed tokenId, string tokenURI, uint256 amount);
+    event BurnLazy(address indexed operator, address indexed account, uint256 id, uint256 amount);
+    event BurnLazyBatch(address indexed operator, address indexed account, uint256[] ids, uint256[] amounts);
 
     // @dev deprecated
     uint256 internal _payedMintFeesBalance;
@@ -50,9 +55,7 @@ contract GhostMarketERC1155 is
     // @dev deprecated
     uint256 internal _ghostmarketMintFees;
 
-    /**
-     * bytes4(keccak256(_INTERFACE_ID_ERC1155_GHOSTMARKET)) == 0x94407210
-     */
+    // @dev deprecated
     bytes4 public constant _INTERFACE_ID_ERC1155_GHOSTMARKET = bytes4(keccak256("_INTERFACE_ID_ERC1155_GHOSTMARKET"));
 
     /**
@@ -71,11 +74,15 @@ contract GhostMarketERC1155 is
         __ERC1155Pausable_init_unchained();
         __ERC1155PresetMinterPauser_init_unchained();
         __Ownable_init_unchained();
-        _registerInterface(_INTERFACE_ID_ERC1155_GHOSTMARKET);
         _registerInterface(_GHOSTMARKET_NFT_ROYALTIES);
         name = _name;
         symbol = _symbol;
         _tokenIdTracker.increment();
+        __Mint1155Validator_init_unchained();
+    }
+
+    function getSomething() external pure returns (uint) {
+        return 10;
     }
 
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -109,21 +116,16 @@ contract GhostMarketERC1155 is
      * @dev set a NFT royalties fees & recipients
      * fee basis points 10000 = 100%
      */
-    function _saveRoyalties(uint256 tokenId, Royalty[] memory royalties) internal {
+    function _saveRoyalties(uint256 tokenId, LibPart.Part[] memory royalties) internal {
+        uint256 totalValue;
         uint length = royalties.length;
         for (uint256 i; i < length; ++i) {
             require(royalties[i].recipient != address(0x0), "Recipient should be present");
             require(royalties[i].value > 0, "Royalties value should be positive");
-            require(royalties[i].value <= 5000, "Royalties value should not be more than 50%");
+            totalValue += royalties[i].value;
             _royalties[tokenId].push(royalties[i]);
         }
-    }
-
-    /**
-     * @dev set a NFT custom attributes to contract storage
-     */
-    function _setMetadataJson(uint256 tokenId, string memory metadataJson) internal {
-        _metadataJson[tokenId] = metadataJson;
+        require(totalValue <= 5000, "Royalty total value should be < 50%");
     }
 
     /**
@@ -142,6 +144,67 @@ contract GhostMarketERC1155 is
     }
 
     /**
+     * @dev transfer (if existing) or mint (if non existing) a nft
+     */
+    function transferFromOrMint(
+        LibERC1155LazyMint.Mint1155Data memory data,
+        address from,
+        address to,
+        uint256 amount
+    ) external {
+        uint balance = balanceOf(from, data.tokenId);
+        uint left = amount;
+        if (balance != 0) {
+            uint transfer = amount;
+            if (balance < amount) {
+                transfer = balance;
+            }
+            safeTransferFrom(from, to, data.tokenId, transfer, "");
+            left = amount - transfer;
+        }
+        if (left > 0) {
+            require(from == data.minter, "wrong order maker");
+            mintAndTransfer(data, to, left);
+        }
+    }
+
+    /**
+     * @dev lazy mint a NFT, set royalties
+     */
+    function mintAndTransfer(
+        LibERC1155LazyMint.Mint1155Data memory lazyMintData,
+        address to,
+        uint256 _amount
+    ) public virtual {
+        require(
+            keccak256(abi.encodePacked(lazyMintData.tokenURI)) != keccak256(abi.encodePacked("")),
+            "tokenURI can't be empty"
+        );
+        address minter = address(uint160(lazyMintData.tokenId >> 96));
+        address sender = _msgSender();
+        require(minter == sender || isApprovedForAll(minter, sender), "ERC1155: transfer caller is not approved");
+        require(_amount > 0, "amount incorrect");
+
+        if (lazyMintData.minter != _msgSender()) {
+            validate(lazyMintData.minter, LibERC1155LazyMint.hash(lazyMintData), lazyMintData.signature);
+        }
+        if (lazyMintData.royalties.length > 0) {
+            _saveRoyalties(lazyMintData.tokenId, lazyMintData.royalties);
+        }
+        _saveSupply(lazyMintData.tokenId, lazyMintData.amount);
+
+        mint(to, lazyMintData.tokenId, _amount, "");
+
+        if (minter != to) {
+            emit TransferSingle(sender, address(0), minter, lazyMintData.tokenId, _amount);
+            emit TransferSingle(sender, minter, to, lazyMintData.tokenId, _amount);
+        } else {
+            emit TransferSingle(sender, address(0), to, lazyMintData.tokenId, _amount);
+        }
+        emit Minted(to, lazyMintData.tokenId, lazyMintData.tokenURI, _amount);
+    }
+
+    /**
      * @dev mint NFT, set royalties, set metadata json, set lockedcontent
      * emits Minted event
      */
@@ -149,28 +212,51 @@ contract GhostMarketERC1155 is
         address to,
         uint256 amount,
         bytes memory data,
-        Royalty[] memory royalties,
-        string memory externalURI,
-        string memory metadata,
+        LibPart.Part[] memory royalties,
+        string memory tokenURI,
         string memory lockedcontent
     ) external payable nonReentrant {
         require(to != address(0x0), "to can't be empty");
-        require(
-            keccak256(abi.encodePacked(externalURI)) != keccak256(abi.encodePacked("")),
-            "externalURI can't be empty"
-        );
+        require(keccak256(abi.encodePacked(tokenURI)) != keccak256(abi.encodePacked("")), "tokenURI can't be empty");
         mint(to, _tokenIdTracker.current(), amount, data);
         if (royalties.length > 0) {
             _saveRoyalties(_tokenIdTracker.current(), royalties);
         }
-        if (keccak256(abi.encodePacked(metadata)) != keccak256(abi.encodePacked(""))) {
-            _setMetadataJson(_tokenIdTracker.current(), metadata);
-        }
         if (keccak256(abi.encodePacked(lockedcontent)) != keccak256(abi.encodePacked(""))) {
             _setLockedContent(_tokenIdTracker.current(), lockedcontent);
         }
-        emit Minted(to, _tokenIdTracker.current(), externalURI, amount);
+        emit TransferSingle(_msgSender(), address(0), to, _tokenIdTracker.current(), amount);
+        emit Minted(to, _tokenIdTracker.current(), tokenURI, amount);
         _tokenIdTracker.increment();
+    }
+
+    /**
+     * @dev burn batch NFT, both minted or lazy minted
+     * emits BurnLazyBatch event
+     */
+    function burnBatch(address account, uint256[] memory ids, uint256[] memory amounts) public virtual override {
+        require(ids.length == amounts.length, "ids != amounts");
+        uint256[] memory leftToBurns = new uint256[](ids.length);
+        uint256[] memory lazyToBurns = new uint256[](ids.length);
+        for (uint i = 0; i < ids.length; ++i) {
+            (leftToBurns[i], lazyToBurns[i]) = ERC1155Upgradeable._burnLazy(ids[i], amounts[i]);
+        }
+        ERC1155BurnableUpgradeable.burnBatch(account, ids, leftToBurns);
+        emit BurnLazyBatch(_msgSender(), account, ids, lazyToBurns);
+    }
+
+    /**
+     * @dev burn NFT, both minted or lazy minted
+     * emits BurnLazy event
+     */
+    function burn(address account, uint256 id, uint256 amount) public virtual override {
+        (uint256 leftToBurn, uint256 lazyToBurn) = ERC1155Upgradeable._burnLazy(id, amount);
+        if (leftToBurn > 0) {
+            ERC1155BurnableUpgradeable.burn(account, id, leftToBurn);
+        }
+        if (lazyToBurn > 0) {
+            emit BurnLazy(_msgSender(), account, id, lazyToBurn);
+        }
     }
 
     /**
@@ -191,16 +277,9 @@ contract GhostMarketERC1155 is
     }
 
     /**
-     * @dev get a NFT custom attributes
-     */
-    function getMetadataJson(uint256 tokenId) external view returns (string memory) {
-        return _metadataJson[tokenId];
-    }
-
-    /**
      * @dev get royalties array
      */
-    function getRoyalties(uint256 tokenId) external view returns (Royalty[] memory) {
+    function getRoyalties(uint256 tokenId) external view returns (LibPart.Part[] memory) {
         return _royalties[tokenId];
     }
 
@@ -208,7 +287,7 @@ contract GhostMarketERC1155 is
      * @dev get a NFT royalties recipients
      */
     function getRoyaltiesRecipients(uint256 tokenId) external view returns (address payable[] memory) {
-        Royalty[] memory royalties = _royalties[tokenId];
+        LibPart.Part[] memory royalties = _royalties[tokenId];
         address payable[] memory result = new address payable[](royalties.length);
         uint length = royalties.length;
         for (uint256 i; i < length; ++i) {
@@ -222,7 +301,7 @@ contract GhostMarketERC1155 is
      * fee basis points 10000 = 100%
      */
     function getRoyaltiesBps(uint256 tokenId) external view returns (uint256[] memory) {
-        Royalty[] memory royalties = _royalties[tokenId];
+        LibPart.Part[] memory royalties = _royalties[tokenId];
         uint256[] memory result = new uint256[](royalties.length);
         uint length = royalties.length;
         for (uint256 i; i < length; ++i) {

@@ -33,6 +33,7 @@
       {
         "maxLength": 64
       }
-    ]
+    ],
+    "no-empty-blocks": "off"
   }
 }

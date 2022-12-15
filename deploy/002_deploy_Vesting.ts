@@ -1,18 +1,21 @@
-import {HardhatRuntimeEnvironment} from 'hardhat/types';
-import {DeployFunction} from 'hardhat-deploy/types';
+import {deployments, getNamedAccounts, getUnnamedAccounts} from 'hardhat';
+import { DeployFunction } from 'hardhat-deploy/dist/types';
 
-const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployments, getNamedAccounts} = hre;
+const OnBlockVesting: DeployFunction = async function main() {
   const {deploy} = deployments;
   const {deployer} = await getNamedAccounts();
+  const users = await getUnnamedAccounts();
 
-  const voters = [deployer, deployer, deployer, deployer]; // TODO improve
+  // to replace by custom voters before deploy - [address1, address2, address3, address4]
+  const VOTERS = users.slice(0, 4);
+  const VAULT_FEE = '1000000000000000';
 
-  await deploy('OnBlockVesting', {
+  const vesting = await deploy('OnBlockVesting', {
+    contract: 'OnBlockVesting',
     from: deployer,
-    args: ['1000000000000000', voters],
+    args: [VAULT_FEE, VOTERS],
   });
-};
+  console.log('OnBlockVesting deployed at: ', vesting.address);
+}
 
-export default func;
-func.tags = ['Vesting'];
+export default OnBlockVesting

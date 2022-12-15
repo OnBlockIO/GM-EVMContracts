@@ -6,6 +6,7 @@ import '@typechain/hardhat';
 import 'solidity-coverage';
 import '@openzeppelin/hardhat-upgrades';
 import '@nomiclabs/hardhat-etherscan';
+import '@nomiclabs/hardhat-web3';
 import {HardhatUserConfig} from 'hardhat/types';
 import {node_url, accounts} from './utils/network';
 

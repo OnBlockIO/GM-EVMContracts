@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
@@ -7,7 +8,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract GhostMarketToken is Initializable, ERC20Upgradeable, OwnableUpgradeable, PausableUpgradeable {
+contract DeflationaryTokenTest is Initializable, ERC20Upgradeable, OwnableUpgradeable, PausableUpgradeable {
     uint8 private _decimals;
 
     function initialize(
@@ -29,6 +30,10 @@ contract GhostMarketToken is Initializable, ERC20Upgradeable, OwnableUpgradeable
 
     function unpause() public onlyOwner {
         _unpause();
+    }
+
+    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+        return super.transferFrom(sender, recipient, amount - 1);
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused {

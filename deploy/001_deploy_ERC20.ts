@@ -1,26 +1,40 @@
-import {HardhatRuntimeEnvironment} from 'hardhat/types';
-import {DeployFunction} from 'hardhat-deploy/types';
+import {getSettings} from '../.config';
+import hre, {deployments, ethers, getNamedAccounts, upgrades} from 'hardhat';
+import { DeployFunction } from 'hardhat-deploy/dist/types';
 
-const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployments, getNamedAccounts} = hre;
+const GhostMarketToken: DeployFunction = async function main() {
   const {deploy} = deployments;
   const {deployer} = await getNamedAccounts();
 
-  await deploy('GhostMarketToken', {
-    from: deployer,
-    proxy: {
-      owner: deployer,
-      proxyContract: 'OpenZeppelinTransparentProxy',
-      execute: {
-        init: {
-          methodName: 'initialize',
-          args: ['GhostMarket Token', 'GM', '10000000000000000', '8'],
+  const CHAIN = hre.network.name;
+  const PROXY = getSettings(CHAIN).gm_token_proxy;
+  const NAME = 'GhostMarket Token';
+  const SYMBOL = 'GM';
+  const SUPPLY = '10000000000000000';
+  const DECIMALS = '8';
+
+  if (PROXY) {
+    const V2 = await ethers.getContractFactory('GhostMarketToken');
+    await upgrades.upgradeProxy(PROXY, V2);
+    console.log('GhostMarketToken upgraded');
+  } else {
+    const gm_proxy = await deploy('GhostMarketToken', {
+      contract: 'GhostMarketToken',
+      from: deployer,
+      proxy: {
+        owner: deployer,
+        proxyContract: 'OpenZeppelinTransparentProxy',
+        execute: {
+          init: {
+            methodName: 'initialize',
+            args: [NAME, SYMBOL, SUPPLY, DECIMALS],
+          },
         },
       },
-    },
-    log: true,
-  });
-};
+      log: true,
+    });
+    console.log('GhostMarketToken deployed at: ', gm_proxy.address);
+  }
+}
 
-export default func;
-func.tags = ['ERC20'];
+export default GhostMarketToken
