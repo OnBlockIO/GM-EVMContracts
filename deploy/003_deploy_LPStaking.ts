@@ -12,6 +12,7 @@ const StakingPoolForDexTokens: DeployFunction = async function main() {
   const START_BLOCK = getSettings(CHAIN).start_block;
   const LP_TOKEN = getSettings(CHAIN).lp_token;
   const GM_TOKEN = getSettings(CHAIN).gm_token_proxy;
+  if (!LP_TOKEN || !GM_TOKEN) return
   const TOTAL_REWARDS = 500000; // 500k per pool
   const DURATION = 90; // 90 days
   const DECIMALS = 10 ** 8; // gm decimals
