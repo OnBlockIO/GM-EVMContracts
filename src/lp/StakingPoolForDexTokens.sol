@@ -6,10 +6,10 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardUpgradeable {
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     struct UserInfo {
         uint256 amount; // Amount of staked tokens provided by user
@@ -20,10 +20,10 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
     uint256 public constant PRECISION_FACTOR = 10 ** 12;
 
     // GM token (token distributed)
-    IERC20 public ghostMarketToken;
+    IERC20Upgradeable public ghostMarketToken;
 
     // The staked token (ex Uniswap WETH/GM LP token)
-    IERC20 public stakedToken;
+    IERC20Upgradeable public stakedToken;
 
     // Block number when rewards start
     uint256 public startBlock;
@@ -67,8 +67,8 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
     ) public virtual initializer {
         __Ownable_init_unchained();
         __Pausable_init_unchained();
-        stakedToken = IERC20(_stakedToken);
-        ghostMarketToken = IERC20(_ghostMarketToken);
+        stakedToken = IERC20Upgradeable(_stakedToken);
+        ghostMarketToken = IERC20Upgradeable(_ghostMarketToken);
         rewardPerBlock = _rewardPerBlock;
         startBlock = _startBlock;
         endBlock = _endBlock;
