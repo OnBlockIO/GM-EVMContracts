@@ -7,6 +7,7 @@ const GhostMarketERC1155: DeployFunction = async function main() {
 
   const CHAIN = hre.network.name;
   const PROXY = getSettings(CHAIN).erc721_token_proxy;
+  if (!PROXY) return
 
   const V1 = await ethers.getContractFactory('GhostMarketERC1155V1');
   const V2 = await ethers.getContractFactory('GhostMarketERC1155');
