@@ -30,6 +30,7 @@ describe('GhostMarket ERC721 Test', function () {
     const VAL = await ethers.getContractFactory('Mint721ValidatorTest');
     val = await VAL.deploy();
     await val.deployed();
+    val.__Mint721ValidatorTest_init();
     testingAsSigner1 = erc721_proxy.connect(addrs[1]);
     testingAsSigner2 = erc721_proxy.connect(addrs[2]);
     testingAsSigner5 = erc721_proxy.connect(addrs[5]);
@@ -71,7 +72,6 @@ describe('GhostMarket ERC721 Test', function () {
     //upgrade
     await upgrades.upgradeProxy(erc721_proxy.address, GhostMarketERC721V2_ContractFactory);
   });
-
 
   it('should be able to upgrade from new contract to another new one', async function () {
     const GhostMarketERC721_ContractFactory = await ethers.getContractFactory('GhostMarketERC721');
@@ -280,14 +280,14 @@ describe('GhostMarket ERC721 Test', function () {
 
   describe('mint lazy NFT', function () {
     it('should work if signer is correct', async () => {
-      const tokenId = await erc721_proxy.getLastTokenID();
+      const tokenId = 1;
       const tokenURI = BASE_URI + tokenId;
       const signature = await sign721(addrs[1].address, tokenId.toString(), tokenURI, [], val.address);
       await val.validateTest({tokenId, tokenURI, minter: addrs[1].address, royalties: [], signature});
     });
 
     it('should fail if signer is incorrect', async () => {
-      const tokenId = await erc721_proxy.getLastTokenID();
+      const tokenId = 1;
       const tokenURI = BASE_URI + tokenId;
       const signature = await sign721(addrs[0].address, tokenId.toString(), tokenURI, [], val.address);
       await expect(
@@ -300,7 +300,7 @@ describe('GhostMarket ERC721 Test', function () {
       const ERC = await ethers.getContractFactory('ERC721Test');
       const erc = await ERC.deploy();
       await erc.__ERC721Test_init();
-      const tokenId = await erc721_proxy.getLastTokenID();
+      const tokenId = 1;
       const tokenURI = BASE_URI + tokenId;
       const signature = await sign721(
         addrs[1].address,
@@ -325,7 +325,7 @@ describe('GhostMarket ERC721 Test', function () {
     it('should work if signer is contract and 1271 passes', async () => {
       const ERC1271 = await ethers.getContractFactory('ERC1271Test');
       const erc1271 = await ERC1271.deploy();
-      const tokenId = await erc721_proxy.getLastTokenID();
+      const tokenId = 1;
       const tokenURI = BASE_URI + tokenId;
       await expect(
         val.validateTest({tokenId, tokenURI, minter: erc1271.address, royalties: [], signature: '0x'})

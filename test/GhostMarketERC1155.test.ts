@@ -33,6 +33,7 @@ describe('GhostMarket ERC1155 Test', function () {
     const VAL = await ethers.getContractFactory('Mint1155ValidatorTest');
     val = await VAL.deploy();
     await val.deployed();
+    val.__Mint1155ValidatorTest_init();
     testingAsSigner1 = erc1155_proxy.connect(addrs[1]);
     testingAsSigner2 = erc1155_proxy.connect(addrs[2]);
     testingAsSigner3 = erc1155_proxy.connect(addrs[3]);
