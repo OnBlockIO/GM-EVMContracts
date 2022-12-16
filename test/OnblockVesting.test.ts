@@ -1,10 +1,14 @@
-import {expect} from '../utils/chai-setup';
+import {expect} from '../test/utils/chai-setup';
 import {ethers, upgrades} from 'hardhat';
 import {GhostMarketToken, DeflationaryTokenTest, OnBlockVesting} from '../typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
-import {ZERO} from '../src/mint/utils/assets';
+import {ZERO} from '../test/utils/assets';
+import {TOKEN_NAME} from '../test/utils/constants';
 
 describe('OnBlock Vesting Test', function () {
+  const TOKEN_SYMBOL = 'GM';
+  const TOKEN_DECIMALS = '8';
+  const TOKEN_SUPPLY = '10000000000000000';
   let owner: SignerWithAddress;
   let addrs: SignerWithAddress[];
   let gm_proxy: GhostMarketToken;
@@ -20,10 +24,12 @@ describe('OnBlock Vesting Test', function () {
     const DFT = await ethers.getContractFactory('DeflationaryTokenTest');
     const OBV = await ethers.getContractFactory('OnBlockVesting');
     [owner, ...addrs] = await ethers.getSigners();
-    gm_proxy = <GhostMarketToken>await upgrades.deployProxy(GM, ['GhostMarket Token', 'GM', '10000000000000000', '8']);
+    gm_proxy = <GhostMarketToken>(
+      await upgrades.deployProxy(GM, [TOKEN_NAME, TOKEN_SYMBOL, TOKEN_SUPPLY, TOKEN_DECIMALS])
+    );
     await gm_proxy.deployed();
     dft_proxy = <DeflationaryTokenTest>(
-      await upgrades.deployProxy(DFT, ['DeflationaryTokenTest', 'DFT', '10000000000000000', '8'])
+      await upgrades.deployProxy(DFT, ['DeflationaryTokenTest', 'DFT', TOKEN_SUPPLY, TOKEN_DECIMALS])
     );
     await dft_proxy.deployed();
     obv = <OnBlockVesting>await OBV.deploy('1000000000000000', addrs.map((x) => x.address).slice(0, 4));
@@ -108,13 +114,7 @@ describe('OnBlock Vesting Test', function () {
       );
       await expect(voteReceipt)
         .to.emit(obv, 'Voted')
-        .withArgs(
-          addrs[2].address,
-          ZERO,
-          ZERO,
-          ethers.BigNumber.from('20000000'),
-          ethers.BigNumber.from('3')
-        );
+        .withArgs(addrs[2].address, ZERO, ZERO, ethers.BigNumber.from('20000000'), ethers.BigNumber.from('3'));
 
       const voteStateReceipt = testingAsSigner1.isVoteDone(
         ethers.BigNumber.from('3'),
@@ -150,13 +150,7 @@ describe('OnBlock Vesting Test', function () {
       );
       await expect(voteReceipt2)
         .to.emit(obv, 'Voted')
-        .withArgs(
-          addrs[3].address,
-          ZERO,
-          ZERO,
-          ethers.BigNumber.from('20000000'),
-          ethers.BigNumber.from('3')
-        );
+        .withArgs(addrs[3].address, ZERO, ZERO, ethers.BigNumber.from('20000000'), ethers.BigNumber.from('3'));
 
       const voteStateFinal = await testingAsSigner1.isVoteDone(
         ethers.BigNumber.from('3'),

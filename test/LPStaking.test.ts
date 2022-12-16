@@ -1,10 +1,10 @@
-import {expect} from '../utils/chai-setup';
+import {expect} from '../test/utils/chai-setup';
 import {ethers, upgrades} from 'hardhat';
 import {GhostMarketToken, StakingPoolForDexTokens} from '../typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
+import {TOKEN_NAME} from '../test/utils/constants';
 
 describe('LP Staking Test', function () {
-  const TOKEN_NAME = 'GhostMarket Token';
   const TOKEN_SYMBOL = 'GM';
   const TOKEN_DECIMALS = '8';
   const TOKEN_SUPPLY = '10000000000000000';
@@ -164,16 +164,21 @@ describe('LP Staking Test', function () {
       );
 
       // calculate pending rewards
-      const lastBlock = (await ethers.provider.getBlock('latest')).number
-      const lastBlockRewards = await lp_staking_proxy.lastRewardBlock()
-      const blockDiff = (ethers.BigNumber.from(lastBlock).sub(ethers.BigNumber.from(lastBlockRewards)).add(1)).toNumber()
+      const lastBlock = (await ethers.provider.getBlock('latest')).number;
+      const lastBlockRewards = await lp_staking_proxy.lastRewardBlock();
+      const blockDiff = ethers.BigNumber.from(lastBlock).sub(ethers.BigNumber.from(lastBlockRewards)).add(1).toNumber();
       const tokenReward = blockDiff * REWARDS_PER_BLOCK;
       const userInfo = await lp_staking_proxy.userInfo(addrs[1].address);
       const PRECISION_FACTOR = await lp_staking_proxy.PRECISION_FACTOR();
-      const stakedTokenSupply = await gm_stakes_proxy.balanceOf(lp_staking_proxy.address)
+      const stakedTokenSupply = await gm_stakes_proxy.balanceOf(lp_staking_proxy.address);
       const accTokenPerShare = await lp_staking_proxy.accTokenPerShare();
-      const adjustedTokenPerShare = accTokenPerShare.add(ethers.BigNumber.from(tokenReward).mul(PRECISION_FACTOR)).div(stakedTokenSupply);
-      const pendingRewards = (((ethers.BigNumber.from(userInfo.amount).mul(ethers.BigNumber.from(adjustedTokenPerShare))).div(ethers.BigNumber.from(PRECISION_FACTOR))).sub(ethers.BigNumber.from(userInfo.rewardDebt)))
+      const adjustedTokenPerShare = accTokenPerShare
+        .add(ethers.BigNumber.from(tokenReward).mul(PRECISION_FACTOR))
+        .div(stakedTokenSupply);
+      const pendingRewards = ethers.BigNumber.from(userInfo.amount)
+        .mul(ethers.BigNumber.from(adjustedTokenPerShare))
+        .div(ethers.BigNumber.from(PRECISION_FACTOR))
+        .sub(ethers.BigNumber.from(userInfo.rewardDebt));
 
       // withdraw lp tokens
       const receipt2 = testingAsSigner1.withdraw(500, {from: addrs[1].address});
@@ -221,16 +226,21 @@ describe('LP Staking Test', function () {
       );
 
       // calculate pending rewards
-      const lastBlock = (await ethers.provider.getBlock('latest')).number
-      const lastBlockRewards = await lp_staking_proxy.lastRewardBlock()
-      const blockDiff = (ethers.BigNumber.from(lastBlock).sub(ethers.BigNumber.from(lastBlockRewards)).add(1)).toNumber()
+      const lastBlock = (await ethers.provider.getBlock('latest')).number;
+      const lastBlockRewards = await lp_staking_proxy.lastRewardBlock();
+      const blockDiff = ethers.BigNumber.from(lastBlock).sub(ethers.BigNumber.from(lastBlockRewards)).add(1).toNumber();
       const tokenReward = blockDiff * REWARDS_PER_BLOCK;
       const userInfo = await lp_staking_proxy.userInfo(addrs[1].address);
       const PRECISION_FACTOR = await lp_staking_proxy.PRECISION_FACTOR();
-      const stakedTokenSupply = await gm_stakes_proxy.balanceOf(lp_staking_proxy.address)
+      const stakedTokenSupply = await gm_stakes_proxy.balanceOf(lp_staking_proxy.address);
       const accTokenPerShare = await lp_staking_proxy.accTokenPerShare();
-      const adjustedTokenPerShare = accTokenPerShare.add(ethers.BigNumber.from(tokenReward).mul(PRECISION_FACTOR)).div(stakedTokenSupply);
-      const pendingRewards = (((ethers.BigNumber.from(userInfo.amount).mul(ethers.BigNumber.from(adjustedTokenPerShare))).div(ethers.BigNumber.from(PRECISION_FACTOR))).sub(ethers.BigNumber.from(userInfo.rewardDebt)))
+      const adjustedTokenPerShare = accTokenPerShare
+        .add(ethers.BigNumber.from(tokenReward).mul(PRECISION_FACTOR))
+        .div(stakedTokenSupply);
+      const pendingRewards = ethers.BigNumber.from(userInfo.amount)
+        .mul(ethers.BigNumber.from(adjustedTokenPerShare))
+        .div(ethers.BigNumber.from(PRECISION_FACTOR))
+        .sub(ethers.BigNumber.from(userInfo.rewardDebt));
 
       // claim rewards
       const receipt2 = testingAsSigner1.harvest();

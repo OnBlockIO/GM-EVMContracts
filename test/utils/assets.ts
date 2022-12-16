@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import hre from 'hardhat';
 
 export function id(str: any): string {

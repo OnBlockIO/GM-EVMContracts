@@ -1,4 +1,4 @@
-import {expect} from '../utils/chai-setup';
+import {expect} from '../test/utils/chai-setup';
 import {ethers} from 'hardhat';
 import {OperatorRoleTest} from '../typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';

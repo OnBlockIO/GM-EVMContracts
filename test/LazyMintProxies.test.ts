@@ -1,4 +1,4 @@
-import {expect} from '../utils/chai-setup';
+import {expect} from '../test/utils/chai-setup';
 import {ethers} from 'hardhat';
 import {
   ERC721LazyMintTest,
@@ -7,8 +7,8 @@ import {
   ERC1155LazyMintTransferProxy,
 } from '../typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
-import {Asset} from '../src/mint/utils/order';
-import {ERC1155_LAZY, ERC721_LAZY} from '../src/mint/utils/assets';
+import {Asset} from '../test/utils/order';
+import {ERC1155_LAZY, ERC721_LAZY} from '../test/utils/assets';
 
 describe('LazyMint Proxies Test', function () {
   let erc721_lazy: ERC721LazyMintTest;

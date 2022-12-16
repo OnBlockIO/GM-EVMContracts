@@ -1,17 +1,15 @@
-import {expect} from '../utils/chai-setup';
+import {expect} from '../test/utils/chai-setup';
 import {ethers, upgrades} from 'hardhat';
 import {GhostMarketERC1155, Mint1155ValidatorTest} from '../typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
 import {BigNumber} from 'ethers';
-import EIP712 from '../src/mint/utils/EIP712';
-import {ZERO} from '../src/mint/utils/assets';
+import EIP712 from '../test/utils/EIP712';
+import {ZERO} from '../test/utils/assets';
+import {BASE_URI, TOKEN_NAME, DATA} from '../test/utils/constants';
 
 describe('GhostMarket ERC1155 Test', function () {
-  const DATA = '0x';
   const MINT_AMOUNT = 2;
-  const TOKEN_NAME = 'GhostMarket';
   const TOKEN_SYMBOL = 'GHOST';
-  const BASE_URI = 'https://ghostmarket.io/';
   let erc1155_proxy: GhostMarketERC1155;
   let val: Mint1155ValidatorTest;
   let owner: SignerWithAddress;

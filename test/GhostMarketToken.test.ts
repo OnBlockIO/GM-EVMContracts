@@ -1,10 +1,10 @@
-import {expect} from '../utils/chai-setup';
+import {expect} from '../test/utils/chai-setup';
 import {ethers, upgrades} from 'hardhat';
 import {GhostMarketToken} from '../typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
+import {TOKEN_NAME} from '../test/utils/constants';
 
 describe('GhostMarket Token Test', function () {
-  const TOKEN_NAME = 'GhostMarket Token';
   const TOKEN_SYMBOL = 'GM';
   const TOKEN_DECIMALS = '8';
   const TOKEN_SUPPLY = '10000000000000000';
@@ -15,7 +15,9 @@ describe('GhostMarket Token Test', function () {
   beforeEach(async function () {
     const GM = await ethers.getContractFactory('GhostMarketToken');
     [owner, ...addrs] = await ethers.getSigners();
-    gm_proxy = <GhostMarketToken>await upgrades.deployProxy(GM, ['GhostMarket Token', 'GM', '10000000000000000', '8']);
+    gm_proxy = <GhostMarketToken>(
+      await upgrades.deployProxy(GM, [TOKEN_NAME, TOKEN_SYMBOL, TOKEN_SUPPLY, TOKEN_DECIMALS])
+    );
     await gm_proxy.deployed();
   });
 
