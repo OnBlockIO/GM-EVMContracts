@@ -3,9 +3,8 @@ import {ethers, upgrades} from 'hardhat';
 import {GhostMarketERC721, Mint721ValidatorTest} from '../typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
 import {BigNumber} from 'ethers';
-import EIP712, {TYPES_721} from '../src/mint/utils/EIP712';
+import EIP712 from '../src/mint/utils/EIP712';
 import {ZERO} from '../src/mint/utils/assets';
-import hre from 'hardhat';
 
 describe('GhostMarket ERC721 Test', function () {
   const TOKEN_NAME = 'GhostMarket';
@@ -282,14 +281,14 @@ describe('GhostMarket ERC721 Test', function () {
     it('should work if signer is correct', async () => {
       const tokenId = 1;
       const tokenURI = BASE_URI + tokenId;
-      const signature = await sign721(addrs[1].address, tokenId.toString(), tokenURI, [], val.address);
+      const signature = await EIP712.sign721(addrs[1].address, tokenId.toString(), tokenURI, [], val.address);
       await val.validateTest({tokenId, tokenURI, minter: addrs[1].address, royalties: [], signature});
     });
 
     it('should fail if signer is incorrect', async () => {
       const tokenId = 1;
       const tokenURI = BASE_URI + tokenId;
-      const signature = await sign721(addrs[0].address, tokenId.toString(), tokenURI, [], val.address);
+      const signature = await EIP712.sign721(addrs[0].address, tokenId.toString(), tokenURI, [], val.address);
       await expect(
         val.validateTest({tokenId, tokenURI, minter: addrs[1].address, royalties: [], signature})
       ).revertedWith('signature verification error');
@@ -302,7 +301,7 @@ describe('GhostMarket ERC721 Test', function () {
       await erc.__ERC721Test_init();
       const tokenId = 1;
       const tokenURI = BASE_URI + tokenId;
-      const signature = await sign721(
+      const signature = await EIP712.sign721(
         addrs[1].address,
         tokenId.toString(),
         tokenURI,
@@ -342,7 +341,7 @@ describe('GhostMarket ERC721 Test', function () {
       await erc721_lazy_proxy.addOperator(erc721_proxy.address);
       const tokenId = addrs[5].address + 'b00000000000000000000001';
       const tokenURI = BASE_URI + tokenId;
-      const signature = await sign721(addrs[5].address, tokenId.toString(), tokenURI, [], erc721_proxy.address);
+      const signature = await EIP712.sign721(addrs[5].address, tokenId.toString(), tokenURI, [], erc721_proxy.address);
       const proxy = addrs[6];
       const tProxy = erc721_proxy.connect(proxy);
       await testingAsSigner5.setApprovalForAll(proxy.address, true, {from: addrs[5].address});
@@ -369,7 +368,7 @@ describe('GhostMarket ERC721 Test', function () {
     it('should work for mint and transfer with signature from creator', async function () {
       const tokenId = addrs[5].address + 'b00000000000000000000001';
       const tokenURI = BASE_URI + tokenId;
-      const signature = await sign721(addrs[5].address, tokenId.toString(), tokenURI, [], val.address);
+      const signature = await EIP712.sign721(addrs[5].address, tokenId.toString(), tokenURI, [], val.address);
       await testingAsSigner5.mintAndTransfer(
         {tokenId, tokenURI, minter: addrs[5].address, royalties: [], signature},
         addrs[1].address,
@@ -542,27 +541,5 @@ describe('GhostMarket ERC721 Test', function () {
 
   function expectEqualStringValues(value1: BigNumber | number | string, value2: BigNumber | number | string) {
     expect(value1.toString()).to.equal(value2.toString());
-  }
-
-  async function sign721(
-    account: string,
-    tokenId: string,
-    tokenURI: string,
-    royalties: {recipient: string; value: string}[],
-    verifyingContract: string
-  ): Promise<string> {
-    const chainId = Number(await hre.web3.eth.getChainId());
-    const data = EIP712.createTypeData(
-      {
-        name: 'Mint721',
-        chainId,
-        version: '1',
-        verifyingContract,
-      },
-      'Mint721',
-      {tokenId, tokenURI, minter: account, royalties},
-      TYPES_721
-    );
-    return (await EIP712.signTypedData(hre.web3, account, data)).sig;
   }
 });

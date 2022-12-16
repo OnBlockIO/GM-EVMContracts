@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import hre from 'hardhat';
 
 export const TYPES_721 = {
   Part: [
@@ -47,6 +48,51 @@ const DOMAIN_TYPE = [
 ];
 
 export default {
+  async sign721(
+    account: string,
+    tokenId: string,
+    tokenURI: string,
+    royalties: {recipient: string; value: string}[],
+    verifyingContract: string
+  ): Promise<string> {
+    const chainId = Number(await hre.web3.eth.getChainId());
+    const data = this.createTypeData(
+      {
+        name: 'Mint721',
+        chainId,
+        version: '1',
+        verifyingContract,
+      },
+      'Mint721',
+      {tokenId, tokenURI, minter: account, royalties},
+      TYPES_721
+    );
+    return (await this.signTypedData(hre.web3, account, data)).sig;
+  },
+
+  async sign1155(
+    account: string,
+    tokenId: string,
+    tokenURI: string,
+    amount: string,
+    royalties: {recipient: string; value: string}[],
+    verifyingContract: string
+  ): Promise<string> {
+    const chainId = Number(await hre.web3.eth.getChainId());
+    const data = this.createTypeData(
+      {
+        name: 'Mint1155',
+        chainId,
+        version: '1',
+        verifyingContract,
+      },
+      'Mint1155',
+      {tokenId, tokenURI, amount, minter: account, royalties},
+      TYPES_1155
+    );
+    return (await this.signTypedData(hre.web3, account, data)).sig;
+  },
+
   createTypeData(
     domainData: {name: string; version: string; chainId: number; verifyingContract: string},
     primaryType: string,

@@ -61,26 +61,4 @@ export function Order(
   };
 }
 
-export const Types = {
-  AssetType: [
-    {name: 'assetClass', type: 'bytes4'},
-    {name: 'data', type: 'bytes'},
-  ],
-  Asset: [
-    {name: 'assetType', type: 'AssetType'},
-    {name: 'value', type: 'uint256'},
-  ],
-  Order: [
-    {name: 'maker', type: 'address'},
-    {name: 'makeAsset', type: 'Asset'},
-    {name: 'taker', type: 'address'},
-    {name: 'takeAsset', type: 'Asset'},
-    {name: 'salt', type: 'uint256'},
-    {name: 'start', type: 'uint256'},
-    {name: 'end', type: 'uint256'},
-    {name: 'dataType', type: 'bytes4'},
-    {name: 'data', type: 'bytes'},
-  ],
-};
-
-export default {AssetType, Asset, Order, Types};
+export default {AssetType, Asset, Order};

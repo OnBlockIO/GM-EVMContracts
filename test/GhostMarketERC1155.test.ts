@@ -3,9 +3,8 @@ import {ethers, upgrades} from 'hardhat';
 import {GhostMarketERC1155, Mint1155ValidatorTest} from '../typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
 import {BigNumber} from 'ethers';
-import EIP712, {TYPES_1155} from '../src/mint/utils/EIP712';
+import EIP712 from '../src/mint/utils/EIP712';
 import {ZERO} from '../src/mint/utils/assets';
-import hre from 'hardhat';
 
 describe('GhostMarket ERC1155 Test', function () {
   const DATA = '0x';
@@ -277,7 +276,7 @@ describe('GhostMarket ERC1155 Test', function () {
     it('should work if signer is correct', async () => {
       const tokenId = await getLastTokenID(erc1155_proxy);
       const tokenURI = BASE_URI + tokenId;
-      const signature = await sign1155(
+      const signature = await EIP712.sign1155(
         addrs[0].address,
         tokenId.toString(),
         tokenURI,
@@ -298,7 +297,7 @@ describe('GhostMarket ERC1155 Test', function () {
     it('should fail if signer is incorrect', async () => {
       const tokenId = await getLastTokenID(erc1155_proxy);
       const tokenURI = BASE_URI + tokenId;
-      const signature = await sign1155(
+      const signature = await EIP712.sign1155(
         addrs[0].address,
         tokenId.toString(),
         tokenURI,
@@ -325,7 +324,7 @@ describe('GhostMarket ERC1155 Test', function () {
       await erc.__ERC1155Test_init();
       const tokenId = await getLastTokenID(erc1155_proxy);
       const tokenURI = BASE_URI + tokenId;
-      const signature = await sign1155(
+      const signature = await EIP712.sign1155(
         addrs[1].address,
         tokenId.toString(),
         tokenURI,
@@ -381,7 +380,7 @@ describe('GhostMarket ERC1155 Test', function () {
       await erc1155_lazy_proxy.addOperator(erc1155_proxy.address);
       const tokenId = addrs[5].address + 'b00000000000000000000001';
       const tokenURI = BASE_URI + tokenId;
-      const signature = await sign1155(
+      const signature = await EIP712.sign1155(
         addrs[5].address,
         tokenId.toString(),
         tokenURI,
@@ -417,7 +416,7 @@ describe('GhostMarket ERC1155 Test', function () {
     it('should work for mint and transfer with signature from creator', async function () {
       const tokenId = addrs[5].address + 'b00000000000000000000001';
       const tokenURI = BASE_URI + tokenId;
-      const signature = await sign1155(
+      const signature = await EIP712.sign1155(
         addrs[5].address,
         tokenId.toString(),
         tokenURI,
@@ -542,7 +541,7 @@ describe('GhostMarket ERC1155 Test', function () {
       expect(await erc1155_proxy.balanceOf(transferTo.address, tokenId)).to.equal(2);
       await testingAsSigner2.burn(transferTo.address, tokenId, 1, {from: transferTo.address}); // +2
       await testingAsSigner2.burn(transferTo.address, tokenId, 1, {from: transferTo.address}); // +1
-      const signature = await sign1155(
+      const signature = await EIP712.sign1155(
         minter.address,
         tokenId,
         tokenURI,
@@ -656,28 +655,5 @@ describe('GhostMarket ERC1155 Test', function () {
     if (ethers.BigNumber.from(counter).eq(ethers.BigNumber.from(0))) {
       return ethers.BigNumber.from(counter);
     } else return ethers.BigNumber.from(counter).sub(1);
-  }
-
-  async function sign1155(
-    account: string,
-    tokenId: string,
-    tokenURI: string,
-    amount: string,
-    royalties: {recipient: string; value: string}[],
-    verifyingContract: string
-  ): Promise<string> {
-    const chainId = Number(await hre.web3.eth.getChainId());
-    const data = EIP712.createTypeData(
-      {
-        name: 'Mint1155',
-        chainId,
-        version: '1',
-        verifyingContract,
-      },
-      'Mint1155',
-      {tokenId, tokenURI, amount, minter: account, royalties},
-      TYPES_1155
-    );
-    return (await EIP712.signTypedData(hre.web3, account, data)).sig;
   }
 });

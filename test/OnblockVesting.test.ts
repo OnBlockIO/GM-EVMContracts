@@ -2,9 +2,9 @@ import {expect} from '../utils/chai-setup';
 import {ethers, upgrades} from 'hardhat';
 import {GhostMarketToken, DeflationaryTokenTest, OnBlockVesting} from '../typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
+import {ZERO} from '../src/mint/utils/assets';
 
 describe('OnBlock Vesting Test', function () {
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   let owner: SignerWithAddress;
   let addrs: SignerWithAddress[];
   let gm_proxy: GhostMarketToken;
@@ -79,30 +79,30 @@ describe('OnBlock Vesting Test', function () {
     it('should create new fee update vote', async () => {
       const receipt = testingAsSigner1.requestVote(
         ethers.BigNumber.from('3'),
-        ZERO_ADDRESS,
+        ZERO,
         ethers.BigNumber.from('20000000'),
         {from: addrs[1].address}
       );
       await expect(receipt)
         .to.emit(obv, 'VoteRequested')
-        .withArgs(addrs[1].address, ZERO_ADDRESS, ethers.BigNumber.from('20000000'), ethers.BigNumber.from('3'));
+        .withArgs(addrs[1].address, ZERO, ethers.BigNumber.from('20000000'), ethers.BigNumber.from('3'));
     });
 
     it('should vote on new fee update vote and finish', async () => {
       const createReceipt = testingAsSigner1.requestVote(
         ethers.BigNumber.from('3'),
-        ZERO_ADDRESS,
+        ZERO,
         ethers.BigNumber.from('20000000'),
         {from: addrs[1].address}
       );
       await expect(createReceipt)
         .to.emit(obv, 'VoteRequested')
-        .withArgs(addrs[1].address, ZERO_ADDRESS, ethers.BigNumber.from('20000000'), ethers.BigNumber.from('3'));
+        .withArgs(addrs[1].address, ZERO, ethers.BigNumber.from('20000000'), ethers.BigNumber.from('3'));
 
       const voteReceipt = testingAsSigner2.vote(
         ethers.BigNumber.from('3'),
         addrs[1].address,
-        ZERO_ADDRESS,
+        ZERO,
         ethers.BigNumber.from('20000000'),
         {from: addrs[2].address}
       );
@@ -110,15 +110,15 @@ describe('OnBlock Vesting Test', function () {
         .to.emit(obv, 'Voted')
         .withArgs(
           addrs[2].address,
-          ZERO_ADDRESS,
-          ZERO_ADDRESS,
+          ZERO,
+          ZERO,
           ethers.BigNumber.from('20000000'),
           ethers.BigNumber.from('3')
         );
 
       const voteStateReceipt = testingAsSigner1.isVoteDone(
         ethers.BigNumber.from('3'),
-        ZERO_ADDRESS,
+        ZERO,
         ethers.BigNumber.from('20000000'),
         {from: addrs[1].address}
       );
@@ -126,7 +126,7 @@ describe('OnBlock Vesting Test', function () {
         .to.emit(obv, 'VoteState')
         .withArgs(
           addrs[1].address,
-          ZERO_ADDRESS,
+          ZERO,
           ethers.BigNumber.from('20000000'),
           ethers.BigNumber.from('2'),
           ethers.BigNumber.from('3'),
@@ -135,7 +135,7 @@ describe('OnBlock Vesting Test', function () {
 
       const voteState = await testingAsSigner1.isVoteDone(
         ethers.BigNumber.from('3'),
-        ZERO_ADDRESS,
+        ZERO,
         ethers.BigNumber.from('20000000'),
         {from: addrs[1].address}
       );
@@ -144,7 +144,7 @@ describe('OnBlock Vesting Test', function () {
       const voteReceipt2 = testingAsSigner3.vote(
         ethers.BigNumber.from('3'),
         addrs[1].address,
-        ZERO_ADDRESS,
+        ZERO,
         ethers.BigNumber.from('20000000'),
         {from: addrs[3].address}
       );
@@ -152,15 +152,15 @@ describe('OnBlock Vesting Test', function () {
         .to.emit(obv, 'Voted')
         .withArgs(
           addrs[3].address,
-          ZERO_ADDRESS,
-          ZERO_ADDRESS,
+          ZERO,
+          ZERO,
           ethers.BigNumber.from('20000000'),
           ethers.BigNumber.from('3')
         );
 
       const voteStateFinal = await testingAsSigner1.isVoteDone(
         ethers.BigNumber.from('3'),
-        ZERO_ADDRESS,
+        ZERO,
         ethers.BigNumber.from('20000000'),
         {from: addrs[1].address}
       );
