@@ -8,7 +8,7 @@ import '@openzeppelin/hardhat-upgrades';
 import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-web3';
 import {HardhatUserConfig} from 'hardhat/types';
-import {node_url, accounts} from './test/utils/network';
+import {node_url, accounts} from './utils/network';
 
 import {ETH_NODE_URI, TESTNET_PRIVATE_KEY, MAINNET_PRIVATE_KEY, ETHERSCAN_API_KEY} from './.secrets.json';
 
