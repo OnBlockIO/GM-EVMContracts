@@ -7,7 +7,7 @@ async function main() {
   // const {deployer} = await getNamedAccounts();
 
   const CHAIN = hre.network.name;
-  const PROXY = getSettings(CHAIN).incentive_proxy;
+  const PROXY = getSettings(CHAIN).erc721_token_proxy;
   const SKIP_CHECK_STORAGE = getSettings(CHAIN).skip_check_storage;
   if (!PROXY) return;
 
