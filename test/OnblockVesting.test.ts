@@ -624,9 +624,8 @@ describe('OnBlock Vesting Test', function () {
           beneficiary.amount
         );
         const receipt2 = obv.release(gm_proxy.address, addrs[2].address);
-        await expect(receipt2)
-          .to.emit(obv, 'Fulfilled')
-          /*.withArgs(ethers.BigNumber.from('1'), addrs[2].address, ethers.BigNumber.from('2'), beneficiary.amount);*/
+        await expect(receipt2).to.emit(obv, 'Fulfilled');
+        /*.withArgs(ethers.BigNumber.from('1'), addrs[2].address, ethers.BigNumber.from('2'), beneficiary.amount);*/
         // beneficiary is removed from mapping let's add it again
         await gm_proxy.approve(obv.address, 100);
         const allowance = await gm_proxy.allowance(owner.address, obv.address);

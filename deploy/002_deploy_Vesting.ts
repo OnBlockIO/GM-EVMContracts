@@ -1,14 +1,16 @@
-import {deployments, getNamedAccounts, getUnnamedAccounts} from 'hardhat';
-import {DeployFunction} from 'hardhat-deploy/dist/types';
+import hre, {deployments, getNamedAccounts, getUnnamedAccounts} from 'hardhat';
 
-const OnBlockVesting: DeployFunction = async function main() {
+async function main() {
   const {deploy} = deployments;
   const {deployer} = await getNamedAccounts();
   const users = await getUnnamedAccounts();
 
+  const CHAIN = hre.network.name;
   // to replace by custom voters before deploy - [address1, address2, address3, address4]
   const VOTERS = users.slice(0, 4);
   const VAULT_FEE = '1000000000000000';
+
+  console.log(`OnBlockVesting deployment on ${CHAIN} start`);
 
   const vesting = await deploy('OnBlockVesting', {
     contract: 'OnBlockVesting',
@@ -16,6 +18,9 @@ const OnBlockVesting: DeployFunction = async function main() {
     args: [VAULT_FEE, VOTERS],
   });
   console.log('OnBlockVesting deployed at: ', vesting.address);
-};
+}
 
-export default OnBlockVesting;
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

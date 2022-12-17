@@ -80,6 +80,7 @@ https://www.certik.com/projects/ghostmarket
 ## Technical Information
 Using OpenZeppelin contracts.
 - Upgradable ERC20/ERC721/ERC1155 smart contracts.
+- Upgradable lazy minting proxies smart contracts.
 - Upgradable LP staking smart contract.
 - Non-upgradable vesting smart contract.
 
@@ -104,7 +105,7 @@ hardhat run deploy/005_deploy_ERC1155.ts
 ```
 hardhat run --network <network_name> deploy/<deploy_script>.ts
 ```
-For local deployment ganache must be started and private keys saved into
+For deployment private keys must be saved into
 
 ```
 .secrets.json

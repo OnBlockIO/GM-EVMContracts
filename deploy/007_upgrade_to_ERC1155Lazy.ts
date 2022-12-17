@@ -1,13 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {getSettings} from '../.config';
-import hre, {deployments, ethers, upgrades} from 'hardhat';
-import {DeployFunction} from 'hardhat-deploy/dist/types';
+import hre, {deployments, ethers, getNamedAccounts, upgrades} from 'hardhat';
 
-const GhostMarketERC1155: DeployFunction = async function main() {
-  const {execute} = deployments;
+async function main() {
+  // const {execute} = deployments;
+  // const {deployer} = await getNamedAccounts();
 
   const CHAIN = hre.network.name;
-  const PROXY = getSettings(CHAIN).erc721_token_proxy;
+  const PROXY = getSettings(CHAIN).incentive_proxy;
+  const SKIP_CHECK_STORAGE = getSettings(CHAIN).skip_check_storage;
   if (!PROXY) return;
+
+  console.log(`GhostMarketERC1155V1 > GhostMarketERC1155 upgrade on ${CHAIN} start`);
+  console.log(`using transparent proxy: ${PROXY}`);
 
   const V1 = await ethers.getContractFactory('GhostMarketERC1155V1');
   const V2 = await ethers.getContractFactory('GhostMarketERC1155');
@@ -16,15 +21,17 @@ const GhostMarketERC1155: DeployFunction = async function main() {
   // await upgrades.forceImport(PROXY, V1, {kind: 'transparent'});
 
   // uncomment to validate upgrade
-  await upgrades.validateUpgrade(PROXY, V2, {kind: 'transparent'});
+  await upgrades.validateUpgrade(V1, V2, {kind: 'transparent', unsafeSkipStorageCheck: SKIP_CHECK_STORAGE});
 
   // upgrade
-  // await upgrades.upgradeProxy(PROXY, V2, {unsafeSkipStorageCheck: true});
-  // console.log('GhostMarketERC1155 upgraded');
+  await upgrades.upgradeProxy(PROXY, V2, {unsafeSkipStorageCheck: SKIP_CHECK_STORAGE});
+  console.log(`GhostMarketERC1155V1 > GhostMarketERC1155 upgrade on ${CHAIN} complete`);
 
-  // init new methods
-  // await execute('GhostMarketERC1155', {from: PROXY.address, log: true}, '__Mint1155Validator_init_unchained');
-  // console.log('__Mint1155Validator_init_unchained executed');
-};
+  // init new methods if required
+  // await execute('GhostMarketERC721', {from: deployer.address, log: true}, '__method_to_execute__');
+}
 
-export default GhostMarketERC1155;
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
