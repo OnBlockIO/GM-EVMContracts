@@ -1,6 +1,8 @@
 
 # GhostMarket Tokens Contracts
 
+[![codecov](https://codecov.io/github/OnBlockIO/evm-tokens-contracts/branch/master/graph/badge.svg?token=SHNSP3GCXL)](https://codecov.io/github/OnBlockIO/evm-tokens-contracts)
+
 ## Deployed Contracts on BSC:
 
 #### OnBlockVesting
