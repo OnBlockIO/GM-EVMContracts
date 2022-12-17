@@ -6,7 +6,6 @@ import '@typechain/hardhat';
 import 'solidity-coverage';
 import '@openzeppelin/hardhat-upgrades';
 import '@nomiclabs/hardhat-etherscan';
-import '@nomiclabs/hardhat-web3';
 import {HardhatUserConfig} from 'hardhat/types';
 import {node_url, accounts} from './utils/network';
 
@@ -89,24 +88,28 @@ const config: HardhatUserConfig = {
     bsc_testnet: {
       chainId: 97,
       url: ETH_NODE_URI,
+      accounts: TESTNET_PRIVATE_KEY,
       saveDeployments: true,
       tags: ['testnet'],
     },
     bsc_mainnet: {
       chainId: 56,
       url: ETH_NODE_URI,
+      accounts: MAINNET_PRIVATE_KEY,
       saveDeployments: true,
       tags: ['mainnet'],
     },
     avalanche_testnet: {
       chainId: 43113,
       url: ETH_NODE_URI,
+      accounts: TESTNET_PRIVATE_KEY,
       saveDeployments: true,
       tags: ['testnet'],
     },
     avalanche_mainnet: {
       chainId: 43114,
       url: ETH_NODE_URI,
+      accounts: MAINNET_PRIVATE_KEY,
       saveDeployments: true,
       tags: ['mainnet'],
     },
