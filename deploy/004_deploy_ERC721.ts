@@ -5,7 +5,7 @@ async function main() {
   const {deployer} = await getNamedAccounts();
 
   const CHAIN = hre.network.name;
-  const IS_MAINNET = true;
+  const IS_MAINNET = !CHAIN.includes('_testnet');
   const NAME = 'GhostMarket ERC721';
   const SYMBOL = 'GHOST';
   const API_PATH = IS_MAINNET ? 'api' : 'api-testnet';
