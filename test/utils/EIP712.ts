@@ -96,8 +96,16 @@ export default {
   createTypeData(
     domainData: {name: string; version: string; chainId: number; verifyingContract: string},
     primaryType: string,
-    message: any,
-    types: any
+    message:
+      | {tokenId: string; tokenURI: string; minter: string; royalties: {recipient: string; value: string}[]}
+      | {
+          tokenId: string;
+          tokenURI: string;
+          amount: string;
+          minter: string;
+          royalties: {recipient: string; value: string}[];
+        },
+    types: typeof TYPES_721 | typeof TYPES_1155
   ): any {
     return {
       types: Object.assign(
