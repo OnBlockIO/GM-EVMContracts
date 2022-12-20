@@ -613,7 +613,7 @@ describe('GhostMarket ERC1155 Test', function () {
       //caller is the minter
       await erc1155_proxy.getLockedContent(tokenId);
       await expect(testingAsSigner3.getLockedContent(tokenId, {from: addrs[3].address})).revertedWith(
-        'Caller must be the owner of the NFT'
+        'Caller must be the owner of the token'
       );
     });
 

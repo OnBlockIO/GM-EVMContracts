@@ -7,7 +7,12 @@ import "./../mint/interfaces/IERC1155LazyMint.sol";
 import "./../mint/librairies/LibERC1155LazyMint.sol";
 import "./../operator/OperatorRole.sol";
 
+/// @notice ERC1155 Lazy Mint Transfer Proxy Contract
 contract ERC1155LazyMintTransferProxy is OperatorRole, ITransferProxy {
+    /// @notice Transfer method for ERC1155 lazy minted nft
+    /// @param asset asset to transfer
+    /// @param from address to transfer from
+    /// @param to address to transfer to
     function transfer(LibAsset.Asset memory asset, address from, address to) external override onlyOperator {
         (address token, LibERC1155LazyMint.Mint1155Data memory data) = abi.decode(
             asset.assetType.data,

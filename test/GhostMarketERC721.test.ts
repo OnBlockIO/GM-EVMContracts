@@ -510,7 +510,7 @@ describe('GhostMarket ERC721 Test', function () {
     it('should revert if other then token owner tries to fetch locked content', async function () {
       erc721_proxy.mintGhost(addrs[1].address, [], 'ext_uri', hiddencontent);
       const tokenId = await erc721_proxy.getLastTokenID();
-      await expect(erc721_proxy.getLockedContent(tokenId)).revertedWith('Caller must be the owner of the NFT');
+      await expect(erc721_proxy.getLockedContent(tokenId)).revertedWith('Caller must be the owner of the token');
     });
 
     it('should revert if lock content is too long', async function () {

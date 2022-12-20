@@ -8,6 +8,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
+/// @notice Staking Pool for Dex Tokens Contract
 contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -43,21 +44,47 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
     // UserInfo for users that stake tokens (stakedToken)
     mapping(address => UserInfo) public userInfo;
 
+    /// @notice This event is emitted when an admin deposit rewards
+    /// @param amount amount deposited
     event AdminRewardDeposit(uint256 amount);
+
+    /// @notice This event is emitted when an admin withdraw rewards
+    /// @param amount amount withdrawn
     event AdminRewardWithdraw(uint256 amount);
+
+    /// @notice This event is emitted when a user deposit tokens
+    /// @param user user that triggered it
+    /// @param amount amount deposited
+    /// @param harvestedAmount amount of rewards harvested
     event Deposit(address indexed user, uint256 amount, uint256 harvestedAmount);
+
+    /// @notice This event is emitted when a user withdraw in emergency
+    /// @param user user that triggered it
+    /// @param amount amount withdrawn
     event EmergencyWithdraw(address indexed user, uint256 amount);
+
+    /// @notice This event is emitted when a user harvest rewards
+    /// @param user user that triggered it
+    /// @param harvestedAmount amount of rewards harvested
     event Harvest(address indexed user, uint256 harvestedAmount);
+
+    /// @notice This event is emitted when a new reward per block and end block is set
+    /// @param rewardPerBlock new reward per block
+    /// @param endBlock new end block
     event NewRewardPerBlockAndEndBlock(uint256 rewardPerBlock, uint256 endBlock);
+
+    /// @notice This event is emitted when a user withdraw tokens
+    /// @param user user that triggered it
+    /// @param amount amount withdrawn
+    /// @param harvestedAmount amount of rewards harvested
     event Withdraw(address indexed user, uint256 amount, uint256 harvestedAmount);
 
-    /**
-     * @param _stakedToken staked token address
-     * @param _ghostMarketToken reward token address
-     * @param _rewardPerBlock reward per block (in GM)
-     * @param _startBlock start block
-     * @param _endBlock end block
-     */
+    /// @notice Initialize the contract
+    /// @param _stakedToken staked token address
+    /// @param _ghostMarketToken reward token address
+    /// @param _rewardPerBlock reward per block (in ghostMarketToken)
+    /// @param _startBlock start block
+    /// @param _endBlock end block
     function initialize(
         address _stakedToken,
         address _ghostMarketToken,
@@ -74,10 +101,8 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         endBlock = _endBlock;
     }
 
-    /**
-     * @notice Deposit staked tokens and collect reward tokens (if any)
-     * @param amount amount to deposit (in stakedToken)
-     */
+    /// @notice Deposit staked tokens
+    /// @param amount amount to deposit (in stakedToken)
     function deposit(uint256 amount) external nonReentrant whenNotPaused {
         require(amount > 0, "Deposit: Amount must be > 0");
 
@@ -103,9 +128,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         emit Deposit(msg.sender, amount, pendingRewards);
     }
 
-    /**
-     * @notice Harvest tokens that are pending
-     */
+    /// @notice Harvest tokens that are pending
     function harvest() external nonReentrant whenNotPaused {
         _updatePool();
 
@@ -120,10 +143,8 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         emit Harvest(msg.sender, pendingRewards);
     }
 
-    /**
-     * @notice Withdraw staked tokens and give up rewards
-     * @dev Only for emergency. It does not update the pool.
-     */
+    /// @notice Withdraw staked tokens and give up rewards
+    /// @dev only for emergency. it does not update the pool.
     function emergencyWithdraw() external nonReentrant whenPaused {
         uint256 userBalance = userInfo[msg.sender].amount;
 
@@ -138,10 +159,8 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         emit EmergencyWithdraw(msg.sender, userBalance);
     }
 
-    /**
-     * @notice Withdraw staked tokens and collect reward tokens
-     * @param amount amount to withdraw (in stakedToken)
-     */
+    /// @notice Withdraw staked tokens and collect reward tokens
+    /// @param amount amount to withdraw (in stakedToken)
     function withdraw(uint256 amount) external nonReentrant whenNotPaused {
         require(
             (userInfo[msg.sender].amount >= amount) && (amount > 0),
@@ -165,37 +184,29 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         emit Withdraw(msg.sender, amount, pendingRewards);
     }
 
-    /**
-     * @notice Withdraw rewards (for admin)
-     * @param amount amount to withdraw (in ghostMarketToken)
-     * @dev Only callable by owner.
-     */
+    /// @notice Withdraw rewards (for admin)
+    /// @param amount amount to withdraw (in ghostMarketToken)
+    /// @dev only callable by owner
     function adminRewardWithdraw(uint256 amount) external onlyOwner whenNotPaused {
         ghostMarketToken.safeTransfer(msg.sender, amount);
 
         emit AdminRewardWithdraw(amount);
     }
 
-    /**
-     * @notice Pause
-     * It allows calling emergencyWithdraw
-     */
+    /// @notice Pause
+    /// @dev it allows calling emergencyWithdraw
     function pause() external onlyOwner whenNotPaused {
         _pause();
     }
 
-    /**
-     * @notice Unpause
-     */
+    /// @notice Unpause
     function unpause() external onlyOwner whenPaused {
         _unpause();
     }
 
-    /**
-     * @notice Update reward per block and the end block
-     * @param newRewardPerBlock the new reward per block
-     * @param newEndBlock the new end block
-     */
+    /// @notice Update reward per block and the end block
+    /// @param newRewardPerBlock new reward per block
+    /// @param newEndBlock new end block
     function updateRewardPerBlockAndEndBlock(
         uint256 newRewardPerBlock,
         uint256 newEndBlock
@@ -212,10 +223,8 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         emit NewRewardPerBlockAndEndBlock(newRewardPerBlock, newEndBlock);
     }
 
-    /**
-     * @notice Top up rewards pool
-     * @param amount amount to withdraw (in ghostMarketToken)
-     */
+    /// @notice Top up rewards pool
+    /// @param amount amount to withdraw (in ghostMarketToken)
     function adminRewardDeposit(uint256 amount) external onlyOwner whenNotPaused {
         require(amount > 0, "UpdateRewards: Amount must be > 0");
 
@@ -226,11 +235,9 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         emit AdminRewardDeposit(amount);
     }
 
-    /**
-     * @notice View function to see pending reward on frontend.
-     * @param user address of the user
-     * @return Pending reward
-     */
+    /// @notice View function to see pending reward on frontend
+    /// @param user address of the user
+    /// @return pending rewards
     function calculatePendingRewards(address user) external view whenNotPaused returns (uint256) {
         uint256 stakedTokenSupply = stakedToken.balanceOf(address(this));
 
@@ -245,9 +252,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         }
     }
 
-    /**
-     * @notice Update reward variables of the pool to be up-to-date.
-     */
+    /// @notice Update reward variables of the pool to be up-to-date
     function _updatePool() internal {
         if (block.number <= lastRewardBlock) {
             return;
@@ -274,12 +279,10 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         }
     }
 
-    /**
-     * @notice Return reward multiplier over the given "from" to "to" block.
-     * @param from block to start calculating reward
-     * @param to block to finish calculating reward
-     * @return the multiplier for the period
-     */
+    /// @notice Return reward multiplier over the given "from" to "to" block
+    /// @param from block to start calculating reward
+    /// @param to block to finish calculating reward
+    /// @return multiplier for the period
     function _getMultiplier(uint256 from, uint256 to) internal view returns (uint256) {
         if (to <= endBlock) {
             return to - from;
