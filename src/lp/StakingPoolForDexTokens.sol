@@ -237,7 +237,7 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
 
     /// @notice View function to see pending reward on frontend
     /// @param user address of the user
-    /// @return pending rewards
+    /// @return rewards pending rewards
     function calculatePendingRewards(address user) external view whenNotPaused returns (uint256) {
         uint256 stakedTokenSupply = stakedToken.balanceOf(address(this));
 

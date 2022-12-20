@@ -50,7 +50,7 @@ contract GhostMarketToken is Initializable, ERC20Upgradeable, OwnableUpgradeable
     }
 
     /// @notice Return decimals of the contract
-    /// @return decimals of the contract
+    /// @return decimals decimals of the contract
     function decimals() public view override returns (uint8) {
         return _decimals;
     }

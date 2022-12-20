@@ -217,19 +217,19 @@ contract OnBlockVesting is ReentrancyGuard {
     }
 
     /// @notice Return active vaults in the contract
-    /// @return active vaults
+    /// @return vaults active vaults
     function getActiveVaults() external view returns (IERC20[] memory) {
         return activeVaults;
     }
 
     /// @notice Return vault fee in the contract
-    /// @return vault fee
+    /// @return fee vault fee
     function getVaultFee() external view returns (uint256) {
         return vaultFee;
     }
 
     /// @notice Return voter status of an address
-    /// @return voter status
+    /// @return status voter status
     function isVoter(address address_) external view returns (bool) {
         return activeVoters[address_];
     }
@@ -238,7 +238,7 @@ contract OnBlockVesting is ReentrancyGuard {
     /// @param action action of vote
     /// @param voteAddress address of vote
     /// @param fee fee of vote
-    /// @return vote status
+    /// @return status boolean value for transaction activity
     function finalizeVote(VoteAction action, address voteAddress, uint256 fee) private onlyVoter returns (bool) {
         if (action == VoteAction.WITHDRAW || action == VoteAction.ADDVOTER || action == VoteAction.REMOVEVOTER) {
             Vote storage activeVote;
@@ -269,7 +269,7 @@ contract OnBlockVesting is ReentrancyGuard {
     /// @param action action of vote
     /// @param voteAddress address of vote
     /// @param fee fee of vote
-    /// @return vote status
+    /// @return status vote status
     function isVoteDone(VoteAction action, address voteAddress, uint256 fee) public onlyVoter returns (bool) {
         uint256 voteResult = 0;
         if (action == VoteAction.WITHDRAW || action == VoteAction.ADDVOTER || action == VoteAction.REMOVEVOTER) {
@@ -382,14 +382,14 @@ contract OnBlockVesting is ReentrancyGuard {
     }
 
     /// @notice Return fee balance
-    /// @return fee balance
+    /// @return fee fee balance
     function feeBalance() external view returns (uint256) {
         return feeSum;
     }
 
     /// @notice Create a new vault
     /// @param token_ token to create a vault for
-    /// @return vault id
+    /// @return vaultId vault id
     function createVault(IERC20 token_) external payable returns (uint256) {
         require(vaults[token_].id == 0, "Vault exists already");
         require(msg.value >= vaultFee, "Not enough fee attached");
@@ -496,7 +496,7 @@ contract OnBlockVesting is ReentrancyGuard {
     /// @notice Return beneficiary details
     /// @param token_ token to query
     /// @param account_ address to query
-    /// @return beneficiary details
+    /// @return beneficiary beneficiary details
     function getBeneficiary(IERC20 token_, address account_) private view returns (Beneficiary storage) {
         Vault storage entity = vaults[token_];
         Beneficiary storage beneficiary = entity.beneficiaries[account_];
@@ -504,7 +504,7 @@ contract OnBlockVesting is ReentrancyGuard {
     }
 
     /// @notice Return current ID
-    /// @return current ID
+    /// @return currentId current ID
     function getID() private returns (uint256) {
         return ++idCounter;
     }
@@ -512,7 +512,7 @@ contract OnBlockVesting is ReentrancyGuard {
     /// @notice Return beneficiary details
     /// @param token_ token to query
     /// @param account_ address to query
-    /// @return beneficiary details
+    /// @return beneficiary beneficiary details
     function readBeneficiary(IERC20 token_, address account_) external view returns (Beneficiary memory) {
         Vault storage vault = vaults[token_];
         return vault.beneficiaries[account_];
@@ -555,7 +555,7 @@ contract OnBlockVesting is ReentrancyGuard {
 
     /// @notice Return vested amount for an account
     /// @param beneficiary beneficiary to use
-    /// @return vested amount
+    /// @return vestedAmount vested amount
     function vestedAmount(Beneficiary memory beneficiary) private view returns (uint256) {
         if (block.timestamp < beneficiary.cliff || block.timestamp < beneficiary.startTime) {
             return 0;

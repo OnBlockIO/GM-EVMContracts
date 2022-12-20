@@ -114,7 +114,7 @@ contract GhostMarketERC1155 is
     /// @notice Return interface support for an interface id
     /// @dev See {IERC165-supportsInterface}.
     /// @param interfaceId interface id to query
-    /// @return interface id support status
+    /// @return status interface id support status
     function supportsInterface(
         bytes4 interfaceId
     )

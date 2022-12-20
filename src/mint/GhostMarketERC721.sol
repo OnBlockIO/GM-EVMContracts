@@ -86,7 +86,7 @@ contract GhostMarketERC721 is
     /// @notice Return interface support for an interface id
     /// @dev See {IERC165-supportsInterface}.
     /// @param interfaceId interface id to query
-    /// @return interface id support status
+    /// @return status interface id support status
     function supportsInterface(
         bytes4 interfaceId
     )
@@ -210,21 +210,21 @@ contract GhostMarketERC721 is
 
     /// @notice Return locked content view count for a token
     /// @param tokenId token to query
-    /// @return locked content view count
+    /// @return count locked content view count
     function getCurrentLockedContentViewTracker(uint256 tokenId) external view returns (uint256) {
         return _lockedContentViewTracker[tokenId];
     }
 
     /// @notice Return royalties for a token
     /// @param tokenId token to query
-    /// @return token royalties details
+    /// @return royalties token royalties details
     function getRoyalties(uint256 tokenId) external view returns (LibPart.Part[] memory) {
         return _royalties[tokenId];
     }
 
     /// @notice Return royalties recipients for a token
     /// @param tokenId token to query
-    /// @return token royalties recipients details
+    /// @return recipient token royalties recipients details
     function getRoyaltiesRecipients(uint256 tokenId) external view returns (address payable[] memory) {
         LibPart.Part[] memory royalties = _royalties[tokenId];
         address payable[] memory result = new address payable[](royalties.length);
@@ -238,7 +238,7 @@ contract GhostMarketERC721 is
     /// @notice Return royalties bps for a token
     /// @dev fee basis points 10000 = 100%
     /// @param tokenId token to query
-    /// @return token royalties bps details
+    /// @return bps token royalties bps details
     function getRoyaltiesBps(uint256 tokenId) external view returns (uint256[] memory) {
         LibPart.Part[] memory royalties = _royalties[tokenId];
         uint256[] memory result = new uint256[](royalties.length);
