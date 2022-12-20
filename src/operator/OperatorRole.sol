@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /// @notice Operator Role Contract
 contract OperatorRole is OwnableUpgradeable {
+    /// @notice address to operators mapping
     mapping(address => bool) public operators;
 
     /// @notice Initialize the contract

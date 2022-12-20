@@ -10,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /// @notice GhostMarket Token Contract
 contract GhostMarketToken is Initializable, ERC20Upgradeable, OwnableUpgradeable, PausableUpgradeable {
+    /// @notice decimals of the contract
     uint8 private _decimals;
 
     /// @notice Initialize the contract

@@ -23,13 +23,13 @@ contract GhostMarketERC721V2 is
         uint256 value;
     }
 
-    // tokenId => royalties array
+    /// @notice tokenId to royalties mapping
     mapping(uint256 => LibPart.Part[]) internal _royalties;
 
-    // tokenId => locked content array
+    /// @notice tokenId to locked content mapping
     mapping(uint256 => string) internal _lockedContent;
 
-    // tokenId => locked content view counter array
+    /// @notice tokenId to locked content view counter mapping
     mapping(uint256 => uint256) internal _lockedContentViewTracker;
 
     // @dev deprecated

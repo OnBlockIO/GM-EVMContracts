@@ -10,12 +10,18 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 contract OnBlockVesting is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
+    /// @notice seconds per day
     uint256 private constant SECONDS_PER_DAY = 86400;
+    /// @notice ten years in days
     uint256 private constant TEN_YRS_DAYS = 3650;
+    /// @notice ten years in seconds
     uint256 private constant TEN_YRS_SECONDS = TEN_YRS_DAYS * SECONDS_PER_DAY;
+    /// @notice max vault fee
     uint256 private constant MAX_VAULT_FEE = 1000000000000000000; // max 1 unit native currency
 
+    /// @notice contract name
     string public constant name = "OnBlockVesting";
+    /// @notice contract version
     string public constant version = "v1.0";
 
     enum LockType {
@@ -67,23 +73,31 @@ contract OnBlockVesting is ReentrancyGuard {
         mapping(address => bytes32) results;
     }
 
-    // votes
+    /// @notice address to votes mapping
     mapping(address => Vote) public votes;
 
-    // Mapping to hold all vaults
+    /// @notice token to vaults mapping
     mapping(IERC20 => Vault) private vaults;
 
-    // active voters
+    /// @notice active voters
     address[] public voters;
+
+    /// @notice address to activeVoters mapping
     mapping(address => bool) public activeVoters;
 
-    // Array to track all active token vaults
+    /// @notice active vaults
     IERC20[] private activeVaults;
 
-    // Globals
+    /// @notice id counter
     uint256 private idCounter;
+
+    /// @notice vault fee
     uint256 private vaultFee;
+
+    /// @notice fee sum
     uint256 private feeSum;
+
+    /// @notice min votes for approval
     uint256 private minVotesForApproval;
 
     // Events

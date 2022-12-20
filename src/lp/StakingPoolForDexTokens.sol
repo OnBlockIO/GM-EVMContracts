@@ -17,31 +17,31 @@ contract StakingPoolForDexTokens is Initializable, OwnableUpgradeable, PausableU
         uint256 rewardDebt; // Reward debt
     }
 
-    // Precision factor for reward calculation
+    /// @notice precision factor for reward calculation
     uint256 public constant PRECISION_FACTOR = 10 ** 12;
 
-    // GM token (token distributed)
+    /// @notice address of reward token
     IERC20Upgradeable public ghostMarketToken;
 
-    // The staked token (ex Uniswap WETH/GM LP token)
+    /// @notice address of staked token
     IERC20Upgradeable public stakedToken;
 
-    // Block number when rewards start
+    /// @notice block number for rewards start
     uint256 public startBlock;
 
-    // Accumulated tokens per share
+    /// @notice accumulated tokens per share
     uint256 public accTokenPerShare;
 
-    // Block number when rewards end
+    /// @notice block number for rewards end
     uint256 public endBlock;
 
-    // Block number of the last update
+    /// @notice block number for last updated
     uint256 public lastRewardBlock;
 
-    // Tokens distributed per block (in ghostMarketToken)
+    /// @notice tokens rewards per block
     uint256 public rewardPerBlock;
 
-    // UserInfo for users that stake tokens (stakedToken)
+    /// @notice address to userInfo mapping
     mapping(address => UserInfo) public userInfo;
 
     /// @notice This event is emitted when an admin deposit rewards
