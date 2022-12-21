@@ -2,46 +2,11 @@
 
 pragma solidity ^0.8.9;
 
-import "./ERC1155PresetMinterPauserUpgradeableCustom.sol";
+import "./GhostMarketERC1155Storage.sol";
 import "./Mint1155Validator.sol";
-import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpgradeable.sol";
 
 /// @notice GhostMarket ERC1155 contract with minting, burning, pause, royalties & lock content functions.
-contract GhostMarketERC1155 is
-    Initializable,
-    ERC1155PresetMinterPauserUpgradeableCustom,
-    ReentrancyGuardUpgradeable,
-    OwnableUpgradeable,
-    ERC165StorageUpgradeable,
-    Mint1155Validator
-{
-    /// @notice contract name
-    string public name;
-    /// @notice contract symbol
-    string public symbol;
-
-    // dev @deprecated
-    struct Royalty {
-        address payable recipient;
-        uint256 value;
-    }
-
-    /// @notice tokenId to royalties mapping
-    mapping(uint256 => LibPart.Part[]) internal _royalties;
-
-    /// @notice tokenId to locked content mapping
-    mapping(uint256 => string) internal _lockedContent;
-
-    /// @notice tokenId to locked content view counter mapping
-    mapping(uint256 => uint256) internal _lockedContentViewTracker;
-
-    // @dev deprecated
-    mapping(uint256 => string) internal _metadataJson;
-
+contract GhostMarketERC1155 is GhostMarketERC1155Storage, Mint1155Validator {
     // events
     /// @notice This event is emitted when a token locked content is viewed
     /// @param msgSender user that triggered it
@@ -70,25 +35,13 @@ contract GhostMarketERC1155 is
     /// @param amounts amounts of tokens burned
     event BurnLazyBatch(address indexed operator, address indexed account, uint256[] ids, uint256[] amounts);
 
-    // @dev deprecated
-    uint256 internal _payedMintFeesBalance;
-
-    // @dev deprecated
-    uint256 internal _ghostmarketMintFees;
-
-    // @dev deprecated
-    bytes4 public constant _INTERFACE_ID_ERC1155_GHOSTMARKET = bytes4(keccak256("_INTERFACE_ID_ERC1155_GHOSTMARKET"));
-
-    /**
-     * bytes4(keccak256(_GHOSTMARKET_NFT_ROYALTIES)) == 0xe42093a6
-     */
-    bytes4 public constant _GHOSTMARKET_NFT_ROYALTIES = bytes4(keccak256("_GHOSTMARKET_NFT_ROYALTIES"));
+    using CountersUpgradeable for CountersUpgradeable.Counter;
 
     /// @notice Initialize the contract
     /// @param _name contract name
     /// @param _symbol contract symbol
     /// @param uri contract uri
-    function initialize(string memory _name, string memory _symbol, string memory uri) public virtual initializer {
+    function initialize(string memory _name, string memory _symbol, string memory uri) public initializer {
         __Context_init_unchained();
         __ERC165_init_unchained();
         __AccessControl_init_unchained();
@@ -106,24 +59,11 @@ contract GhostMarketERC1155 is
         __Mint1155Validator_init_unchained();
     }
 
-    using CountersUpgradeable for CountersUpgradeable.Counter;
-
-    // _tokenIdTracker to generate automated token IDs
-    CountersUpgradeable.Counter private _tokenIdTracker;
-
     /// @notice Return interface support for an interface id
     /// @dev See {IERC165-supportsInterface}.
     /// @param interfaceId interface id to query
     /// @return status interface id support status
-    function supportsInterface(
-        bytes4 interfaceId
-    )
-        public
-        view
-        virtual
-        override(ERC1155PresetMinterPauserUpgradeableCustom, ERC165StorageUpgradeable)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
@@ -338,6 +278,4 @@ contract GhostMarketERC1155 is
     function getCurrentCounter() external view returns (uint256) {
         return _tokenIdTracker.current();
     }
-
-    uint256[50] private __gap;
 }

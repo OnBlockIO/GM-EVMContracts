@@ -14,5 +14,5 @@ contract Mint1155Validator is ERC1271Validator {
         validate1271(account, hash, signature);
     }
 
-    uint256[50] private __gap;
+    uint256[48] private __gap;
 }

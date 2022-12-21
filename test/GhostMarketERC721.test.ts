@@ -65,15 +65,22 @@ describe('GhostMarket ERC721 Test', function () {
     expect(await erc721_proxy.owner()).to.equal(addrs[1].address);
   });
 
-  it.skip('should be able to upgrade from legacy to new contract', async function () {
-    const GhostMarketERC721V2_ContractFactory = await ethers.getContractFactory('GhostMarketERC721');
-    //upgrade
-    await upgrades.upgradeProxy(erc721_proxy.address, GhostMarketERC721V2_ContractFactory);
+  it('should be able to upgrade from legacy to new contract', async function () {
+    const GhostMarketERC721V1_ContractFactory = await ethers.getContractFactory('GhostMarketERC721V1');
+    const GhostMarketERC721_ContractFactory = await ethers.getContractFactory('GhostMarketERC721');
+
+    const ghostMarketERC721 = await upgrades.deployProxy(
+      GhostMarketERC721V1_ContractFactory,
+      [TOKEN_NAME, TOKEN_SYMBOL, BASE_URI],
+      {initializer: 'initialize', unsafeAllowCustomTypes: true}
+    );
+
+    await upgrades.upgradeProxy(ghostMarketERC721.address, GhostMarketERC721_ContractFactory);
   });
 
   it('should be able to upgrade from new contract to another new one', async function () {
     const GhostMarketERC721_ContractFactory = await ethers.getContractFactory('GhostMarketERC721');
-    const GhostMarketERC721V2_ContractFactory = await ethers.getContractFactory('GhostMarketERC721V2');
+    const GhostMarketERC721V10_ContractFactory = await ethers.getContractFactory('GhostMarketERC721V10');
 
     const ghostMarketERC721 = await upgrades.deployProxy(
       GhostMarketERC721_ContractFactory,
@@ -82,17 +89,17 @@ describe('GhostMarket ERC721 Test', function () {
     );
 
     //upgrade
-    const ghostMarketERC721V2 = await upgrades.upgradeProxy(
+    const ghostMarketERC721V10 = await upgrades.upgradeProxy(
       ghostMarketERC721.address,
-      GhostMarketERC721V2_ContractFactory
+      GhostMarketERC721V10_ContractFactory
     );
 
     //test new function
-    expect(await ghostMarketERC721V2.getSomething()).to.equal(10);
+    expect(await ghostMarketERC721V10.getSomething()).to.equal(10);
 
     //name and symbol should be the same
-    expect((await ghostMarketERC721V2.name()).toString()).to.equal(TOKEN_NAME);
-    expect((await ghostMarketERC721V2.symbol()).toString()).to.equal(TOKEN_SYMBOL);
+    expect((await ghostMarketERC721V10.name()).toString()).to.equal(TOKEN_NAME);
+    expect((await ghostMarketERC721V10.symbol()).toString()).to.equal(TOKEN_SYMBOL);
   });
 
   it('should be able to pause/unpause contract', async () => {

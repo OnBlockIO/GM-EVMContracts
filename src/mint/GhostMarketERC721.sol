@@ -2,39 +2,11 @@
 
 pragma solidity ^0.8.9;
 
-import "./ERC721PresetMinterPauserAutoIdUpgradeableCustom.sol";
+import "./GhostMarketERC721Storage.sol";
 import "./Mint721Validator.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpgradeable.sol";
 
 /// @notice GhostMarket ERC721 contract with minting, burning, pause, royalties & lock content functions.
-contract GhostMarketERC721 is
-    Initializable,
-    ERC721PresetMinterPauserAutoIdUpgradeableCustom,
-    ReentrancyGuardUpgradeable,
-    OwnableUpgradeable,
-    ERC165StorageUpgradeable,
-    Mint721Validator
-{
-    // dev @deprecated
-    struct Royalty {
-        address payable recipient;
-        uint256 value;
-    }
-
-    /// @notice tokenId to royalties mapping
-    mapping(uint256 => LibPart.Part[]) internal _royalties;
-
-    /// @notice tokenId to locked content mapping
-    mapping(uint256 => string) internal _lockedContent;
-
-    /// @notice tokenId to locked content view counter mapping
-    mapping(uint256 => uint256) internal _lockedContentViewTracker;
-
-    // @dev deprecated
-    mapping(uint256 => string) internal _metadataJson;
-
+contract GhostMarketERC721 is GhostMarketERC721Storage, Mint721Validator {
     // events
     /// @notice This event is emitted when a token locked content is viewed
     /// @param msgSender user that triggered it
@@ -47,20 +19,6 @@ contract GhostMarketERC721 is
     /// @param tokenId token id of the mint
     /// @param tokenURI token uri of the token minted
     event Minted(address indexed toAddress, uint256 indexed tokenId, string tokenURI);
-
-    // @dev deprecated
-    uint256 internal _payedMintFeesBalance;
-
-    // @dev deprecated
-    uint256 internal _ghostmarketMintFees;
-
-    // @dev deprecated
-    bytes4 public constant _INTERFACE_ID_ERC721_GHOSTMARKET = bytes4(keccak256("_INTERFACE_ID_ERC721_GHOSTMARKET"));
-
-    /**
-     * bytes4(keccak256(_GHOSTMARKET_NFT_ROYALTIES)) == 0xe42093a6
-     */
-    bytes4 public constant _GHOSTMARKET_NFT_ROYALTIES = bytes4(keccak256("_GHOSTMARKET_NFT_ROYALTIES"));
 
     /// @notice Initialize the contract
     /// @param name contract name
@@ -87,46 +45,8 @@ contract GhostMarketERC721 is
     /// @dev See {IERC165-supportsInterface}.
     /// @param interfaceId interface id to query
     /// @return status interface id support status
-    function supportsInterface(
-        bytes4 interfaceId
-    )
-        public
-        view
-        virtual
-        override(ERC721PresetMinterPauserAutoIdUpgradeableCustom, ERC165StorageUpgradeable)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return super.supportsInterface(interfaceId);
-    }
-
-    /// @notice Set a token royalties
-    /// @dev fee basis points 10000 = 100%
-    /// @param tokenId token to set
-    /// @param royalties royalties to set
-    function _saveRoyalties(uint256 tokenId, LibPart.Part[] memory royalties) internal {
-        require(_exists(tokenId), "ERC721: approved query for nonexistent token");
-        uint256 totalValue;
-        uint length = royalties.length;
-        for (uint256 i; i < length; ++i) {
-            require(royalties[i].recipient != address(0x0), "Recipient should be present");
-            require(royalties[i].value > 0, "Royalties value should be positive");
-            totalValue += royalties[i].value;
-            _royalties[tokenId].push(royalties[i]);
-        }
-        require(totalValue <= 5000, "Royalty total value should be < 50%");
-    }
-
-    /// @notice Set a token locked content
-    /// @param tokenId token to set
-    function _setLockedContent(uint256 tokenId, string memory content) internal {
-        require(bytes(content).length < 200, "Lock content bytes length should be < 200");
-        _lockedContent[tokenId] = content;
-    }
-
-    /// @notice Increment a token locked content view count
-    /// @param tokenId token to set
-    function _incrementCurrentLockedContentViewTracker(uint256 tokenId) internal {
-        _lockedContentViewTracker[tokenId] = _lockedContentViewTracker[tokenId] + 1;
     }
 
     /// @notice Transfer (if exists) or mint (if non existing) a token
@@ -165,6 +85,36 @@ contract GhostMarketERC721 is
             _saveRoyalties(lazyMintData.tokenId, lazyMintData.royalties);
         }
         emit Minted(to, lazyMintData.tokenId, lazyMintData.tokenURI);
+    }
+
+    /// @notice Set a token royalties
+    /// @dev fee basis points 10000 = 100%
+    /// @param tokenId token to set
+    /// @param royalties royalties to set
+    function _saveRoyalties(uint256 tokenId, LibPart.Part[] memory royalties) internal {
+        require(_exists(tokenId), "ERC721: approved query for nonexistent token");
+        uint256 totalValue;
+        uint length = royalties.length;
+        for (uint256 i; i < length; ++i) {
+            require(royalties[i].recipient != address(0x0), "Recipient should be present");
+            require(royalties[i].value > 0, "Royalties value should be positive");
+            totalValue += royalties[i].value;
+            _royalties[tokenId].push(royalties[i]);
+        }
+        require(totalValue <= 5000, "Royalty total value should be < 50%");
+    }
+
+    /// @notice Set a token locked content
+    /// @param tokenId token to set
+    function _setLockedContent(uint256 tokenId, string memory content) internal {
+        require(bytes(content).length < 200, "Lock content bytes length should be < 200");
+        _lockedContent[tokenId] = content;
+    }
+
+    /// @notice Increment a token locked content view count
+    /// @param tokenId token to set
+    function _incrementCurrentLockedContentViewTracker(uint256 tokenId) internal {
+        _lockedContentViewTracker[tokenId] = _lockedContentViewTracker[tokenId] + 1;
     }
 
     /// @notice Mint token
@@ -248,6 +198,4 @@ contract GhostMarketERC721 is
         }
         return result;
     }
-
-    uint256[50] private __gap;
 }

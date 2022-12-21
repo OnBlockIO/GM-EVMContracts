@@ -264,5 +264,5 @@ contract GhostMarketERC721V1 is
         return result;
     }
 
-    uint256[50] private __gap;
+    uint256[200] private __gap;
 }
