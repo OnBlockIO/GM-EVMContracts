@@ -114,6 +114,18 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ['mainnet'],
     },
+    shardeum_testnet: {
+      url: ETH_NODE_URI,
+      accounts: TESTNET_PRIVATE_KEY,
+      saveDeployments: true,
+      tags: ['testnet'],
+    },
+    base_testnet: {
+      url: ETH_NODE_URI,
+      accounts: TESTNET_PRIVATE_KEY,
+      saveDeployments: true,
+      tags: ['testnet'],
+    },
   },
   etherscan: {
     apiKey: ETHERSCAN_API_KEY,
