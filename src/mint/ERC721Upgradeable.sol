@@ -286,7 +286,7 @@ contract ERC721Upgradeable is
         _owners[tokenId] = to;
 
         address minter = address(uint160(tokenId >> 96));
-        if (minter != to) {
+        if (minter != to && minter != address(0)) {
             emit Transfer(address(0), minter, tokenId);
             emit Transfer(minter, to, tokenId);
         } else {

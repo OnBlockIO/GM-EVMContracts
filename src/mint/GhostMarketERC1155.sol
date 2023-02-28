@@ -157,7 +157,7 @@ contract GhostMarketERC1155 is GhostMarketERC1155Storage, Mint1155Validator {
 
         mint(to, lazyMintData.tokenId, _amount, "");
 
-        if (minter != to) {
+        if (minter != to && minter != address(0)) {
             emit TransferSingle(sender, address(0), minter, lazyMintData.tokenId, _amount);
             emit TransferSingle(sender, minter, to, lazyMintData.tokenId, _amount);
         } else {
