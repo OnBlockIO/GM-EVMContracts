@@ -18,4 +18,6 @@ abstract contract ERC1271 {
      * MUST allow external calls
      */
     function isValidSignature(bytes32 _hash, bytes memory _signature) public view virtual returns (bytes4);
+
+    uint256[50] private __gap;
 }

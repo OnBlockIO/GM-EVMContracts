@@ -114,9 +114,55 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ['mainnet'],
     },
+    shardeum_testnet: {
+      url: ETH_NODE_URI,
+      accounts: TESTNET_PRIVATE_KEY,
+      saveDeployments: true,
+      tags: ['testnet'],
+    },
+    shardeum_mainnet: {
+      url: ETH_NODE_URI,
+      accounts: MAINNET_PRIVATE_KEY,
+      saveDeployments: true,
+      tags: ['mainnet'],
+    },
+    base_testnet: {
+      url: ETH_NODE_URI,
+      accounts: TESTNET_PRIVATE_KEY,
+      saveDeployments: true,
+      tags: ['testnet'],
+    },
+    base_mainnet: {
+      url: ETH_NODE_URI,
+      accounts: MAINNET_PRIVATE_KEY,
+      saveDeployments: true,
+      tags: ['mainnet'],
+    },
+    neoevm_testnet: {
+      url: ETH_NODE_URI,
+      accounts: TESTNET_PRIVATE_KEY,
+      saveDeployments: true,
+      tags: ['testnet'],
+    },
+    neoevm_mainnet: {
+      url: ETH_NODE_URI,
+      accounts: MAINNET_PRIVATE_KEY,
+      saveDeployments: true,
+      tags: ['mainnet'],
+    },
   },
   etherscan: {
     apiKey: ETHERSCAN_API_KEY,
+    customChains: [
+      {
+        network: "base-mainnet",
+        chainId: 8453,
+        urls: {
+         apiURL: "https://api.basescan.org/api",
+         browserURL: "https://basescan.org"
+        }
+      }
+    ]
   },
   paths: {
     sources: 'src',

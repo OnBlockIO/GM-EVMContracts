@@ -451,5 +451,5 @@ contract ERC1155Upgradeable is
         return array;
     }
 
-    uint256[47] private __gap;
+    uint256[45] private __gap;
 }

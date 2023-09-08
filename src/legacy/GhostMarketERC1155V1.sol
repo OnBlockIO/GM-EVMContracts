@@ -281,5 +281,5 @@ contract GhostMarketERC1155V1 is
         return _tokenIdTracker.current();
     }
 
-    uint256[50] private __gap;
+    uint256[200] private __gap;
 }
