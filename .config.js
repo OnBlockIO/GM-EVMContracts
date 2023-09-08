@@ -85,6 +85,72 @@ const bsc_testnet = {
   skip_check_storage: false,
 };
 
+const base_testnet = {
+  blocks_per_day: 28800,
+  start_block: 0,
+  lp_token: '',
+  gm_token_proxy: '',
+  erc721_token_proxy: '',
+  erc1155_token_proxy: '',
+  lp_staking_proxy: '',
+  skip_check_storage: false,
+};
+
+const shardeum_testnet = {
+  blocks_per_day: 28800,
+  start_block: 0,
+  lp_token: '',
+  gm_token_proxy: '',
+  erc721_token_proxy: '',
+  erc1155_token_proxy: '',
+  lp_staking_proxy: '',
+  skip_check_storage: false,
+};
+
+const shardeum_mainnet = {
+  blocks_per_day: 28800,
+  start_block: 0,
+  lp_token: '',
+  gm_token_proxy: '',
+  erc721_token_proxy: '',
+  erc1155_token_proxy: '',
+  lp_staking_proxy: '',
+  skip_check_storage: false,
+};
+
+const base_mainnet = {
+  blocks_per_day: 28800,
+  start_block: 0,
+  lp_token: '',
+  gm_token_proxy: '',
+  erc721_token_proxy: '',
+  erc1155_token_proxy: '',
+  lp_staking_proxy: '',
+  skip_check_storage: false,
+};
+
+const neoevm_testnet = {
+  blocks_per_day: 28800,
+  start_block: 0,
+  lp_token: '',
+  gm_token_proxy: '',
+  erc721_token_proxy: '',
+  erc1155_token_proxy: '',
+  lp_staking_proxy: '',
+  skip_check_storage: false,
+};
+
+const neoevm_mainnet = {
+  blocks_per_day: 28800,
+  start_block: 0,
+  lp_token: '',
+  gm_token_proxy: '',
+  erc721_token_proxy: '',
+  erc1155_token_proxy: '',
+  lp_staking_proxy: '',
+  skip_check_storage: false,
+};
+
 let settings = {
   eth_mainnet: eth_mainnet,
   eth_testnet: eth_testnet,
@@ -94,6 +160,12 @@ let settings = {
   polygon_testnet: polygon_testnet,
   bsc_mainnet: bsc_mainnet,
   bsc_testnet: bsc_testnet,
+  base_mainnet: base_mainnet,
+  base_testnet: base_testnet,
+  shardeum_mainnet: shardeum_mainnet,
+  shardeum_testnet: shardeum_testnet,
+  neoevm_mainnet: neoevm_mainnet,
+  neoevm_testnet: neoevm_testnet,
 };
 
 function getSettings(network) {
