@@ -15,7 +15,7 @@ https://bscscan.com/address/0xf41db445d7eaf45536985ce185ce131fa4b42e68
 https://bscscan.com/address/0x44c5ce28c29934b71a2a0447745d551dfc7b5133
 
 #### GhostMarketToken
-https://bscscan.com/address/0x0B53b5dA7d0F275C31a6A182622bDF02474aF253
+https://bscscan.com/address/0xe5c85b60ff243cfdb067be4078e477ac04b594e9
 
 ## Deployed Contracts on Polygon:
 
@@ -26,7 +26,7 @@ https://polygonscan.com/address/0x068bef92987d16ef682ff017b822ca1211401eaf
 https://polygonscan.com/address/0xf1c82f5ddb4f1a6a8f3eed2eb25fc39fc6d33fb3
 
 #### GhostMarketToken
-https://polygonscan.com/address/0x6a335AC6A3cdf444967Fe03E7b6B273c86043990
+https://polygonscan.com/address/0xffcd553464a00d7b30a48960611e5032f544700a
 
 ## Deployed Contracts on Avalanche:
 
@@ -37,12 +37,12 @@ https://snowtrace.io/address/0x068bef92987d16ef682ff017b822ca1211401eaf
 https://snowtrace.io/address/0xdcdab251151c345ad527851eca783521ea3209e0
 
 #### GhostMarketToken
-https://snowtrace.io/address/0x0B53b5dA7d0F275C31a6A182622bDF02474aF253
+https://snowtrace.io/address/0x99aeecf3717ec6b369d847e3d62d14e14251e4d4
 
 ## Deployed Contracts on Ethereum:
 
 #### GhostMarketToken
-https://etherscan.com/address/0x35609dC59E15d03c5c865507e1348FA5abB319A8
+https://etherscan.com/address/0x203aad20f51bbe43e650d3ceea88d43dd6c817c1
 
 ## Audit
 https://www.certik.com/projects/ghostmarket
