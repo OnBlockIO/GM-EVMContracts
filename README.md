@@ -15,7 +15,7 @@ https://bscscan.com/address/0xf41db445d7eaf45536985ce185ce131fa4b42e68
 https://bscscan.com/address/0x44c5ce28c29934b71a2a0447745d551dfc7b5133
 
 #### GhostMarketToken
-https://bscscan.com/address/0xe5c85b60ff243cfdb067be4078e477ac04b594e9
+https://bscscan.com/address/0xbba0f2f541809a85c18dd0106080076a0ba21b2b
 
 ## Deployed Contracts on Polygon:
 
