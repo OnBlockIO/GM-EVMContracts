@@ -114,6 +114,13 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ['mainnet'],
     },
+    neoevm_testnet: {
+      chainId: 12227329,
+      url: ETH_NODE_URI,
+      accounts: TESTNET_PRIVATE_KEY,
+      saveDeployments: true,
+      tags: ['testnet'],
+    },
   },
   etherscan: {
     apiKey: ETHERSCAN_API_KEY,
