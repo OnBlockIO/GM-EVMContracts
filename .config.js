@@ -85,6 +85,17 @@ const bsc_testnet = {
   skip_check_storage: false,
 };
 
+const base_testnet = {
+  blocks_per_day: 0,
+  start_block: 0,
+  lp_token: '',
+  gm_token_proxy: '0x9b7E1a760751De8251e9F1ad09eD9039D4B7A676',
+  erc721_token_proxy: '0xf4A769C4E756685fa8B124993709Fa7BbED7Fe3a',
+  erc1155_token_proxy: '0xBc3b298948182b9FFc448602C4E52d72F93E141D',
+  lp_staking_proxy: '',
+  skip_check_storage: false,
+};
+
 let settings = {
   eth_mainnet: eth_mainnet,
   eth_testnet: eth_testnet,

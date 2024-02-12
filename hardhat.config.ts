@@ -86,6 +86,18 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ['mainnet'],
     },
+    base_testnet: {
+      url: ETH_NODE_URI,
+      accounts: TESTNET_PRIVATE_KEY,
+      saveDeployments: true,
+      tags: ['testnet'],
+    },
+    base_mainnet: {
+      url: ETH_NODE_URI,
+      accounts: MAINNET_PRIVATE_KEY,
+      saveDeployments: true,
+      tags: ['mainnet'],
+    },
     bsc_testnet: {
       chainId: 97,
       url: ETH_NODE_URI,
@@ -114,9 +126,34 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ['mainnet'],
     },
+    neoevm_testnet: {
+      chainId: 12227330,
+      url: ETH_NODE_URI,
+      accounts: TESTNET_PRIVATE_KEY,
+      saveDeployments: true,
+      tags: ['testnet'],
+    },
   },
   etherscan: {
     apiKey: ETHERSCAN_API_KEY,
+    customChains: [
+      {
+        network: 'base_testnet',
+        chainId: 84532,
+        urls: {
+          apiURL: 'https://api-sepolia.basescan.org/api',
+          browserURL: 'https://sepolia.basescan.org',
+        },
+      },
+      {
+        network: 'base-mainnet',
+        chainId: 8453,
+        urls: {
+          apiURL: 'https://api.basescan.org/api',
+          browserURL: 'https://basescan.org',
+        },
+      },
+    ],
   },
   paths: {
     sources: 'src',
