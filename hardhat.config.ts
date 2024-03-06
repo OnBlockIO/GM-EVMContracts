@@ -59,7 +59,7 @@ const config: HardhatUserConfig = {
       tags: ['testnet_nodeploy'],
     },
     ethereum_testnet: {
-      chainId: 5,
+      chainId: 11155111,
       url: ETH_NODE_URI,
       accounts: TESTNET_PRIVATE_KEY,
       saveDeployments: true,
