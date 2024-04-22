@@ -1,7 +1,7 @@
 {
   "name": "evm-tokens-contracts",
   "version": "1.0.0",
-  "description": "GhostMarket tokens smart contracts",
+  "description": "GhostMarket EVM tokens smart contracts",
   "engines": {
     "node": ">= 16.16.0"
   },
