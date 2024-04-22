@@ -127,7 +127,14 @@ const config: HardhatUserConfig = {
       tags: ['mainnet'],
     },
     neoevm_testnet: {
-      chainId: 12227330,
+      chainId: 12227331,
+      url: ETH_NODE_URI,
+      accounts: TESTNET_PRIVATE_KEY,
+      saveDeployments: true,
+      tags: ['testnet'],
+    },
+    shardeum_testnet: {
+      chainId: 8082,
       url: ETH_NODE_URI,
       accounts: TESTNET_PRIVATE_KEY,
       saveDeployments: true,
