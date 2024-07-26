@@ -107,6 +107,17 @@ const neoevm_testnet = {
   skip_check_storage: false,
 };
 
+const neoevm_mainnet = {
+  blocks_per_day: 0,
+  start_block: 0,
+  lp_token: '',
+  gm_token_proxy: '0x42bD1B1c84aD8Cf576D25FCd86A7EFbE2752Fe02',
+  erc721_token_proxy: '0x0B53b5dA7d0F275C31a6A182622bDF02474aF253',
+  erc1155_token_proxy: '0x35609dC59E15d03c5c865507e1348FA5abB319A8',
+  lp_staking_proxy: '',
+  skip_check_storage: false,
+};
+
 let settings = {
   eth_mainnet: eth_mainnet,
   eth_testnet: eth_testnet,
@@ -118,6 +129,7 @@ let settings = {
   bsc_testnet: bsc_testnet,
   base_testnet: base_testnet,
   neoevm_testnet: neoevm_testnet,
+  neoevm_mainnet: neoevm_mainnet,
 };
 
 function getSettings(network) {
