@@ -44,6 +44,17 @@ https://snowtrace.io/address/0x99aeecf3717ec6b369d847e3d62d14e14251e4d4
 #### GhostMarketToken
 https://etherscan.com/address/0x203aad20f51bbe43e650d3ceea88d43dd6c817c1
 
+## Deployed Contracts on Neo X:
+
+#### GhostMarketERC721
+https://xexplorer.neo.org/token/0x0B53b5dA7d0F275C31a6A182622bDF02474aF253
+
+#### GhostMarketERC1155
+https://xexplorer.neo.org/token/0x35609dC59E15d03c5c865507e1348FA5abB319A8
+
+#### GhostMarketToken
+https://xexplorer.neo.org/token/0x42bD1B1c84aD8Cf576D25FCd86A7EFbE2752Fe02
+
 ## Audit
 https://www.certik.com/projects/ghostmarket
 
